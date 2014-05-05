@@ -20,7 +20,13 @@
     :game-id game-id
     :player1 player1-id
     :player2 player2-id
-    :us us}])
+    :us us
+    :deck (->> (d/q '{:find [?e ?id]
+                      :where [[?e :card/location :location/deck]
+                              [?e :dom/id ?id]]}
+                    db)
+               (sort-by first)
+               (map second))}])
 
 (defn deal [db game-id discard-card our-cards]
   (into [[:db.fn/call log-event :deal game-id discard-card our-cards]]
