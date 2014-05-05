@@ -1,12 +1,18 @@
 (ns gin.game-panel
-  (:require [gin.transact :as t]
+  (:require [cljs.core.async :refer [<! put! chan close!]]
+            [gin.transact :as t]
             [datascript :as d]
             [gin.datascript-helpers :as dh]
             [goog.dom :as gdom]
             [gin.dom-helpers :as dom]
             [goog.async.AnimationDelay]
             [goog.events :as events]
-            [goog.fx.Dragger :as fxdrag]))
+            [goog.fx.Dragger :as fxdrag]
+            [goog.net.ImageLoader :as gnet-image-loader])
+  (:require-macros [cljs.core.async.macros :refer [go]]))
+
+(defn set-msg [msg]
+  (dom/set-text (dom/get-element "msg") msg))
 
 (defn in-rect [rect [x y]]
   (and (>= x (. rect -left))
@@ -122,31 +128,36 @@
 (defmethod handle :deal
   [event [game-id] {:keys [db-after] :as report} conn]
   (let [game (dh/entity-lookup db-after [:game-id game-id])
+        _ (.log js/console "game" (pr-str game))
         opp-cards-el (map #(:dom/card-el (dh/entity-lookup db-after [:dom/id %])) (:their-cards game))
         our-cards-es (map #(dh/entity-lookup db-after [:dom/id %]) (:our-cards game))
-        ;;our-cards
-        ;;discard-el
-        ;;discard
-        ;;discard-position
+        discard (dh/entity-lookup db-after [:dom/id (first (:discards game))])
+
         [their-region-offset-x their-region-offset-y] (let [p (dom/get-position (dom/get-element "their_region"))]
-                                                        [(.-x p) (.-y p)])
+                                                        [(+ 10 (.-x p)) (+ 10 (.-y p))])
+        discard-position (let [p (dom/get-position (dom/get-element "discard_pile"))]
+                           [(+ 12 (.-x p)) (+ 12 (.-y p))])
+        [our-region-offset-x our-region-offset-y] (let [p (dom/get-position (dom/get-element "our_region"))]
+                                                    [(+ 10 (.-x p)) (+ 10 (.-y p))])
         ]
-    (.log js/console "our-cards-el+card counts" (count our-cards-el+card))
+    (.log js/console "their-cards " (count opp-cards-el))
+    (.log js/console "our-cards-es" (pr-str our-cards-es))
+    (.log js/console "discard: " (pr-str discard))
       (dom/schedule (concat (mapcat #(concat
                                       [(fn [] (dom/show-on-top %2))]
-                                      (dom/slide-from %2 [(+ their-region-offset-x 10 (* %1 53)) (+ their-region-offset-y 10 (* %1 4))]))
+                                      (dom/slide-from %2 [(+ their-region-offset-x (* %1 53)) (+ their-region-offset-y (* %1 4))]))
                                     (range)
                                     opp-cards-el)
                             (mapcat (fn [idx {el :dom/card-el suit :card/suit rank :card/rank}]
                                       (concat
                                        [(fn [] (dom/show-on-top el))]
-                                       (dom/slide-from el [(+ 44 (* idx 53)) (+ 306 (* idx 4))])
+                                       (dom/slide-from el [(+ our-region-offset-x (* idx 53)) (+ our-region-offset-y (* idx 4))])
                                        [(fn [] (dom/set-card-class el (str (name suit) "_" (name rank))))]))
                                     (range)
                                     our-cards-es)
-                            #_(concat [(fn [] (dom/show-on-top discard-el))]
-                                      (dom/slide-from discard-el discard-position)
-                                      [(fn [] (set-card discard-el discard))]))))
+                            (concat [(fn [] (dom/show-on-top (:dom/card-el discard)))]
+                                    (dom/slide-from (:dom/card-el discard) discard-position)
+                                    [(fn [] (dom/set-card-class (:dom/card-el discard) (str (name (:card/suit discard)) "_" (name (:card/rank discard)))))]))))
   )
 
 (defmethod handle :turn-assigned
@@ -186,10 +197,6 @@
 
 (defn draw-table []
   (doto (dom/get-element "game-panel")
-    (dom/append (dom/build (into [:div {:class "card card_back offscreen_loading"}]
-                                 (for [suit ["diamond" "club" "heart" "spade"]
-                                       rank "AKQJT98765432"]
-                                   [:div {:class (str "card " suit "_" rank) }]))))
     (dom/append (dom/build [:div {:id "table"}
                             [:div {:id "their_region"
                                    :class "region their_region"}]
@@ -200,7 +207,38 @@
                                    :class "region our_region"}]]))
     (dom/append (dom/build [:div.msg {:id "msg"}]))))
 
+(defn load-images []
+  ;; addImage id src
+  (let [c (chan)
+        image-loader (goog.net.ImageLoader.)
+        done (atom 0)
+        updater (events/listen image-loader goog.events.EventType.LOAD
+                               (fn [e]
+                                 (set-msg (str "Loading image [" (swap! done inc) "/53]"))))]
+    (. image-loader (addImage "/public/images/b.png" "/public/images/b.png"))
+    (doseq [img-loc (for [suit ["diamond" "club" "heart" "spade"]
+                          rank "AKQJT98765432"]
+                      (str "/public/images/" suit "_" rank ".png"))]
+      (. image-loader (addImage img-loc img-loc)))
+    (events/listenOnce image-loader
+                       goog.net.EventType.COMPLETE
+                       (fn []
+                         (events/unlistenByKey updater)
+                         (set-msg "")
+                         (close! c)))
+    (set-msg "Loading images [0/53]")
+    (. image-loader (start))
+    c))
+
 (defn start-game-panel [conn]
-  (draw-table)
-  (d/listen! conn (fn [report]
-                    (render report conn))))
+  ;; todo do go loop here to only do one render per time, also add
+  ;; image-loader and call back
+  (let [ch (chan 50)]
+    (d/listen! conn (fn [report]
+                      (put! ch report)))
+    (draw-table)
+    (go (<! (load-images))
+        (loop []
+          (when-let [report (<! ch)]
+            (render report conn)
+            (recur))))))

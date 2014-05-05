@@ -5,7 +5,7 @@ body {
 
 #game-panel {
     width: 580px;
-    margin: 70px 0 0 30px;
+    margin: 70px 0 0 0px;
 }
 
 .region {
@@ -38,10 +38,10 @@ body {
 }
 
 .discard_pile {
-    width: 79px;
-    height: 104px;
-    margin-top: 20px;
-    margin-right: 160px;
+    width: 96px;
+    height: 121px;
+    margin-top: 11px;
+    margin-right: 150px;
     padding: 4px;
     border: 1px solid grey;
     float: right;
@@ -62,11 +62,6 @@ body {
     cursor: move;
 }
 /*** card images ***/
-.offscreen_loading {
-    top: 0px;
-    left: -1000px;
-}
-
 .spade_A {
     background-image: url('../images/spade_A.png');
 }
@@ -82,28 +77,28 @@ body {
 .spade_T {
     background-image: url('../images/spade_T.png');
 }
-.spade_9 {
+.spade_r9 {
     background-image: url('../images/spade_9.png');
 }
-.spade_8 {
+.spade_r8 {
     background-image: url('../images/spade_8.png');
 }
-.spade_7 {
+.spade_r7 {
     background-image: url('../images/spade_7.png');
 }
-.spade_6 {
+.spade_r6 {
     background-image: url('../images/spade_6.png');
 }
-.spade_5 {
+.spade_r5 {
     background-image: url('../images/spade_5.png');
 }
-.spade_4 {
+.spade_r4 {
     background-image: url('../images/spade_4.png');
 }
-.spade_3 {
+.spade_r3 {
     background-image: url('../images/spade_3.png');
 }
-.spade_2 {
+.spade_r2 {
     background-image: url('../images/spade_2.png');
 }
 .spade_A {
@@ -121,28 +116,28 @@ body {
 .spade_T {
     background-image: url('../images/spade_T.png');
 }
-.spade_9 {
+.spade_r9 {
     background-image: url('../images/spade_9.png');
 }
-.spade_8 {
+.spade_r8 {
     background-image: url('../images/spade_8.png');
 }
-.spade_7 {
+.spade_r7 {
     background-image: url('../images/spade_7.png');
 }
-.spade_6 {
+.spade_r6 {
     background-image: url('../images/spade_6.png');
 }
-.spade_5 {
+.spade_r5 {
     background-image: url('../images/spade_5.png');
 }
-.spade_4 {
+.spade_r4 {
     background-image: url('../images/spade_4.png');
 }
-.spade_3 {
+.spade_r3 {
     background-image: url('../images/spade_3.png');
 }
-.spade_2 {
+.spade_r2 {
     background-image: url('../images/spade_2.png');
 }
 .club_A {
@@ -160,28 +155,28 @@ body {
 .club_T {
     background-image: url('../images/club_T.png');
 }
-.club_9 {
+.club_r9 {
     background-image: url('../images/club_9.png');
 }
-.club_8 {
+.club_r8 {
     background-image: url('../images/club_8.png');
 }
-.club_7 {
+.club_r7 {
     background-image: url('../images/club_7.png');
 }
-.club_6 {
+.club_r6 {
     background-image: url('../images/club_6.png');
 }
-.club_5 {
+.club_r5 {
     background-image: url('../images/club_5.png');
 }
-.club_4 {
+.club_r4 {
     background-image: url('../images/club_4.png');
 }
-.club_3 {
+.club_r3 {
     background-image: url('../images/club_3.png');
 }
-.club_2 {
+.club_r2 {
     background-image: url('../images/club_2.png');
 }
 .heart_A {
@@ -199,28 +194,28 @@ body {
 .heart_T {
     background-image: url('../images/heart_T.png');
 }
-.heart_9 {
+.heart_r9 {
     background-image: url('../images/heart_9.png');
 }
-.heart_8 {
+.heart_r8 {
     background-image: url('../images/heart_8.png');
 }
-.heart_7 {
+.heart_r7 {
     background-image: url('../images/heart_7.png');
 }
-.heart_6 {
+.heart_r6 {
     background-image: url('../images/heart_6.png');
 }
-.heart_5 {
+.heart_r5 {
     background-image: url('../images/heart_5.png');
 }
-.heart_4 {
+.heart_r4 {
     background-image: url('../images/heart_4.png');
 }
-.heart_3 {
+.heart_r3 {
     background-image: url('../images/heart_3.png');
 }
-.heart_2 {
+.heart_r2 {
     background-image: url('../images/heart_2.png');
 }
 .diamond_A {
@@ -238,28 +233,28 @@ body {
 .diamond_T {
     background-image: url('../images/diamond_T.png');
 }
-.diamond_9 {
+.diamond_r9 {
     background-image: url('../images/diamond_9.png');
 }
-.diamond_8 {
+.diamond_r8 {
     background-image: url('../images/diamond_8.png');
 }
-.diamond_7 {
+.diamond_r7 {
     background-image: url('../images/diamond_7.png');
 }
-.diamond_6 {
+.diamond_r6 {
     background-image: url('../images/diamond_6.png');
 }
-.diamond_5 {
+.diamond_r5 {
     background-image: url('../images/diamond_5.png');
 }
-.diamond_4 {
+.diamond_r4 {
     background-image: url('../images/diamond_4.png');
 }
-.diamond_3 {
+.diamond_r3 {
     background-image: url('../images/diamond_3.png');
 }
-.diamond_2 {
+.diamond_r2 {
     background-image: url('../images/diamond_2.png');
 }
 

@@ -56,7 +56,7 @@
     (.setTimeout js/window (fn []
                              (d/transact! conn [[:db.fn/call t/game-created "game-id-1" "pone" "ptwo" :player1]])
                              (d/transact! conn [[:db.fn/call t/deal "game-id-1" {:suit :heart :rank :A}
-                                                 (for [r [:r2 :r3 :r4 :r5 :r6 :r7 :r8 :r9 :T]]
+                                                 (for [r [:r2 :r3 :r4 :r5 :r6 :r7 :r8 :r9 :T :J]]
                                                    {:suit :spade
                                                     :rank r})]])
                              (.setTimeout js/window (fn []
