@@ -1,0 +1,341 @@
+body {
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 10pt;
+}
+
+#game-panel {
+    width: 580px;
+    margin: 70px 0 0 30px;
+}
+
+.region {
+    border: 1px solid grey;
+    padding: 5px;
+    width: 570px;
+    height: 155px;
+}
+
+.their_region {}
+
+.our_region {}
+
+.region_hover {
+    background-color: #25587E;
+}
+
+.pile_row {
+    height: 143px;
+}
+
+
+.deck {
+    width: 80px;
+    height: 100px;
+    margin-top: 19px;
+    margin-left: 160px;
+    padding: 4px;
+    float: left;
+}
+
+.discard_pile {
+    width: 79px;
+    height: 104px;
+    margin-top: 20px;
+    margin-right: 160px;
+    padding: 4px;
+    border: 1px solid grey;
+    float: right;
+}
+
+.card {
+    width: 71px;
+    height: 96px;
+    display: block;
+    position: absolute;
+}
+
+.cursor_hand {
+    cursor: pointer;
+}
+
+.cursor_drag {
+    cursor: move;
+}
+/*** card images ***/
+.spade_A {
+    background-image: url('../images/spade_A.png');
+}
+.spade_K {
+    background-image: url('../images/spade_K.png');
+}
+.spade_Q {
+    background-image: url('../images/spade_Q.png');
+}
+.spade_J {
+    background-image: url('../images/spade_J.png');
+}
+.spade_T {
+    background-image: url('../images/spade_T.png');
+}
+.spade_9 {
+    background-image: url('../images/spade_9.png');
+}
+.spade_8 {
+    background-image: url('../images/spade_8.png');
+}
+.spade_7 {
+    background-image: url('../images/spade_7.png');
+}
+.spade_6 {
+    background-image: url('../images/spade_6.png');
+}
+.spade_5 {
+    background-image: url('../images/spade_5.png');
+}
+.spade_4 {
+    background-image: url('../images/spade_4.png');
+}
+.spade_3 {
+    background-image: url('../images/spade_3.png');
+}
+.spade_2 {
+    background-image: url('../images/spade_2.png');
+}
+.spade_A {
+    background-image: url('../images/spade_A.png');
+}
+.spade_K {
+    background-image: url('../images/spade_K.png');
+}
+.spade_Q {
+    background-image: url('../images/spade_Q.png');
+}
+.spade_J {
+    background-image: url('../images/spade_J.png');
+}
+.spade_T {
+    background-image: url('../images/spade_T.png');
+}
+.spade_9 {
+    background-image: url('../images/spade_9.png');
+}
+.spade_8 {
+    background-image: url('../images/spade_8.png');
+}
+.spade_7 {
+    background-image: url('../images/spade_7.png');
+}
+.spade_6 {
+    background-image: url('../images/spade_6.png');
+}
+.spade_5 {
+    background-image: url('../images/spade_5.png');
+}
+.spade_4 {
+    background-image: url('../images/spade_4.png');
+}
+.spade_3 {
+    background-image: url('../images/spade_3.png');
+}
+.spade_2 {
+    background-image: url('../images/spade_2.png');
+}
+.club_A {
+    background-image: url('../images/club_A.png');
+}
+.club_K {
+    background-image: url('../images/club_K.png');
+}
+.club_Q {
+    background-image: url('../images/club_Q.png');
+}
+.club_J {
+    background-image: url('../images/club_J.png');
+}
+.club_T {
+    background-image: url('../images/club_T.png');
+}
+.club_9 {
+    background-image: url('../images/club_9.png');
+}
+.club_8 {
+    background-image: url('../images/club_8.png');
+}
+.club_7 {
+    background-image: url('../images/club_7.png');
+}
+.club_6 {
+    background-image: url('../images/club_6.png');
+}
+.club_5 {
+    background-image: url('../images/club_5.png');
+}
+.club_4 {
+    background-image: url('../images/club_4.png');
+}
+.club_3 {
+    background-image: url('../images/club_3.png');
+}
+.club_2 {
+    background-image: url('../images/club_2.png');
+}
+.heart_A {
+    background-image: url('../images/heart_A.png');
+}
+.heart_K {
+    background-image: url('../images/heart_K.png');
+}
+.heart_Q {
+    background-image: url('../images/heart_Q.png');
+}
+.heart_J {
+    background-image: url('../images/heart_J.png');
+}
+.heart_T {
+    background-image: url('../images/heart_T.png');
+}
+.heart_9 {
+    background-image: url('../images/heart_9.png');
+}
+.heart_8 {
+    background-image: url('../images/heart_8.png');
+}
+.heart_7 {
+    background-image: url('../images/heart_7.png');
+}
+.heart_6 {
+    background-image: url('../images/heart_6.png');
+}
+.heart_5 {
+    background-image: url('../images/heart_5.png');
+}
+.heart_4 {
+    background-image: url('../images/heart_4.png');
+}
+.heart_3 {
+    background-image: url('../images/heart_3.png');
+}
+.heart_2 {
+    background-image: url('../images/heart_2.png');
+}
+.diamond_A {
+    background-image: url('../images/diamond_A.png');
+}
+.diamond_K {
+    background-image: url('../images/diamond_K.png');
+}
+.diamond_Q {
+    background-image: url('../images/diamond_Q.png');
+}
+.diamond_J {
+    background-image: url('../images/diamond_J.png');
+}
+.diamond_T {
+    background-image: url('../images/diamond_T.png');
+}
+.diamond_9 {
+    background-image: url('../images/diamond_9.png');
+}
+.diamond_8 {
+    background-image: url('../images/diamond_8.png');
+}
+.diamond_7 {
+    background-image: url('../images/diamond_7.png');
+}
+.diamond_6 {
+    background-image: url('../images/diamond_6.png');
+}
+.diamond_5 {
+    background-image: url('../images/diamond_5.png');
+}
+.diamond_4 {
+    background-image: url('../images/diamond_4.png');
+}
+.diamond_3 {
+    background-image: url('../images/diamond_3.png');
+}
+.diamond_2 {
+    background-image: url('../images/diamond_2.png');
+}
+
+.card_back {
+    background-image: url('../images/b.png');
+}
+.msg {
+    width: 570px;
+    height: 30px;
+    padding: 5px;
+    margin-top: 5px;
+    border: 1px solid grey;
+}
+
+
+/* debug watch table */
+.watch_table {
+    display: block;
+    width: 290px;
+}
+.watch_table_card {
+    float: left;
+    width: 20px;
+    height: 20px;
+    border: 1px solid black;
+}
+.watch_table_our_card {
+    float: left;
+    width: 20px;
+    height: 20px;
+    border: 1px solid black;
+    background-color: green;
+}
+.watch_table_discard {
+    float: left;
+    width: 20px;
+    height: 20px;
+    border: 1px solid black;
+    background-color: orange;
+}
+.watch_table_discards {
+    float: left;
+    width: 20px;
+    height: 20px;
+    border: 1px solid black;
+    background-color: yellow;
+}
+.watch_table_opp_card {
+    float: left;
+    width: 20px;
+    height: 20px;
+    border: 1px solid black;
+    background-color: blue;
+}
+.watch_table_gone_card {
+    float: left;
+    width: 20px;
+    height: 20px;
+    border: 1px solid black;
+    background-color: white;
+}
+.watch_table_gin_size {
+    float: left;
+    width: 284px;
+    height: 15px;
+    border: 1px solid black;
+    background-color: white;
+}
+.restart_button {
+    display: block;
+    float: right;
+    width: 80px;
+    height: 20px;
+    padding-left: 15px;
+    color: white;
+    background-color: #25587E;
+    cursor: pointer;
+}
+
+#about {
+    width: 560px;
+    margin: 10px 0 0 30px;
+    background-color: #F5F5DC;
+}
