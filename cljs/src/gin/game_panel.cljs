@@ -186,6 +186,10 @@
 
 (defn draw-table []
   (doto (dom/get-element "game-panel")
+    (dom/append (dom/build (into [:div {:class "card card_back offscreen_loading"}]
+                                 (for [suit ["diamond" "club" "heart" "spade"]
+                                       rank "AKQJT98765432"]
+                                   [:div {:class (str "card " suit "_" rank) }]))))
     (dom/append (dom/build [:div {:id "table"}
                             [:div {:id "their_region"
                                    :class "region their_region"}]
