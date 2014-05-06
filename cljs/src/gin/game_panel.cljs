@@ -30,6 +30,10 @@
                "Your turn. Draw a card or pickup a discard."
                "Opponent to move."))))
 
+(defmethod msg :pile-picked
+  [_ _ _ _]
+  (set-msg "You've chosen a card from the deck."))
+
 (defmethod msg :discard-picked
   [_ _ _ _]
   (set-msg "Drag a card from your hand to discard."))
@@ -89,15 +93,12 @@
              (when-not (in-our-region (. pos -x) (. pos -y))
                (set-drag-handler card-el (pile-drag-handler conn))
                (dom/remove-class (dom/get-element "our_region") "region_hover")
-                     )))
+               )))
    :drag-end (fn [card-id event]
                (let [card-el (dom/get-element card-id)]
                  (dom/add-remove-class card-el "cursor_hand" "cursor_drag")
                  (dom/remove-class (dom/get-element "our_region") "region_hover")
-                 ;; todo transact this
-                 ;;(set-drag-handler card-el (home-region-handler conn))
-                 ;;(to-our-discard-move-from-pile card-id)
-                 
+                 (d/transact! conn [[:db.fn/call t/pile-picked card-id]])
                  ))})
 
 (defn pile-drag-handler [conn]
@@ -151,8 +152,6 @@
                  (dom/add-remove-class card-el "cursor_hand" "cursor_drag")
                  (dom/remove-class (dom/get-element "our_region") "region_hover")
                  (set-drag-handler card-el (home-region-handler conn))
-                 ;;(to-our-discard-move-from-discard card-id)
-                 ;; todo d/transact something
                  (d/transact! conn [[:db.fn/call t/discard-picked card-id]])
                  ))})
 
@@ -227,8 +226,7 @@
         [their-region-offset-x their-region-offset-y] (let [p (dom/get-position (dom/get-element "their_region"))]
                                                         [(+ 10 (.-x p)) (+ 10 (.-y p))])
         [our-region-offset-x our-region-offset-y] (let [p (dom/get-position (dom/get-element "our_region"))]
-                                                    [(+ 10 (.-x p)) (+ 10 (.-y p))])
-        ]
+                                                    [(+ 10 (.-x p)) (+ 10 (.-y p))])]
       (dom/schedule (concat (mapcat #(concat
                                       [(fn [] (dom/show-on-top %2))]
                                       (dom/slide-from %2 [(+ their-region-offset-x (* %1 53)) (+ their-region-offset-y (* %1 4))]))
@@ -262,6 +260,16 @@
       (do
         (set-drag-handler pile-elem (undraggable-handler conn))
         (set-drag-handler discard-elem (undraggable-handler conn))))))
+
+(defmethod handle :pile-picked
+  [event [game-id card-id] {:keys [db-after] :as report} conn]
+  (set-drag-handler (dom/get-element card-id) (undraggable-handler conn)))
+
+(defmethod handle :pile-pick-revealed
+  [event [game-id card-id suit rank] {:keys [db-after] :as report} conn]
+  (dom/set-card-class (dom/get-element card-id) (str (name suit) "_" (name rank)))
+  (doseq [card-id (:our-cards (dh/entity-lookup db-after [:game-id game-id]))]
+    (set-drag-handler (dom/get-element card-id) (home-discard-handler conn))))
 
 (defmethod handle :discard-picked
   [event [game-id card-id] {:keys [db-after] :as report} conn]
@@ -339,8 +347,7 @@
                          :dom/id id
                          :dom/card-el card-el
                          :card/suit :hidden
-                         :card/rank :hidden
-                         :card/location :location/deck}))))
+                         :card/rank :hidden}))))
 
 (defn start-game-panel [conn]
   (d/listen! conn (fn [report]

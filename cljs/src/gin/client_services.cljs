@@ -10,6 +10,10 @@
   [event [game-id player] report conn]
   (d/transact! conn [[:db.fn/call t/turn-assigned "game-id-1" (rand-nth [:player1 #_:player2])]]))
 
+(defmethod handle :pile-picked
+ [event [game-id card-id] {:keys [db-after] :as report} conn]
+ (d/transact! conn [[:db.fn/call t/pile-pick-revealed game-id :club :A]]))
+
 (defmethod handle :discard-picked
   ;; todo debug only
  [event [game-id card-id] {:keys [db-after] :as report} conn]
