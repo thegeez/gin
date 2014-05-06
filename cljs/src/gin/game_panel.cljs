@@ -30,6 +30,14 @@
                "Your turn. Draw a card or pickup a discard."
                "Opponent to move."))))
 
+(defmethod msg :discard-picked
+  [_ _ _ _]
+  (set-msg "Drag a card from your hand to discard."))
+
+(defmethod msg :discard-chosen
+  [_ _ _ _]
+  (set-msg "Your move is done."))
+
 (defmethod msg :default
   [event args report conn]
   nil)
@@ -43,6 +51,10 @@
 (defn in-our-region [x y]
   (let [our-region-bounds (goog.style.getBounds (dom/get-element "our_region"))]
     (in-rect our-region-bounds [x y])))
+
+(defn in-discard-pile [x y]
+  (let [discard-bounds (goog.style.getBounds (dom/get-element "discard_pile"))]
+    (in-rect discard-bounds [x y])))
 
 (defn pile-position []
   (let [pos (dom/get-position (dom/get-element "deck"))]
@@ -85,7 +97,7 @@
                  ;; todo transact this
                  ;;(set-drag-handler card-el (home-region-handler conn))
                  ;;(to-our-discard-move-from-pile card-id)
-
+                 
                  ))})
 
 (defn pile-drag-handler [conn]
@@ -141,6 +153,7 @@
                  (set-drag-handler card-el (home-region-handler conn))
                  ;;(to-our-discard-move-from-discard card-id)
                  ;; todo d/transact something
+                 (d/transact! conn [[:db.fn/call t/discard-picked card-id]])
                  ))})
 
 (defn discard-drag-handler [conn]
@@ -159,6 +172,46 @@
                (let [card-el (dom/get-element card-id)]
                  (dom/add-remove-class card-el "cursor_hand" "cursor_drag")
                  (dom/schedule (dom/slide-from card-el (discard-position)))))})
+
+(declare home-discard-handler)
+(defn snap-to-discard-handler [conn]
+  {:cursor :hand
+   :drag-start (fn [card-id event]
+                 (. event (preventDefault)))
+   :drag (fn [card-id event]
+           (let [card-el (dom/get-element card-id)]
+             (when-not (in-discard-pile (. event -clientX) (. event -clientY))
+               (set-drag-handler card-el (home-discard-handler conn))
+               (dom/remove-class (dom/get-element "discard_pile") "region_hover")
+               )))
+   :drag-end (fn [card-id event]
+               (let [card-el (dom/get-element card-id)]
+                 (dom/add-remove-class card-el "cursor_hand" "cursor_drag")
+                 (dom/remove-class (dom/get-element "discard_pile") "region_hover")
+                 (dom/schedule (concat (dom/slide-from card-el (discard-position))
+                                       ;;[#(our-move-drop-discard
+                                       ;;card-id)]
+                                       [#(d/transact! conn [[:db.fn/call t/discard-chosen card-id]])]))))})
+
+(defn home-discard-handler [conn]
+  {:cursor :hand
+   :drag-start (fn [card-id event]
+                 (let [card-el (dom/get-element card-id)]
+                   (dom/add-remove-class (dom/get-element card-id) "cursor_drag" "cursor_hand")
+                   (set! (. card-el -drag-origin) (dom/get-position card-el))
+                   (dom/show-on-top card-el)))
+   :drag (fn [card-id event]
+           (let [card-el (dom/get-element card-id)
+                 pos (dom/get-position card-el)]
+             (when (in-discard-pile (. pos -x) (. pos -y))
+               (dom/add-class (dom/get-element "discard_pile") "region_hover")
+               (set-drag-handler card-el (snap-to-discard-handler conn)))))
+   :drag-end (fn [card-id event]
+               (let [card-el (dom/get-element card-id)
+                     pos (dom/get-position card-el)]
+                 (dom/add-remove-class card-el "cursor_hand" "cursor_drag")
+                 (when-not (in-our-region (. pos -x) (. pos -y))
+                   (dom/fly-card card-el (. card-el -drag-origin)))))})
 
 (defmulti handle
   (fn [event args report conn] event))
@@ -199,15 +252,31 @@
 
 (defmethod handle :turn-assigned
   [event [game-id turn] {:keys [db-after] :as report} conn]
-  (let [{:keys [us turn] :as game} (dh/entity-lookup db-after [:game-id game-id]) ]
-    (.log js/console "turn-assigned" game-eid us turn)
+  (let [{:keys [us turn] :as game} (dh/entity-lookup db-after [:game-id game-id])
+        pile-elem (:dom/card-el (dh/entity-lookup db-after [:dom/id (last (:deck game))]))
+        discard-elem (:dom/card-el (dh/entity-lookup db-after [:dom/id (last (:discards game))]))]
     (if (= us turn)
-      (let [pile-elem (:dom/card-el (dh/entity-lookup db-after [:dom/id (last (:deck game))]))
-            discard-elem (:dom/card-el (dh/entity-lookup db-after [:dom/id (last (:discards game))]))]
-        (.log js/console "found top of deck: " pile-eid pile-elem)
+      (do
         (set-drag-handler pile-elem (pile-drag-handler conn))
-        (set-drag-handler discard-elem (discard-drag-handler conn))
-        ))))
+        (set-drag-handler discard-elem (discard-drag-handler conn)))
+      (do
+        (set-drag-handler pile-elem (undraggable-handler conn))
+        (set-drag-handler discard-elem (undraggable-handler conn))))))
+
+(defmethod handle :discard-picked
+  [event [game-id card-id] {:keys [db-after] :as report} conn]
+  (let [{:keys [deck our-cards] :as game} (dh/entity-lookup db-after [:game-id game-id])
+        pile-elem (:dom/card-el (dh/entity-lookup db-after [:dom/id (last deck)]))
+        discard-elem (:dom/card-el (dh/entity-lookup db-after [:dom/id card-id]))]
+    (set-drag-handler pile-elem (undraggable-handler conn))
+    (doseq [card-id (:our-cards game)]
+      (set-drag-handler (dom/get-element card-id) (home-discard-handler conn)))))
+
+(defmethod handle :discard-chosen
+  [event [game-id card-id] {:keys [db-after] :as report} conn]
+  (set-drag-handler (dom/get-element card-id) (undraggable-handler conn))
+  (doseq [card-id (:our-cards (dh/entity-lookup db-after [:game-id game-id]))]
+    (set-drag-handler (dom/get-element card-id) (undraggable-handler conn))))
 
 (defmethod handle :default
   [_ _ _ _] nil)

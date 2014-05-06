@@ -16,7 +16,10 @@
   (let [{:keys [conn render service] :as app} app-config]
     (d/listen! conn (fn [report]
                       (.log js/console "db-after" (pr-str (:db-after report)))
-                      (.log js/console "tx-data" (pr-str (:tx-data report)))))
+                      (.log js/console "tx-data" (pr-str (:tx-data report)))
+                      (when (some (fn [d]
+                                    (= (:e d) nil)) (:tx-data report))
+                        (js/alert (str "Something broken with: " (pr-str report))))))
     (.log js/console "service" service)
     (render conn)
     (service conn)

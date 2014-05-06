@@ -66,4 +66,30 @@
                                db game-id))]
      [:db/add game-eid :turn turn])])
 
+(defn discard-picked [db card-id]
+  (let [game (d/entity db (ffirst (d/q '{:find [?e]
+                                         :in [$ ?card-id ?last]
+                                         :where [[?e :discards ?ds]
+                                                 [(?last ?ds) ?d]
+                                                 [(= ?d ?card-id)]]}
+                                       db card-id last)))]
+    [[:db.fn/call log-event :discard-picked (:game-id game) card-id]
+     {:db/id (:db/id game)
+      :discards (pop (:discards game))
+      :our-cards (conj (:our-cards game) card-id)}]))
+
+(defn discard-chosen [db card-id]
+  (let [card (dh/entity-lookup db [:dom/id card-id])
+        game (d/entity db (ffirst (d/q '{:find [?e]
+                                         :in [$ ?card-id ?each]
+                                         :where [[?e :our-cards ?ds]
+                                                 [(?each ?ds) [?d ...]]
+                                                 [(= ?d ?card-id)]]}
+                                       db card-id (partial map identity))))]
+    [[:db.fn/call log-event :discard-chosen (:game-id game) card-id (:suit card) (:rank card)]
+     {:db/id (:db/id game)
+      :discards (conj (:discards game) card-id)
+      :our-cards (filterv (fn [c]
+                            (not= c card-id)) (:our-cards game))}]))
+
 (def schema {:ready :cardinality/many})

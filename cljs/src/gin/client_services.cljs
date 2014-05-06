@@ -1,6 +1,7 @@
 (ns gin.client-services
   (:require [gin.transact :as t]
-            [datascript :as d]))
+            [datascript :as d]
+            [gin.datascript-helpers :as dh]))
 
 (defmulti handle
   (fn [event args report conn] event))
@@ -8,6 +9,17 @@
 (defmethod handle :player-ready
   [event [game-id player] report conn]
   (d/transact! conn [[:db.fn/call t/turn-assigned "game-id-1" (rand-nth [:player1 #_:player2])]]))
+
+(defmethod handle :discard-picked
+  ;; todo debug only
+ [event [game-id card-id] {:keys [db-after] :as report} conn]
+  (.log js/console "Our hand after picking discard: " (pr-str (dh/entity-lookup db-after [:game-id game-id]))))
+
+(defmethod handle :discard-chosen
+  ;; todo debug only
+  [event [game-id card-id] {:keys [db-after] :as report} conn]
+  (.log js/console "Our hand after chosen discard: " (pr-str (:our-cards (dh/entity-lookup db-after [:game-id game-id]))))
+  (.log js/console "Discards: " (pr-str (:discards (dh/entity-lookup db-after [:game-id game-id])))))
 
 (defmethod handle :default
   [_ _] nil)
