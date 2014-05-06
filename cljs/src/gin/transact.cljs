@@ -53,6 +53,11 @@
                      :card/suit suit
                      :card/rank rank})))))
 
+(defn player-ready [db game-id player]
+  [[:db.fn/call log-event :player-ready game-id player]
+   (let [game (dh/entity-lookup db [:game-id game-id])]
+     [:db/add (:db/id game) :ready player])])
+
 (defn turn-assigned [db game-id turn]
   [[:db.fn/call log-event :turn-assigned game-id turn]
    (let [game-eid (ffirst (d/q '{:find [?e]
@@ -61,4 +66,4 @@
                                db game-id))]
      [:db/add game-eid :turn turn])])
 
-
+(def schema {:ready :cardinality/many})

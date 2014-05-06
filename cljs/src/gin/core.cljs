@@ -8,7 +8,7 @@
 (defn load-app
   "Return a map containing the initial application"
   []
-  {:conn (d/create-conn {})
+  {:conn (d/create-conn transact/schema)
    :render game-panel/start-game-panel
    :service services/start-services})
 
@@ -18,8 +18,8 @@
                       (.log js/console "db-after" (pr-str (:db-after report)))
                       (.log js/console "tx-data" (pr-str (:tx-data report)))))
     (.log js/console "service" service)
-    (service conn)
     (render conn)
+    (service conn)
     (def app app)))
 
 (defn ^:export main
@@ -29,7 +29,7 @@
 
 (defn load-local-app
   []
-  {:conn (d/create-conn {})
+  {:conn (d/create-conn transact/schema)
    :render game-panel/start-game-panel
    :service client-services/start-services})
 
