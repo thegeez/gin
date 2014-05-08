@@ -21,7 +21,7 @@
     :player1 player1-id
     :player2 player2-id
     :us us
-    :deck (->> (d/q '{:find [?e ?id]
+    :pile (->> (d/q '{:find [?e ?id]
                       :where [[?e :dom/id ?id]
                               [?e :card/suit :hidden]
                               [?e :card/rank :hidden]]}
@@ -33,11 +33,11 @@
   (into [[:db.fn/call log-event :deal game-id discard-card our-cards]]
         (let [;; todo wrap this is (d/by-index :av :game-id game-id)
               {game-e :db/id :as game} (dh/entity-lookup db [:game-id game-id])
-              cards (for [cid (:deck game)]
+              cards (for [cid (:pile game)]
                       (dh/entity-lookup db [:dom/id cid]))
-              [deck [discard & other]] (split-at 31 cards)
+              [pile [discard & other]] (split-at 31 cards)
               [ours theirs] (split-at 10 other)]
-          (concat [[:db/add game-e :deck (mapv :dom/id deck)]]
+          (concat [[:db/add game-e :pile (mapv :dom/id pile)]]
                   [[:db/add game-e :discards [(:dom/id discard)]]
                    {:db/id (:db/id discard)
                     :card/suit (:suit discard-card)
@@ -63,40 +63,49 @@
                                db game-id))]
      [:db/add game-eid :turn turn])])
 
-(defn pile-picked [db card-id]
+(defn our-pile-picked [db card-id]
   (let [game-id (ffirst (d/q '{:find [?game-id]
                                :in [$ ?card-id ?last]
-                               :where [[?e :deck ?ds]
+                               :where [[?e :pile ?ps]
                                        [?e :game-id ?game-id]
-                                       [(?last ?ds) ?d]
-                                       [(= ?d ?card-id)]]}
+                                       [(?last ?ps) ?p]
+                                       [(= ?p ?card-id)]]}
                              db card-id last))]
-    [[:db.fn/call log-event :pile-picked game-id card-id]]))
+    [[:db.fn/call log-event :our-pile-picked game-id card-id]]))
 
-(defn pile-pick-revealed [db game-id suit rank]
+(defn their-pile-picked [db game-id]
   (let [game (dh/entity-lookup db [:game-id game-id])
-        card-taken (dh/entity-lookup db [:dom/id (peek (:deck game))])]
-    [[:db.fn/call log-event :pile-pick-revealed game-id (:dom/id card-taken) suit rank]
+        card-id (peek (:pile game))]
+    [[:db.fn/call log-event :their-pile-picked game-id card-id]
      {:db/id (:db/id game)
-      :deck (pop (:deck game))
+      :pile (pop (:pile game))
+      :their-cards (conj (:their-cards game) card-id)}]))
+
+(defn our-pile-pick-revealed [db game-id suit rank]
+  (let [game (dh/entity-lookup db [:game-id game-id])
+        card-taken (dh/entity-lookup db [:dom/id (peek (:pile game))])
+        card-id (:dom/id card-taken)]
+    [[:db.fn/call log-event :our-pile-pick-revealed game-id card-id suit rank]
+     {:db/id (:db/id game)
+      :pile (pop (:pile game))
       :our-cards (conj (:our-cards game) card-id)}
      {:db/id (:db/id card-taken)
       :card/suit suit
       :card/rank rank}]))
 
-(defn discard-picked [db card-id]
+(defn our-discard-picked [db card-id]
   (let [game (d/entity db (ffirst (d/q '{:find [?e]
                                          :in [$ ?card-id ?last]
                                          :where [[?e :discards ?ds]
                                                  [(?last ?ds) ?d]
                                                  [(= ?d ?card-id)]]}
                                        db card-id last)))]
-    [[:db.fn/call log-event :discard-picked (:game-id game) card-id]
+    [[:db.fn/call log-event :our-discard-picked (:game-id game) card-id]
      {:db/id (:db/id game)
       :discards (pop (:discards game))
       :our-cards (conj (:our-cards game) card-id)}]))
 
-(defn discard-chosen [db card-id]
+(defn our-discard-chosen [db card-id]
   (let [card (dh/entity-lookup db [:dom/id card-id])
         game (d/entity db (ffirst (d/q '{:find [?e]
                                          :in [$ ?card-id ?each]
@@ -104,7 +113,7 @@
                                                  [(?each ?ds) [?d ...]]
                                                  [(= ?d ?card-id)]]}
                                        db card-id (partial map identity))))]
-    [[:db.fn/call log-event :discard-chosen (:game-id game) card-id (:suit card) (:rank card)]
+    [[:db.fn/call log-event :our-discard-chosen (:game-id game) card-id (:suit card) (:rank card)]
      {:db/id (:db/id game)
       :discards (conj (:discards game) card-id)
       :our-cards (filterv (fn [c]

@@ -152,6 +152,14 @@
         (do (step)
             (schedule (rest steps)))))))
 
+(defn simultanious [stepss]
+  (apply map
+         (fn [& [arg :as args]]
+           (if (number? arg)
+             arg
+             (fn [] (doseq [a args] (a)))))
+         stepss))
+
 (defn slide
   ([el from to] (slide el from to 300 30))
   ([el [from-x from-y] [to-x to-y] msec steps]
