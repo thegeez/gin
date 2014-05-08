@@ -73,14 +73,6 @@
                              db card-id last))]
     [[:db.fn/call log-event :our-pile-picked game-id card-id]]))
 
-(defn their-pile-picked [db game-id]
-  (let [game (dh/entity-lookup db [:game-id game-id])
-        card-id (peek (:pile game))]
-    [[:db.fn/call log-event :their-pile-picked game-id card-id]
-     {:db/id (:db/id game)
-      :pile (pop (:pile game))
-      :their-cards (conj (:their-cards game) card-id)}]))
-
 (defn our-pile-pick-revealed [db game-id suit rank]
   (let [game (dh/entity-lookup db [:game-id game-id])
         card-taken (dh/entity-lookup db [:dom/id (peek (:pile game))])
@@ -118,5 +110,52 @@
       :discards (conj (:discards game) card-id)
       :our-cards (filterv (fn [c]
                             (not= c card-id)) (:our-cards game))}]))
+
+(defn their-pile-picked [db game-id]
+  (let [game (dh/entity-lookup db [:game-id game-id])
+        card-id (peek (:pile game))
+        insert-idx (rand-nth (range 10))
+        [before after] (split-at insert-idx (:their-cards game))]
+    [[:db.fn/call log-event :their-pile-picked game-id card-id]
+     {:db/id (:db/id game)
+      :pile (pop (:pile game))
+      :their-cards (-> []
+                       (into before)
+                       (conj card-id)
+                       (into after))}]))
+
+(defn their-pile-pick-revealed [db game-id]
+  [[:db.fn/call log-event :their-pile-pick-revealed game-id]])
+
+(defn their-discard-picked [db game-id]
+  (let [game (dh/entity-lookup db [:game-id game-id])
+        card-id (peek (:discards game))
+        card (dh/entity-lookup db [:dom/id card-id])
+        insert-idx (rand-nth (range 10))
+        [before after] (split-at insert-idx (:their-cards game))]
+    [[:db.fn/call log-event :their-discard-picked game-id card-id]
+     {:db/id (:db/id game)
+      :discards (pop (:discards game))
+      :their-cards (-> []
+                       (into before)
+                       (conj card-id)
+                       (into after))}
+     {:db/id (:db/id card)
+      :card/suit :hidden
+      :card/rank :hidden}]))
+
+(defn their-discard-chosen [db game-id suit rank]
+  (let [game (dh/entity-lookup db [:game-id game-id])
+        card-id (rand-nth (:their-cards game))
+        card (dh/entity-lookup db  [:dom/id card-id])
+        suit :diamond
+        rank :r3]
+    [[:db.fn/call log-event :their-discard-chosen game-id card-id suit rank]
+     {:db/id (:db/id game)
+      :discards (conj (:discards game) card-id)
+      :their-cards (filterv (complement #{card-id}) (:their-cards game))}
+     {:db/id (:db/id card)
+      :card/suit suit
+      :card/rank rank}]))
 
 (def schema {:ready :cardinality/many})

@@ -34,10 +34,6 @@
   [_ _ _ _]
   (set-msg "You've chosen a card from the deck."))
 
-(defmethod msg :their-pile-picked
-  [_ _ _ _]
-  (set-msg "Opponent picked a card from the deck."))
-
 (defmethod msg :our-discard-picked
   [_ _ _ _]
   (set-msg "Drag a card from your hand to discard."))
@@ -45,6 +41,18 @@
 (defmethod msg :our-discard-chosen
   [_ _ _ _]
   (set-msg "Your move is done."))
+
+(defmethod msg :their-pile-picked
+  [_ _ _ _]
+  (set-msg "Opponent picked a card from the deck."))
+
+(defmethod msg :their-pile-picked
+  [_ _ _ _]
+  (set-msg "Opponent picked the discard."))
+
+(defmethod msg :Their-discard-chosen
+  [_ _ _ _]
+  (set-msg "Opponents move is done."))
 
 (defmethod msg :default
   [event args report conn]
@@ -298,17 +306,43 @@
 (defmethod handle :their-pile-picked
   [event [game-id card-id] {:keys [db-after] :as report} conn]
   (let [game (dh/entity-lookup db-after [:game-id game-id])
-        insert-idx (rand-nth (range 10))
-        opp-cards (pop (:their-cards game))
-        pile-card (dom/get-element (peek (:their-cards game)))
-        to-card (dom/get-element (nth opp-cards insert-idx))
+        opp-cards (:their-cards game)
+        pile-card (dom/get-element card-id)
         [their-region-offset-x their-region-offset-y] (their-region-position)]
     (dom/schedule (concat (dom/simultanious
-                           (map #(dom/slide-from (dom/get-element %2) [(+ their-region-offset-x (* %1 48.18)) (+ their-region-offset-y (* %1 3.63))])
-                                (remove #{insert-idx} (range 10))
-                                opp-cards))
-                          [#(set! (.. pile-card -style -zIndex) (.. to-card -style -zIndex))]
-                          (dom/slide-from pile-card [(+ their-region-offset-x (* insert-idx 48.18)) (+ their-region-offset-y (* insert-idx 3.63))])))))
+                           (map #(conj (dom/slide-from %2 [(+ their-region-offset-x (* %1 48.18)) (+ their-region-offset-y (* %1 3.63))])
+                                       (fn [] (dom/show-on-top %2)))
+                                (range)
+                                (map dom/get-element opp-cards)))
+                          [#(d/transact! conn [[:db.fn/call t/their-pile-pick-revealed game-id]])]))))
+
+(defmethod handle :their-discard-picked
+  [event [game-id card-id _ _] {:keys [db-after] :as report} conn]
+  (let [game (dh/entity-lookup db-after [:game-id game-id])
+        opp-cards (:their-cards game)
+        discard-card (dom/get-element card-id)
+        [their-region-offset-x their-region-offset-y] (their-region-position)]
+    (dom/schedule (concat (dom/simultanious
+                           (map #(conj (dom/slide-from %2 [(+ their-region-offset-x (* %1 48.18)) (+ their-region-offset-y (* %1 3.63))])
+                                       (fn [] (dom/show-on-top %2)))
+                                (range)
+                                (map dom/get-element opp-cards)))
+                          [#(dom/set-card-class discard-card "card_back")
+                           #(d/transact! conn [[:db.fn/call t/their-pile-pick-revealed game-id]])]))))
+
+(defmethod handle :their-discard-chosen
+  [event [game-id card-id suit rank] {:keys [db-after] :as report} conn]
+  (let [game (dh/entity-lookup db-after [:game-id game-id])
+        opp-cards (:their-cards game)
+        discard-card (dom/get-element card-id)
+        [their-region-offset-x their-region-offset-y] (their-region-position)]
+    (dom/schedule (concat [#(dom/show-on-top discard-card)]
+                          (dom/slide-from discard-card (discard-position))
+                          [#(dom/set-card-class discard-card (str (name suit) "_" (name rank)))]
+                          (dom/simultanious
+                           (map #(dom/slide-from (dom/get-element %2) [(+ their-region-offset-x (* %1 53)) (+ their-region-offset-y (* %1 4))])
+                                (range)
+                                opp-cards))))))
 
 (defmethod handle :default
   [_ _ _ _] nil)

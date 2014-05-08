@@ -20,19 +20,29 @@
   (.log js/console "Our hand after picking discard: " (pr-str (dh/entity-lookup db-after [:game-id game-id]))))
 
 (defmethod handle :our-discard-chosen
-  ;; todo debug only
   [event [game-id card-id] {:keys [db-after] :as report} conn]
   (let [turn (get {:player1 :player2
                    :player2 :player1}
                   (:turn (dh/entity-lookup db-after [:game-id game-id])))]
-    (d/transact! conn [[:db.fn/call t/turn-assigned "game-id-1" turn]])))
+    (d/transact! conn [[:db.fn/call t/turn-assigned game-id turn]])))
 
 (defmethod handle :turn-assigned
   [event [game-id turn] {:keys [db-after] :as report} conn]
   (let [game (dh/entity-lookup db-after [:game-id game-id])]
     (when (not= turn (:us game))
       (d/transact! conn [[:db.fn/call (rand-nth [t/their-pile-picked
-                                                 #_t/their-discard-picked]) game-id]]))))
+                                                 t/their-discard-picked]) game-id]]))))
+
+(defmethod handle :their-pile-pick-revealed
+  [event [game-id] {:keys [db-after] :as report} conn]
+  (d/transact! conn [[:db.fn/call t/their-discard-chosen game-id :diamond :J]]))
+
+(defmethod handle :their-discard-chosen
+  [event [game-id card-id suit rank] {:keys [db-after] :as report} conn]
+  (let [turn (get {:player1 :player2
+                   :player2 :player1}
+                  (:turn (dh/entity-lookup db-after [:game-id game-id])))]
+    (d/transact! conn [[:db.fn/call t/turn-assigned game-id turn]])))
 
 (defmethod handle :default
   [_ _] nil)
