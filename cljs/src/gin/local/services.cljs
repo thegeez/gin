@@ -16,17 +16,13 @@
                    (:us game)
                    (get {:player1 :player2
                          :player2 :player1} (:us game)))
-        {:keys [result opp-cards] :as table-state} (table/table-state)]
-    (condp = result
-      ;; TODO handle these cases!
-              
-              
-      :tie (js/alert "tie")
-      :our-win (js/alert "our-win")
-      :opp-win (js/alert "opp-win")
-              
-              
-      (d/transact! conn [[:db.fn/call t/turn-assigned game-id starting]]))))
+        {:keys [result opp-cards]} (table/table-state)]
+    (d/transact! conn
+                 (if-let [result (get {:tie :pat-tie
+                                       :our-win :pat-our-win
+                                       :opp-win :pat-opp-win} result)]
+                   [[:db.fn/call t/game-finished game-id result opp-cards]]
+                   [[:db.fn/call t/turn-assigned game-id starting]]))))
 
 (defmethod handle :our-pile-picked
  [event [game-id card-id] {:keys [db-after] :as report} conn]
@@ -41,14 +37,13 @@
 (defmethod handle :our-discard-chosen
   [event [game-id card-id suit rank] {:keys [db-after] :as report} conn]
   (table/set-our-discard {:suit suit :rank rank})
-  ;; TODO check and of game, combine with player-ready into
-  ;; done-switch-turn
-  ;; (table/table-state @table/table)
-          
-  (let [turn (get {:player1 :player2
-                   :player2 :player1}
-                  (:turn (dh/entity-lookup db-after [:game-id game-id])))]
-    (d/transact! conn [[:db.fn/call t/turn-assigned game-id turn]])))
+  (let [{:keys [result opp-cards]} (table/table-state)]
+    (if (contains? #{:tie :our-win :opp-win} result)
+      (d/transact! conn [[:db.fn/call t/game-finished game-id result opp-cards]])
+      (let [turn (get {:player1 :player2
+                       :player2 :player1}
+                      (:turn (dh/entity-lookup db-after [:game-id game-id])))]
+        (d/transact! conn [[:db.fn/call t/turn-assigned game-id turn]])))))
 
 (defmethod handle :turn-assigned
   [event [game-id turn] {:keys [db-after] :as report} conn]
@@ -67,14 +62,13 @@
 
 (defmethod handle :their-discard-chosen
   [event [game-id card-id suit rank] {:keys [db-after] :as report} conn]
-
-  ;; TODO CHECK END OF GAME
-        
-
-  (let [turn (get {:player1 :player2
-                   :player2 :player1}
-                  (:turn (dh/entity-lookup db-after [:game-id game-id])))]
-    (d/transact! conn [[:db.fn/call t/turn-assigned game-id turn]])))
+  (let [{:keys [result opp-cards]} (table/table-state)]
+    (if (contains? #{:tie :our-win :opp-win} result)
+      (d/transact! conn [[:db.fn/call t/game-finished game-id result opp-cards]])
+      (let [turn (get {:player1 :player2
+                       :player2 :player1}
+                      (:turn (dh/entity-lookup db-after [:game-id game-id])))]
+        (d/transact! conn [[:db.fn/call t/turn-assigned game-id turn]])))))
 
 (defmethod handle :default
   [_ _] nil)

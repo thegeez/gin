@@ -27,7 +27,7 @@
 
 (defn remove-when-card [cards suit rank] ;; must be max 9 cards in the hand
   (let [[before after] (split-with #(not (and (= (:suit %) suit)
-                                            (= (:rank %) rank))) cards)]
+                                              (= (:rank %) rank))) cards)]
     (when (first after) ;; was the needle card in cards?
       (concat before (rest after)))))
 
@@ -49,7 +49,7 @@
                        (max (+ 3
                                (gin-hand-size (rest (rest postpivot))))
                             (if (and c3
-                                 (= (:rank pivot) (:rank c3)))
+                                     (= (:rank pivot) (:rank c3)))
                               ;; when 4 of the same, there are 2 extra
                               ;; trip possibilities
                               (let [notsame (rest (rest (rest postpivot)))]
@@ -65,7 +65,6 @@
           ;; now try to find all the sets where the pivot is used in a straight flush
           ;; the pivot is always the lowest ranking remaining card in cards and therefore
           ;; always the first card of a straight
-
           ;; a card possibly makes a straight with the pivot as the lowest card if it is the same suit and
           ;; within window points of rank
           ;; case 4: find a straight flush with 3 cards with
@@ -118,7 +117,7 @@
       1)))
 
 (defn cards-to-gone-cards [cards]
-  (set (map #(+ (* (:suit %) 20) (rank->value (:rank %))) cards)))
+  (set (map #(+ (* (suit->value (:suit %)) 20) (rank->value (:rank %))) cards)))
 
 ;; rates the possibility for forming a straight given two card values in a
 ;; particular suit, and taking into account cards known to be discarded; the
@@ -228,8 +227,8 @@
     (if (or (> new-size orig-size)
             (and (= new-size orig-size)
                  (let [gone-set (cards-to-gone-cards gone-discards)]
-                     (> (pair-rating new-gin-cards gone-set)
-                        (pair-rating in-hand-cards gone-set)))))
+                   (> (pair-rating new-gin-cards gone-set)
+                      (pair-rating in-hand-cards gone-set)))))
       :discard
       :pile)))
 

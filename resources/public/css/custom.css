@@ -267,7 +267,7 @@ body {
 }
 .msg {
     width: 570px;
-    height: 33px;
+    height: 32px;
     padding: 5px;
     margin-top: 5px;
     border: 1px solid grey;
@@ -332,7 +332,7 @@ body {
     float: right;
     width: 80px;
     height: 20px;
-    padding-left: 15px;
+    padding-left: 9px;
     color: white;
     background-color: #25587E;
     cursor: pointer;

@@ -46,13 +46,23 @@
   [_ _ _ _]
   (set-msg "Opponent picked a card from the deck."))
 
-(defmethod msg :their-pile-picked
+(defmethod msg :their-discard-picked
   [_ _ _ _]
   (set-msg "Opponent picked the discard."))
 
-(defmethod msg :Their-discard-chosen
+(defmethod msg :their-discard-chosen
   [_ _ _ _]
   (set-msg "Opponents move is done."))
+
+(defmethod msg :game-finished
+  [_ [game-id result _] _ _]
+  (set-msg
+   (condp = result
+     :pat-tie "Game over: Both dealt gin for a tie."
+     :pat-our-win "Game over: You win, dealt gin."
+     :pat-opp-win "Game over: Opponent wins, dealt gin."
+     :our-win "Game over: You win!"
+     :opp-win "Game over: Opponent wins.")))
 
 (defmethod msg :default
   [event args report conn]
@@ -237,7 +247,7 @@
 (defmethod handle :deal
   [event [game-id] {:keys [db-after] :as report} conn]
   (let [game (dh/entity-lookup db-after [:game-id game-id])
-        opp-cards-el (map #(:dom/card-el (dh/entity-lookup db-after [:dom/id %])) (:their-cards game))
+        opp-cards-el (map dom/get-element (:their-cards game))
         our-cards-es (map #(dh/entity-lookup db-after [:dom/id %]) (:our-cards game))
         discard (dh/entity-lookup db-after [:dom/id (first (:discards game))])
 
@@ -248,27 +258,29 @@
                                       (dom/slide-from %2 [(+ their-region-offset-x (* %1 53)) (+ their-region-offset-y (* %1 4))]))
                                     (range)
                                     opp-cards-el)
-                            (mapcat (fn [idx {el :dom/card-el suit :card/suit rank :card/rank}]
-                                      (concat
-                                       [(fn [] (dom/show-on-top el))]
-                                       (dom/slide-from el [(+ our-region-offset-x (* idx 53)) (+ our-region-offset-y (* idx 4))])
-                                       [(fn []
-                                          (dom/set-card-class el (str (name suit) "_" (name rank)))
-                                          (set-drag-handler el (home-region-handler conn)))]))
+                            (mapcat (fn [idx {id :dom/id suit :card/suit rank :card/rank}]
+                                      (let [el (dom/get-element id)]
+                                        (concat
+                                         [(fn [] (dom/show-on-top el))]
+                                         (dom/slide-from el [(+ our-region-offset-x (* idx 53)) (+ our-region-offset-y (* idx 4))])
+                                         [(fn []
+                                            (dom/set-card-class el (str (name suit) "_" (name rank)))
+                                            (set-drag-handler el (home-region-handler conn)))])))
                                     (range)
                                     our-cards-es)
-                            (concat [(fn [] (dom/show-on-top (:dom/card-el discard)))]
-                                    (dom/slide-from (:dom/card-el discard) (discard-position))
-                                    [(fn [] (dom/set-card-class (:dom/card-el discard) (str (name (:card/suit discard)) "_" (name (:card/rank discard)))))]
-                                    [10 (fn []
-                                          (d/transact! conn [[:db.fn/call t/player-ready (:game-id game) (:us game)]]))]))))
+                            (let [discard-el (dom/get-element (:dom/id discard))]
+                              (concat [(fn [] (dom/show-on-top discard-el))]
+                                      (dom/slide-from discard-el (discard-position))
+                                      [(fn [] (dom/set-card-class discard-el (str (name (:card/suit discard)) "_" (name (:card/rank discard)))))]
+                                      [10 (fn []
+                                            (d/transact! conn [[:db.fn/call t/player-ready (:game-id game) (:us game)]]))])))))
   )
 
 (defmethod handle :turn-assigned
   [event [game-id turn] {:keys [db-after] :as report} conn]
   (let [{:keys [us turn] :as game} (dh/entity-lookup db-after [:game-id game-id])
-        pile-elem (:dom/card-el (dh/entity-lookup db-after [:dom/id (last (:pile game))]))
-        discard-elem (:dom/card-el (dh/entity-lookup db-after [:dom/id (last (:discards game))]))]
+        pile-elem (dom/get-element (peek (:pile game)))
+        discard-elem (dom/get-element (peek (:discards game)))]
     (if (= us turn)
       (do
         (set-drag-handler pile-elem (pile-drag-handler conn))
@@ -291,8 +303,8 @@
 (defmethod handle :our-discard-picked
   [event [game-id card-id] {:keys [db-after] :as report} conn]
   (let [{:keys [pile our-cards] :as game} (dh/entity-lookup db-after [:game-id game-id])
-        pile-elem (:dom/card-el (dh/entity-lookup db-after [:dom/id (last pile)]))
-        discard-elem (:dom/card-el (dh/entity-lookup db-after [:dom/id card-id]))]
+        pile-elem (dom/get-element (last pile))
+        discard-elem (dom/get-element card-id)]
     (set-drag-handler pile-elem (undraggable-handler conn))
     (doseq [card-id (:our-cards game)]
       (set-drag-handler (dom/get-element card-id) (home-discard-handler conn)))))
@@ -343,6 +355,19 @@
                            (map #(dom/slide-from (dom/get-element %2) [(+ their-region-offset-x (* %1 53)) (+ their-region-offset-y (* %1 4))])
                                 (range)
                                 opp-cards))))))
+
+(defmethod handle :game-finished
+  [event [game-id result] {:keys [db-after] :as report} conn]
+  (let [game (dh/entity-lookup db-after [:game-id game-id])]
+    (let [msg-area (dom/get-element "msg")
+          restart-button (dom/element :span {:id "restart_button" :class "restart_button"} "New game")]
+      (events/listenOnce restart-button events/EventType.CLICK
+                         (fn []
+                           (js/alert "restart game")))
+      (dom/append msg-area restart-button))
+    (dom/schedule (for [card-id (:their-cards game)]
+                    (let [{suit :card/suit rank :card/rank} (dh/entity-lookup db-after [:dom/id card-id])]
+                      #(dom/set-card-class (dom/get-element card-id) (str (name suit) "_" (name rank))))))))
 
 (defmethod handle :default
   [_ _ _ _] nil)
@@ -404,7 +429,6 @@
     (d/transact! conn (for [{:keys [id idx card-el]} cards]
                         {:db/id (* -1 idx)
                          :dom/id id
-                         :dom/card-el card-el
                          :card/suit :hidden
                          :card/rank :hidden}))))
 

@@ -20,8 +20,8 @@ gin.local.game.remove_when_straight = (function remove_when_straight(cards,end_s
 {return null;
 }
 });
-gin.local.game.remove_when_card = (function remove_when_card(cards,suit,rank){var vec__12426 = cljs.core.split_with.call(null,(function (p1__12424_SHARP_){return !((cljs.core._EQ_.call(null,new cljs.core.Keyword(null,"suit","suit",1017446015).cljs$core$IFn$_invoke$arity$1(p1__12424_SHARP_),suit)) && (cljs.core._EQ_.call(null,new cljs.core.Keyword(null,"rank","rank",1017397150).cljs$core$IFn$_invoke$arity$1(p1__12424_SHARP_),rank)));
-}),cards);var before = cljs.core.nth.call(null,vec__12426,0,null);var after = cljs.core.nth.call(null,vec__12426,1,null);if(cljs.core.truth_(cljs.core.first.call(null,after)))
+gin.local.game.remove_when_card = (function remove_when_card(cards,suit,rank){var vec__22026 = cljs.core.split_with.call(null,(function (p1__22024_SHARP_){return !((cljs.core._EQ_.call(null,new cljs.core.Keyword(null,"suit","suit",1017446015).cljs$core$IFn$_invoke$arity$1(p1__22024_SHARP_),suit)) && (cljs.core._EQ_.call(null,new cljs.core.Keyword(null,"rank","rank",1017397150).cljs$core$IFn$_invoke$arity$1(p1__22024_SHARP_),rank)));
+}),cards);var before = cljs.core.nth.call(null,vec__22026,0,null);var after = cljs.core.nth.call(null,vec__22026,1,null);if(cljs.core.truth_(cljs.core.first.call(null,after)))
 {return cljs.core.concat.call(null,before,cljs.core.rest.call(null,after));
 } else
 {return null;
@@ -69,7 +69,7 @@ gin.local.game.count_avail = (function count_avail(rank,suit,gone_cards){var wan
 {return 1;
 }
 });
-gin.local.game.cards_to_gone_cards = (function cards_to_gone_cards(cards){return cljs.core.set.call(null,cljs.core.map.call(null,(function (p1__12427_SHARP_){return ((new cljs.core.Keyword(null,"suit","suit",1017446015).cljs$core$IFn$_invoke$arity$1(p1__12427_SHARP_) * 20) + gin.local.game.rank__GT_value.call(null,new cljs.core.Keyword(null,"rank","rank",1017397150).cljs$core$IFn$_invoke$arity$1(p1__12427_SHARP_)));
+gin.local.game.cards_to_gone_cards = (function cards_to_gone_cards(cards){return cljs.core.set.call(null,cljs.core.map.call(null,(function (p1__22027_SHARP_){return ((gin.local.game.suit__GT_value.call(null,new cljs.core.Keyword(null,"suit","suit",1017446015).cljs$core$IFn$_invoke$arity$1(p1__22027_SHARP_)) * 20) + gin.local.game.rank__GT_value.call(null,new cljs.core.Keyword(null,"rank","rank",1017397150).cljs$core$IFn$_invoke$arity$1(p1__22027_SHARP_)));
 }),cards));
 });
 gin.local.game.rate_straight = (function rate_straight(suit,value,value2,gone_cards){var v1 = ((cljs.core._EQ_.call(null,value,1))?(((value2 > 6))?14:1):value);var v2 = ((cljs.core._EQ_.call(null,value2,1))?(((value > 6))?14:1):value2);var delta = ((function (){var x__9686__auto__ = v1;var y__9687__auto__ = v2;return ((x__9686__auto__ > y__9687__auto__) ? x__9686__auto__ : y__9687__auto__);
@@ -126,10 +126,10 @@ return (function (card2){var suit2 = new cljs.core.Keyword(null,"suit","suit",10
 }
 });})(rating,cards__$1,card,others,suit,rank))
 ,others));{
-var G__12428 = (rating + card_score);
-var G__12429 = others;
-rating = G__12428;
-cards__$1 = G__12429;
+var G__22028 = (rating + card_score);
+var G__22029 = others;
+rating = G__22028;
+cards__$1 = G__22029;
 continue;
 }
 }
@@ -137,40 +137,40 @@ break;
 }
 });
 gin.local.game.choosediscard = (function choosediscard(hand,gonecards){var sorted_hand = gin.local.game.value_sorted.call(null,hand);var best = cljs.core.PersistentVector.EMPTY;var best_gin_size = 0;var hands = cljs.core.map.call(null,((function (best,best_gin_size){
-return (function (p1__12430_SHARP_){return (new cljs.core.PersistentVector(null,2,5,cljs.core.PersistentVector.EMPTY_NODE,[cljs.core.remove.call(null,cljs.core.PersistentHashSet.fromArray([p1__12430_SHARP_], true),sorted_hand),p1__12430_SHARP_],null));
+return (function (p1__22030_SHARP_){return (new cljs.core.PersistentVector(null,2,5,cljs.core.PersistentVector.EMPTY_NODE,[cljs.core.remove.call(null,cljs.core.PersistentHashSet.fromArray([p1__22030_SHARP_], true),sorted_hand),p1__22030_SHARP_],null));
 });})(best,best_gin_size))
 ,sorted_hand);while(true){
 var temp__4090__auto__ = cljs.core.first.call(null,hands);if(cljs.core.truth_(temp__4090__auto__))
 {var h = temp__4090__auto__;var gs = gin.local.game.gin_size.call(null,cljs.core.first.call(null,h));if((gs > best_gin_size))
 {{
-var G__12432 = new cljs.core.PersistentVector(null, 1, 5, cljs.core.PersistentVector.EMPTY_NODE, [h], null);
-var G__12433 = gs;
-var G__12434 = cljs.core.rest.call(null,hands);
-best = G__12432;
-best_gin_size = G__12433;
-hands = G__12434;
+var G__22032 = new cljs.core.PersistentVector(null, 1, 5, cljs.core.PersistentVector.EMPTY_NODE, [h], null);
+var G__22033 = gs;
+var G__22034 = cljs.core.rest.call(null,hands);
+best = G__22032;
+best_gin_size = G__22033;
+hands = G__22034;
 continue;
 }
 } else
 {if(cljs.core._EQ_.call(null,gs,best_gin_size))
 {{
-var G__12435 = cljs.core.conj.call(null,best,h);
-var G__12436 = best_gin_size;
-var G__12437 = cljs.core.rest.call(null,hands);
-best = G__12435;
-best_gin_size = G__12436;
-hands = G__12437;
+var G__22035 = cljs.core.conj.call(null,best,h);
+var G__22036 = best_gin_size;
+var G__22037 = cljs.core.rest.call(null,hands);
+best = G__22035;
+best_gin_size = G__22036;
+hands = G__22037;
 continue;
 }
 } else
 {if(new cljs.core.Keyword(null,"else","else",1017020587))
 {{
-var G__12438 = best;
-var G__12439 = best_gin_size;
-var G__12440 = cljs.core.rest.call(null,hands);
-best = G__12438;
-best_gin_size = G__12439;
-hands = G__12440;
+var G__22038 = best;
+var G__22039 = best_gin_size;
+var G__22040 = cljs.core.rest.call(null,hands);
+best = G__22038;
+best_gin_size = G__22039;
+hands = G__22040;
 continue;
 }
 } else
@@ -183,7 +183,7 @@ continue;
 {return cljs.core.second.call(null,cljs.core.first.call(null,best));
 } else
 {var gone_set = gin.local.game.cards_to_gone_cards.call(null,gin.local.game.gone_cards);return cljs.core.second.call(null,cljs.core.apply.call(null,cljs.core.max_key,cljs.core.comp.call(null,((function (best,best_gin_size,hands,gone_set,temp__4090__auto__){
-return (function (p1__12431_SHARP_){return gin.local.game.pair_rating.call(null,p1__12431_SHARP_,gone_set);
+return (function (p1__22031_SHARP_){return gin.local.game.pair_rating.call(null,p1__22031_SHARP_,gone_set);
 });})(best,best_gin_size,hands,gone_set,temp__4090__auto__))
 ,cljs.core.first),best));
 }
@@ -192,7 +192,7 @@ break;
 }
 });
 gin.local.game.takediscardordeck = (function takediscardordeck(in_hand_cards,discard,gone_discards){var orig_size = gin.local.game.gin_size.call(null,in_hand_cards);var hand_with_discard = cljs.core.conj.call(null,in_hand_cards,discard);var trade_card = gin.local.game.choosediscard.call(null,hand_with_discard,gone_discards);var new_gin_cards = cljs.core.remove.call(null,((function (orig_size,hand_with_discard,trade_card){
-return (function (p1__12441_SHARP_){return cljs.core._EQ_.call(null,trade_card,p1__12441_SHARP_);
+return (function (p1__22041_SHARP_){return cljs.core._EQ_.call(null,trade_card,p1__22041_SHARP_);
 });})(orig_size,hand_with_discard,trade_card))
 ,hand_with_discard);var new_size = gin.local.game.gin_size.call(null,new_gin_cards);if((function (){var or__9379__auto__ = (new_size > orig_size);if(or__9379__auto__)
 {return or__9379__auto__;

@@ -7,7 +7,8 @@
 (def table (atom {}))
 
 (defn table-state []
-  (let [opp-gin-size (:opp-gin-size table)
+  (let [table @table
+        opp-gin-size (:opp-gin-size table)
         our-gin-size (:our-gin-size table)]
     (cond
      (and (= opp-gin-size 10)
