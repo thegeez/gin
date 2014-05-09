@@ -2,7 +2,7 @@
   (:require [gin.game-panel :as game-panel]
             [gin.transact :as transact]
             [gin.services :as services]
-            [gin.client-services :as client-services]
+            [gin.local.services :as local-services]
             [datascript :as d]))
 
 (defn load-app
@@ -19,7 +19,8 @@
                       (.log js/console "tx-data" (pr-str (:tx-data report)))
                       (when (some (fn [d]
                                     (= (:e d) nil)) (:tx-data report))
-                        (js/alert (str "Something broken with: " (pr-str report))))))
+                        (js/alert (str "Something broken with: "
+                                       (pr-str (filter (fn [d] (nil? (:e d))) (:tx-data report))))))))
     (.log js/console "service" service)
     (render conn)
     (service conn)
@@ -34,7 +35,7 @@
   []
   {:conn (d/create-conn transact/schema)
    :render game-panel/start-game-panel
-   :service client-services/start-services})
+   :service local-services/start-services})
 
 (defn ^:export client-local
   []

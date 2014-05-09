@@ -105,7 +105,7 @@
                                                  [(?each ?ds) [?d ...]]
                                                  [(= ?d ?card-id)]]}
                                        db card-id (partial map identity))))]
-    [[:db.fn/call log-event :our-discard-chosen (:game-id game) card-id (:suit card) (:rank card)]
+    [[:db.fn/call log-event :our-discard-chosen (:game-id game) card-id (:card/suit card) (:card/rank card)]
      {:db/id (:db/id game)
       :discards (conj (:discards game) card-id)
       :our-cards (filterv (fn [c]
@@ -147,9 +147,7 @@
 (defn their-discard-chosen [db game-id suit rank]
   (let [game (dh/entity-lookup db [:game-id game-id])
         card-id (rand-nth (:their-cards game))
-        card (dh/entity-lookup db  [:dom/id card-id])
-        suit :diamond
-        rank :r3]
+        card (dh/entity-lookup db  [:dom/id card-id])]
     [[:db.fn/call log-event :their-discard-chosen game-id card-id suit rank]
      {:db/id (:db/id game)
       :discards (conj (:discards game) card-id)
