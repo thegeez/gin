@@ -56,7 +56,7 @@
         (d/transact! conn [[:db.fn/call move game-id]])))))
 
 (defmethod handle :their-pile-pick-revealed
-  [event [game-id] {:keys [db-after] :as report} conn]
+  [event [game-id pile-reshuffle] {:keys [db-after] :as report} conn]
   (let [[{:keys [suit rank]} from] (:last @table/table)]
     (d/transact! conn [[:db.fn/call t/their-discard-chosen game-id suit rank]])))
 

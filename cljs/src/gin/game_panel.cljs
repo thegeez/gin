@@ -287,18 +287,24 @@
         (set-drag-handler discard-elem (discard-drag-handler conn)))
       (do
         (set-drag-handler pile-elem (undraggable-handler conn))
-        (set-drag-handler discard-elem (undraggable-handler conn))))))
+        (set-drag-handler discard-elem (undraggable-handler conn))
+        (when-let [prev-discard (peek (pop (:discards game)))]
+          (set-drag-handler (dom/get-element prev-discard) (undraggable-handler conn)))))))
 
 (defmethod handle :our-pile-picked
   [event [game-id card-id] {:keys [db-after] :as report} conn]
   (set-drag-handler (dom/get-element card-id) (undraggable-handler conn)))
 
 (defmethod handle :our-pile-pick-revealed
-  [event [game-id card-id suit rank] {:keys [db-after] :as report} conn]
+  [event [game-id card-id suit rank pile-reshuffle] {:keys [db-after] :as report} conn]
   (dom/set-card-class (dom/get-element card-id) (str (name suit) "_" (name rank)))
   (.log js/console "our-cards: " (pr-str (:our-cards (dh/entity-lookup db-after [:game-id game-id]))))
   (doseq [card-id (:our-cards (dh/entity-lookup db-after [:game-id game-id]))]
-    (set-drag-handler (dom/get-element card-id) (home-discard-handler conn))))
+    (set-drag-handler (dom/get-element card-id) (home-discard-handler conn)))
+  (when pile-reshuffle
+    (dom/schedule (dom/simultanious (map #(concat [(fn [] (dom/set-card-class % "card_back"))]
+                                                  (dom/slide-from % pile-position))
+                                         (map dom/get-element (:pile game)))))))
 
 (defmethod handle :our-discard-picked
   [event [game-id card-id] {:keys [db-after] :as report} conn]
@@ -316,16 +322,21 @@
     (set-drag-handler (dom/get-element card-id) (home-region-handler conn))))
 
 (defmethod handle :their-pile-picked
-  [event [game-id card-id] {:keys [db-after] :as report} conn]
+  [event [game-id card-id pile-reshuffle] {:keys [db-after] :as report} conn]
   (let [game (dh/entity-lookup db-after [:game-id game-id])
         opp-cards (:their-cards game)
         pile-card (dom/get-element card-id)
-        [their-region-offset-x their-region-offset-y] (their-region-position)]
+        [their-region-offset-x their-region-offset-y] (their-region-position)
+        pile-position (pile-position)]
     (dom/schedule (concat (dom/simultanious
                            (map #(conj (dom/slide-from %2 [(+ their-region-offset-x (* %1 48.18)) (+ their-region-offset-y (* %1 3.63))])
                                        (fn [] (dom/show-on-top %2)))
                                 (range)
                                 (map dom/get-element opp-cards)))
+                          (when pile-reshuffle
+                            (dom/simultanious (map #(concat [(fn [] (dom/set-card-class % "card_back"))]
+                                                            (dom/slide-from % pile-position))
+                                                   (map dom/get-element (:pile game)))))
                           [#(d/transact! conn [[:db.fn/call t/their-pile-pick-revealed game-id]])]))))
 
 (defmethod handle :their-discard-picked
@@ -398,7 +409,7 @@
                                        rank [:A :K :Q :J :T :r9 :r8 :r7 :r6 :r5 :r4 :r3 :r2]]
                                    [:div {:class (str "offscreen_loading card " (str (name suit) "_" (name rank)))}])))))
   (let [container-wrap (let [r (goog.style.getBounds (dom/get-element "game-panel"))]
-                         (goog.math.Rect. (. r -left) (. r -top) (- (. r -width) 81) (- (. r -height) 96 38)))
+                         (goog.math.Rect. (. r -left) (. r -top) (- (. r -width) 81) (- (. r -height) 96 37)))
         [pile-x pile-y] (pile-position)
         cards (for [i (range 52)]
                 (let [card-id (str "card-" i)
