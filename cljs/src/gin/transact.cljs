@@ -161,7 +161,20 @@
 
 (defn their-discard-chosen [db game-id suit rank]
   (let [game (dh/entity-lookup db [:game-id game-id])
-        card-id (rand-nth (:their-cards game))
+        ;; roundabout way to prevent using the last discard picked in
+        ;; their hand as the next discard which could create an odd face
+        ;; up-face down-different face up animation
+        card-id (->> (d/q '{:find [?t ?tx]
+                            :in [$ ?game ?each]
+                            :where [[?g :their-cards ?tc]
+                                    [(?each ?tc) [?t ...]]
+                                    [?e :dom/id ?t]
+                                    [?e :card/suit _ ?tx]]}
+                          db (:db/id game) (partial map identity))
+                     (sort-by second >)
+                     rest
+                     (map first)
+                     rand-nth)
         card (dh/entity-lookup db  [:dom/id card-id])]
     [[:db.fn/call log-event :their-discard-chosen game-id card-id suit rank]
      {:db/id (:db/id game)
