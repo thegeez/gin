@@ -135,7 +135,6 @@
   {:cursor :hand
    :drag-start (fn [card-id event]
                  (let [card-el (dom/get-element card-id)]
-                   (.log js/console "pile drag start" card-el)
                    (dom/add-remove-class card-el "cursor_drag" "cursor_hand")
                    (dom/show-on-top card-el)))
    :drag (fn [card-id event]
@@ -268,7 +267,6 @@
                                  (set-drag-handler el (home-region-handler conn)))])))
                          (range)
                          our-cards-es)
-        _ (.log js/console "anim starting " (pr-str (:starting game)) (pr-str (:us game)))
         [first-deal second-deal] (if (= (:starting game) (:us game))
                                    [our-deal their-deal]
                                    [their-deal our-deal])]
@@ -304,7 +302,6 @@
 (defmethod handle :our-pile-pick-revealed
   [event [game-id card-id suit rank pile-reshuffle] {:keys [db-after] :as report} conn]
   (dom/set-card-class (dom/get-element card-id) (str (name suit) "_" (name rank)))
-  (.log js/console "our-cards: " (pr-str (:our-cards (dh/entity-lookup db-after [:game-id game-id]))))
   (doseq [card-id (:our-cards (dh/entity-lookup db-after [:game-id game-id]))]
     (set-drag-handler (dom/get-element card-id) (home-discard-handler conn)))
   (when pile-reshuffle
@@ -429,7 +426,6 @@
                   (events/listen dragger
                                  fxdrag/EventType.START
                                  (fn [event]
-                                   (.log js/console (str "START") (:drag-start (. card-el -drag-handler)) card-id)
                                    ((:drag-start (. card-el -drag-handler)) card-id event)))
                   (events/listen dragger
                                  fxdrag/EventType.DRAG

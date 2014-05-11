@@ -192,7 +192,6 @@
 (defn game-finished [db game-id result opp-cards]
   (let [game (dh/entity-lookup db [:game-id game-id])
         their-cards (map #(dh/entity-lookup db [:dom/id %]) (:their-cards game))]
-    (.log js/console "game-finished" game-id (pr-str result) "opp-cards "(pr-str opp-cards) "their-cards" (pr-str their-cards))
     (into [[:db.fn/call log-event :game-finished game-id result]
            [:db/add (:db/id game) :result result]]
           (for [[e card] (map list their-cards opp-cards)]

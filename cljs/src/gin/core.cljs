@@ -14,7 +14,7 @@
 
 (defn start-app [app-config]
   (let [{:keys [conn render service] :as app} app-config]
-    (d/listen! conn (fn [report]
+    #_(d/listen! conn (fn [report]
                       (.log js/console "db-after" (pr-str (:db-after report)))
                       (.log js/console "tx-data" (pr-str (:tx-data report)))
                       (when (some (fn [d]

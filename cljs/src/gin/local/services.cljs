@@ -81,7 +81,6 @@
   (let [game-id (str "game-local")]
     (d/transact! conn [[:db.fn/call t/game-created game-id "pone" "ptwo" :player1]])
     (let [table (table/get-init-shuffle)
-          _ (.log js/console "to-start: " (pr-str (:starting table)))
           to-start (if (= (:starting table) :us)
                      :player1
                      :player2)]
