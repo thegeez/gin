@@ -12,10 +12,7 @@
   [event [game-id player] report conn]
   ;; when playing locally there is only our deal to wait on
   (let [game (dh/entity-lookup (:db-after report) [:game-id game-id])
-        starting (if (= (:starting @table/table) :us)
-                   (:us game)
-                   (get {:player1 :player2
-                         :player2 :player1} (:us game)))
+        starting (:starting game)
         {:keys [result opp-cards]} (table/table-state)]
     (d/transact! conn
                  (if-let [result (get {:tie :pat-tie
@@ -83,5 +80,9 @@
                       (handle event args report conn))))
   (let [game-id (str "game-local")]
     (d/transact! conn [[:db.fn/call t/game-created game-id "pone" "ptwo" :player1]])
-    (let [table (table/get-init-shuffle)]
-      (d/transact! conn [[:db.fn/call t/deal game-id (peek (:discards table)) (:our-cards table)]]))))
+    (let [table (table/get-init-shuffle)
+          _ (.log js/console "to-start: " (pr-str (:starting table)))
+          to-start (if (= (:starting table) :us)
+                     :player1
+                     :player2)]
+      (d/transact! conn [[:db.fn/call t/deal game-id (peek (:discards table)) (:our-cards table) to-start]]))))

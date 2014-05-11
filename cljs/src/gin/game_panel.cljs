@@ -252,28 +252,34 @@
         discard (dh/entity-lookup db-after [:dom/id (first (:discards game))])
 
         [their-region-offset-x their-region-offset-y] (their-region-position)
-        [our-region-offset-x our-region-offset-y] (our-region-position)]
-      (dom/schedule (concat (mapcat #(concat
-                                      [(fn [] (dom/show-on-top %2))]
-                                      (dom/slide-from %2 [(+ their-region-offset-x (* %1 53)) (+ their-region-offset-y (* %1 4))]))
-                                    (range)
-                                    opp-cards-el)
-                            (mapcat (fn [idx {id :dom/id suit :card/suit rank :card/rank}]
-                                      (let [el (dom/get-element id)]
-                                        (concat
-                                         [(fn [] (dom/show-on-top el))]
-                                         (dom/slide-from el [(+ our-region-offset-x (* idx 53)) (+ our-region-offset-y (* idx 4))])
-                                         [(fn []
-                                            (dom/set-card-class el (str (name suit) "_" (name rank)))
-                                            (set-drag-handler el (home-region-handler conn)))])))
-                                    (range)
-                                    our-cards-es)
-                            (let [discard-el (dom/get-element (:dom/id discard))]
-                              (concat [(fn [] (dom/show-on-top discard-el))]
-                                      (dom/slide-from discard-el (discard-position))
-                                      [(fn [] (dom/set-card-class discard-el (str (name (:card/suit discard)) "_" (name (:card/rank discard)))))]
-                                      [10 (fn []
-                                            (d/transact! conn [[:db.fn/call t/player-ready (:game-id game) (:us game)]]))])))))
+        [our-region-offset-x our-region-offset-y] (our-region-position)
+        their-deal (mapcat #(concat
+                             [(fn [] (dom/show-on-top %2))]
+                             (dom/slide-from %2 [(+ their-region-offset-x (* %1 53)) (+ their-region-offset-y (* %1 4))]))
+                           (range)
+                           opp-cards-el)
+        our-deal (mapcat (fn [idx {id :dom/id suit :card/suit rank :card/rank}]
+                           (let [el (dom/get-element id)]
+                             (concat
+                              [(fn [] (dom/show-on-top el))]
+                              (dom/slide-from el [(+ our-region-offset-x (* idx 53)) (+ our-region-offset-y (* idx 4))])
+                              [(fn []
+                                 (dom/set-card-class el (str (name suit) "_" (name rank)))
+                                 (set-drag-handler el (home-region-handler conn)))])))
+                         (range)
+                         our-cards-es)
+        _ (.log js/console "anim starting " (pr-str (:starting game)) (pr-str (:us game)))
+        [first-deal second-deal] (if (= (:starting game) (:us game))
+                                   [our-deal their-deal]
+                                   [their-deal our-deal])]
+    (dom/schedule (concat first-deal
+                          second-deal
+                          (let [discard-el (dom/get-element (:dom/id discard))]
+                            (concat [(fn [] (dom/show-on-top discard-el))]
+                                    (dom/slide-from discard-el (discard-position))
+                                    [(fn [] (dom/set-card-class discard-el (str (name (:card/suit discard)) "_" (name (:card/rank discard)))))]
+                                    [10 (fn []
+                                          (d/transact! conn [[:db.fn/call t/player-ready (:game-id game) (:us game)]]))])))))
   )
 
 (defmethod handle :turn-assigned
@@ -302,9 +308,10 @@
   (doseq [card-id (:our-cards (dh/entity-lookup db-after [:game-id game-id]))]
     (set-drag-handler (dom/get-element card-id) (home-discard-handler conn)))
   (when pile-reshuffle
-    (dom/schedule (dom/simultanious (map #(concat [(fn [] (dom/set-card-class % "card_back"))]
-                                                  (dom/slide-from % pile-position))
-                                         (map dom/get-element (:pile game)))))))
+    (let [game (dh/entity-lookup db-after [:game-id game-id])]
+      (dom/schedule (dom/simultanious (map #(concat [(fn [] (dom/set-card-class % "card_back"))]
+                                                    (dom/slide-from % pile-position))
+                                           (map dom/get-element (:pile game))))))))
 
 (defmethod handle :our-discard-picked
   [event [game-id card-id] {:keys [db-after] :as report} conn]

@@ -41,14 +41,13 @@
         [opp-cards others] (split-at 10 deck)
         [our-cards [discard & pile]] (split-at 10 others)
         starting (rand-nth [:us :opp])]
-    (-> (swap! table merge {:our-cards (set our-cards)
-                            :our-gin-size (game/gin-size our-cards)
-                            :discards [discard]
-                            :pile-cards (set pile)
-                            :opp-cards (set opp-cards)
-                            :opp-gin-size (game/gin-size opp-cards)
-                            :starting starting})
-        (select-keys [:our-cards :discards]))))
+    (swap! table merge {:our-cards (set our-cards)
+                        :our-gin-size (game/gin-size our-cards)
+                        :discards [discard]
+                        :pile-cards (set pile)
+                        :opp-cards (set opp-cards)
+                        :opp-gin-size (game/gin-size opp-cards)
+                        :starting starting})))
 
 (defn restock-pile []
   (swap! table (fn [t]

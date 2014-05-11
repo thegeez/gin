@@ -21,15 +21,15 @@
 
 (def dec-rank {:r2 :A, :r3 :r2, :r4 :r3,:r5 :r4,:r6 :r5,:r7 :r6,:r8 :r7,:r9 :r8,:T :r9, :J :T, :Q :J, :K :Q,:A :K})
 
-(defn remove-when-straight [cards end-suit end-rank]
-  (when-let [found-middle (remove-when-card cards end-suit (dec-rank end-rank))]
-    (remove-when-card found-middle end-suit end-rank)))
-
 (defn remove-when-card [cards suit rank] ;; must be max 9 cards in the hand
   (let [[before after] (split-with #(not (and (= (:suit %) suit)
                                               (= (:rank %) rank))) cards)]
     (when (first after) ;; was the needle card in cards?
       (concat before (rest after)))))
+
+(defn remove-when-straight [cards end-suit end-rank]
+  (when-let [found-middle (remove-when-card cards end-suit (dec-rank end-rank))]
+    (remove-when-card found-middle end-suit end-rank)))
 
 (defn gin-hand-size
   [ginhand]
@@ -183,7 +183,7 @@
 
 ;; The procedure implements the discard choice
 ;; hand contains eleven cards, our hand plus the discard or new card from the deck
-(defn choosediscard [hand gonecards]
+(defn choosediscard [hand gone-cards]
   "Discard the card that leaves the hand with the largest gin-size.  If
    multiple cards leave the same largest gin size, pick card leaving the best
    pair rating."

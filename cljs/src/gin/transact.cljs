@@ -43,21 +43,26 @@
                (sort-by first)
                (map second))}])
 
-(defn deal [db game-id discard-card our-cards]
-  (into [[:db.fn/call log-event :deal game-id discard-card our-cards]]
+(defn deal [db game-id discard-card our-cards to-start]
+  (into [[:db.fn/call log-event :deal game-id discard-card our-cards to-start]]
         (let [;; todo wrap this is (d/by-index :av :game-id game-id)
               {game-e :db/id :as game} (dh/entity-lookup db [:game-id game-id])
               cards (for [cid (:pile game)]
                       (dh/entity-lookup db [:dom/id cid]))
               [pile [discard & other]] (split-at 31 cards)
-              [ours theirs] (split-at 10 other)]
-          (concat [[:db/add game-e :pile (mapv :dom/id pile)]]
-                  [[:db/add game-e :discards [(:dom/id discard)]]
-                   {:db/id (:db/id discard)
+              [ours theirs] (let [[f s] (split-at 10 other)]
+                              (if (= to-start (:us game))
+                                [s f]
+                                [f s]))]
+          (concat [{:db/id game-e
+                    :starting to-start
+                    :pile (mapv :dom/id pile)
+                    :discards [(:dom/id discard)]
+                    :their-cards (mapv :dom/id theirs)
+                    :our-cards (mapv :dom/id ours)}]
+                  [{:db/id (:db/id discard)
                     :card/suit (:suit discard-card)
                     :card/rank (:rank discard-card)}]
-                  [[:db/add game-e :their-cards (mapv :dom/id theirs)]]
-                  [[:db/add game-e :our-cards (mapv :dom/id ours)]]
                   (for [[e did suit rank] (map (fn [e {:keys [suit rank]}]
                                                  [(:db/id e) (:dom/id e) suit rank]) ours our-cards)]
                     {:db/id e
