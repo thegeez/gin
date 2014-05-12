@@ -4,7 +4,7 @@
             [gin.system.ring :as ring]
             [gin.system.ring.jetty-async-adapter :as jetty-async-adapter]
             [gin.system.server :as server]
-            [gin.system.database :as database]
+            [gin.system.database-datomic :as database-datomic]
             [gin.system.email :as email]
             [gin.home :as home]
             [compojure.core :as compojure]
@@ -58,10 +58,10 @@
   (let [{:keys [db-connect-string port]} config-options]
     (map->GinSystem
       {:config-options config-options
-       :db (database/database db-connect-string)
-       ;; :db-migrator (component/using
-       ;;               (database/dev-migrator)
-       ;;               {:database :db})
+       :db (database-datomic/database-datomic db-connect-string)
+       :db-migrator (component/using
+                     (database-datomic/dev-migrator)
+                     {:database :db})
        ;; :db-fixtures (component/using
        ;;               (dev-db-fixtures)
        ;;               {:database :db
@@ -75,14 +75,14 @@
                 (jetty-async-adapter/async-jetty port)
                 {:handler :ring-handler})})))
 
-(def dev-config {:db-connect-string "jdbc:derby:memory:chains;create=true" :port 3000})
+(def dev-config {:db-connect-string "datomic:mem://gin-local" :port 3000})
 
 (defn gin-system [config-options]
   (info "Hello world, this is the production system!")
   (let [{:keys [db-connect-string port]} config-options]
     (map->GinSystem
       {:config-options config-options
-       :db (database/database db-connect-string)
+       :db (database-datomic/database-datomic db-connect-string)
        :ring-handler (component/using
                       (ring/ring-handler (main-handler))
                       {:database :db

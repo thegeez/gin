@@ -43,7 +43,7 @@
                                         (onTimeout [c]
                                           (.complete c))))
             (go (loop []
-                  (if-some [chunk (<! chunks)]
+                  (if-let [chunk (<! chunks)]
                     (do (doto (.getWriter response)
                           (.write chunk)
                           (.flush))

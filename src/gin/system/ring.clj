@@ -20,6 +20,18 @@
         (assoc :database database)
         handler)))
 
+(defn wrap-database-conn [handler conn]
+  (fn [req]
+    (-> req
+        (assoc :conn conn)
+        handler)))
+
+(defn wrap-database-report-ch [handler report-ch]
+  (fn [req]
+    (-> req
+        (assoc :listen report-ch)
+        handler)))
+
 (defn wrap-emailer [handler emailer]
   (fn [req]
     (-> req
@@ -31,7 +43,8 @@
   (start [component]
          (info "Starting handler")
          (assoc component :app (-> handler
-                                   (wrap-database (:connection database))
+                                   (wrap-database-conn (:connection database))
+                                   (wrap-database-report-ch (:listen database))
                                    (wrap-emailer emailer))))
   (stop [component]
         (info "Stopping handler")

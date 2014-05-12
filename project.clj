@@ -7,7 +7,7 @@
                  [org.clojure/core.async "0.1.301.0-deb34a-alpha"]
                  ;; logging
                  [org.clojure/tools.logging "0.2.6"]
-                 [org.slf4j/slf4j-log4j12 "1.6.6"]
+                 [org.slf4j/slf4j-log4j12 "1.7.5"]
 
                  ;; ring and webserver
                  [ring/ring-core "1.2.1"]
@@ -27,7 +27,9 @@
                  ;; templates
                  [enlive "1.1.5"]
                  ;; auth
-                 [com.cemerick/friend "0.2.0" :exclusions [org.clojure/core.cache]]]
+                 [com.cemerick/friend "0.2.0" :exclusions [org.clojure/core.cache]]
+
+                 [com.datomic/datomic-free "0.9.4766" :exclusions [org.slf4j/log4j-over-slf4j org.slf4j/slf4j-nop]]]
 
   :profiles {:dev {:source-paths ["dev"]
                    :resource-paths ["dev/resources"]

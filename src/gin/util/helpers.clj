@@ -7,6 +7,9 @@
 (defn db [ctx]
   (get-in ctx [:request :database]))
 
+(defn conn [ctx]
+  (get-in ctx [:request :conn]))
+
 (defn location-flash [uri flash]
   {:headers {"Location" uri}
    :status 303
