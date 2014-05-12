@@ -24,7 +24,15 @@
     (.log js/console "service" service)
     (render conn)
     (service conn)
-    (def app app)))
+    (def app app))
+
+  ;;sse dev
+  (let [source (js/EventSource. "/dev-sse/events")]
+    (set! (.-onmessage source)
+          (fn [e]
+            (.log js/console e))))
+  
+  )
 
 (defn ^:export main
   "Application entry point"

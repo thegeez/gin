@@ -13,6 +13,9 @@
                  [ring/ring-core "1.2.1"]
                  [ring/ring-jetty-adapter "1.2.1"]
 
+                 ;; has async for SSE
+                 [org.eclipse.jetty/jetty-server "8.1.2.v20120308"]
+
                  ;; application structure
                  [com.stuartsierra/component "0.2.1"]
 
@@ -24,7 +27,7 @@
                  ;; templates
                  [enlive "1.1.5"]
                  ;; auth
-                 [com.cemerick/friend "0.2.0"]]
+                 [com.cemerick/friend "0.2.0" :exclusions [org.clojure/core.cache]]]
 
   :profiles {:dev {:source-paths ["dev"]
                    :resource-paths ["dev/resources"]

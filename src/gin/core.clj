@@ -2,6 +2,7 @@
   (:require [clojure.tools.logging :refer [info debug spy error]]
             [com.stuartsierra.component :as component]
             [gin.system.ring :as ring]
+            [gin.system.ring.jetty-async-adapter :as jetty-async-adapter]
             [gin.system.server :as server]
             [gin.system.database :as database]
             [gin.system.email :as email]
@@ -71,7 +72,7 @@
                        :emailer :emailer})
        :emailer (email/log-emailer)
        :server (component/using
-                (server/jetty port)
+                (jetty-async-adapter/async-jetty port)
                 {:handler :ring-handler})})))
 
 (def dev-config {:db-connect-string "jdbc:derby:memory:chains;create=true" :port 3000})
@@ -88,7 +89,7 @@
                        :emailer :emailer})
        :emailer (email/log-emailer)
        :server (component/using
-                (server/jetty port)
+                (jetty-async-adapter/async-jetty port)
                 {:handler :ring-handler})})))
 
 (defn production-config [port database-url]
