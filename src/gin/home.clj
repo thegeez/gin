@@ -44,6 +44,16 @@
                          (go (loop []
                                (let [msg (<! msgs)
                                      i (:dev/count (d/entity (:db-after msg) :dev/counter) 0)]
+                                 ;; there are 3 catch-up cases:
+                                 ;; get everything from db from
+                                 ;; current connection that is after
+                                 ;; last-event-id
+                                 ;; upon first report from listen do
+                                 ;; the same thing to get everything
+                                 ;; after last-event-id upto the
+                                 ;; report
+                                 ;; then forward all reports
+
                                  (if (= i 20)
                                    (do (close! c)
                                        (close! msgs))

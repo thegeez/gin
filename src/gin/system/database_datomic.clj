@@ -3,7 +3,7 @@
             [com.stuartsierra.component :as component]
             [datomic.api :refer [db q] :as d]
             [gin.migrations :as migrations]
-            [clojure.core.async :as async]))
+            [clojure.core.async :refer [go tap chan alt! >! <! onto-chan pipe close!] :as async]))
 
 ;; sanity check
 (let [ms migrations/migrations]
@@ -82,12 +82,20 @@
     (d/create-database db-connect-string)
     (let [conn (d/connect db-connect-string)
           tx-reports-ch (async/chan)
-          listen (async/mult tx-reports-ch)]
+          listen (async/mult (async/map< 
+                              (fn [i]
+                                 #_(debug "passing i" i)
+                                 i)
+                              tx-reports-ch))]
       (async/thread
-        (let [queue (d/tx-report-queue conn)]
-          (while true
-            (let [report (.take queue)]
-              (async/>!! tx-reports-ch report)))))
+        (try (let [queue (d/tx-report-queue conn)]
+           (while true
+             (let [report (.take queue)]
+               (async/>!! tx-reports-ch report)
+               #_(debug "send out report" (pr-str (:tx-data report))))))
+             (catch Exception e
+               (debug "TX-REPORT-TAKE exception: " e)
+               (throw e))))
       (assoc component
         :connection conn
         :tx-report-ch tx-reports-ch
@@ -101,3 +109,54 @@
 
 (defn database-datomic [db-connect-string]
   (map->DatabaseDatomic {:db-connect-string db-connect-string}))
+
+(defn stream-from [conn listen from out]
+  (let [catch-up (chan) ;; get what we have from from to now in conn
+        stream (chan)
+        ch (chan)]
+    (tap listen stream)
+    (go (loop [last-t -1]
+          (let [{:keys [db-after] :as txr} (<! ch)]
+            (if txr
+              (let [t (or (d/as-of-t db-after)
+                          (d/basis-t db-after))]
+                (if (< last-t t)
+                  (do (>! out txr)
+                      (recur t))
+                  (recur last-t)))
+              (close! out)))))
+    (let [db (db conn)
+          dbs (for [tx (->> (q '{:find [?tx]
+                                 :in [$ ?from-tx]
+                                 :where [[?tx :db/txInstant]
+                                         [(< ?from-tx ?tx)]]}
+                               db (d/t->tx from))
+                            (map first)
+                            (sort <))
+                    :let [d (d/as-of db tx)]
+                    :when (:dev/count (d/entity d :dev/counter))]
+                {:db-after d
+                 :db-before :not-reconstructed
+                 :tx-data :not-reconstructed
+                 :tempids :not-reconstructed})]
+      (debug "found dbs: " from (map #(:dev/count (d/entity (:db-after %) :dev/counter)) dbs) (count dbs))
+      (go (onto-chan catch-up dbs)))
+    ;; put everything from catch-up into ch, then concat stream, using
+    ;; an unlimited buffer for stream while catch-up is not closed
+    ;; should be fine since catch-up has small and finite length
+    (go (loop [buffer clojure.lang.PersistentQueue/EMPTY]
+          (alt!
+            catch-up ([old]
+                        (if old
+                          (do (>! ch old)
+                              (recur buffer ))
+                          (do
+                            (<! (onto-chan ch buffer false))
+                            (recur nil))))
+            stream ([s]
+                      (if buffer
+                        (recur (conj buffer s))
+                        (if s
+                          (do (>! ch s)
+                              (recur nil))
+                          (close! ch)))))))) )
