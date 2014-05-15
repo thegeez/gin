@@ -11,20 +11,18 @@
   (let [sys (tc/reuse-system)
         conn (get-in sys [:db :connection])
         listen (get-in sys [:db :listen])
-        tx-report-ch (get-in sys [:db :tx-report-ch])
         start (chan)
         start-out (async/into [] (async/take 100 start))
         mid (chan)
         mid-out (async/into [] (async/take 100 mid))
         sixty (chan)
-        sixty-out (async/into [] (async/take 100 sixty))
+        sixty-out (async/into [] (async/take 40 sixty))
         end (chan)
         end-out (async/into [] (async/take 100 end))
         setup-counter (chan)
         setup-counter-done (go (loop []
                                  (let [tx-report (<! setup-counter)
                                        c (d/entity (:db-after tx-report) :dev/counter)]
-                                   (debug "dev counter: " c)
                                    (if (nil? c)
                                      (recur)
                                      (close! setup-counter)))))
@@ -33,7 +31,6 @@
         first-counter-done (go (loop []
                                  (let [tx-report (<! first-counter)
                                        c (:dev/count (d/entity (:db-after tx-report) :dev/counter))]
-                                   #_(debug "first counter " c)
                                    (if-not (= 50 c)
                                      (recur)
                                      (close! first-counter)))))]
@@ -47,21 +44,17 @@
                         :db.install/_attribute :db.part/db}
                        {:db/id (d/tempid :db.part/user)
                         :db/ident :inc
-                        :db/fn (d/function {:lang :clojure
-                                            :requires '[[datomic.api :as d]]
-                                            :params '[db]
-                                            :code
-                                            '(let [counter (d/entity db :dev/counter)]
+                        :db/fn (d/function '{:lang :clojure
+                                             :requires [[datomic.api :as d]]
+                                             :params [db]
+                                             :code
+                                             (let [counter (d/entity db :dev/counter)]
                                                [[:db/add (:db/id counter) :dev/count (inc (get counter :dev/count 0))]])})}])
-    (debug "sys is " conn listen)
     (<!! setup-counter)
-    (debug "Start listens from the beginning:")
     (dd/stream-from conn listen 0 start)
     (let [first-batch (dotimes [i 50]
                         @(d/transact conn [[:inc]]))
-          _ (debug "await first counter done")
           _ (<!! first-counter-done)
-          _ (debug "first counter done")
           second-counter (chan)
           second-counter-done (go (loop []
                                     (let [tx-report (<! second-counter)]
@@ -78,23 +71,15 @@
                            (when (= i 19)
                              (async/put! sixty-txs :start))))]
       (dd/stream-from conn listen (first (<!! (async/into [] (async/take 2 sixty-txs)))) sixty)
-      (debug "await counter done")
       (<!! second-counter-done)
-      (debug "close tx-report-ch")
-      (close! tx-report-ch)
-      (debug "tx-report-ch closed")
       (dd/stream-from conn listen 0 end)
       (let [starts (<!! start-out)
-            _ (debug "starts: " (map #(:dev/count (d/entity (:db-after %) :dev/counter)) starts))
             mids (<!! mid-out)
-            _ (debug "mids: " (map #(:dev/count (d/entity (:db-after %) :dev/counter)) mids))
             ends (<!! end-out)
-            _ (debug "ends: " (map #(:dev/count (d/entity (:db-after %) :dev/counter)) ends))
-            sixty (<!! sixty-out)
-            _ (debug "sixty: " (map #(:dev/count (d/entity (:db-after %) :dev/counter)) sixty))]
-        (is (= (count starts) 100))
-        (is (= (count mids) 100))
-        (is (= (count ends) 100))
-        (is (= (count sixty) 40))))))
+            sixty (<!! sixty-out)]
+        (is (= (map #(:dev/count (d/entity (:db-after %) :dev/counter)) starts) (range 1 101)))
+        (is (= (map #(:dev/count (d/entity (:db-after %) :dev/counter)) mids) (range 1 101)))
+        (is (= (map #(:dev/count (d/entity (:db-after %) :dev/counter)) ends) (range 1 101)))
+        (is (= (map #(:dev/count (d/entity (:db-after %) :dev/counter)) sixty) (range 61 101)))))))
 
 

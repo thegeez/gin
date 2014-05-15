@@ -3,7 +3,9 @@
             [com.stuartsierra.component :as component]
             [datomic.api :refer [db q] :as d]
             [gin.migrations :as migrations]
-            [clojure.core.async :refer [go tap chan alt! >! <! onto-chan pipe close!] :as async]))
+            [clojure.core.async :refer [go tap untap chan alt! >! <! onto-chan pipe close!] :as async]
+            [clojure.core.async.impl.protocols :as impl])
+  (:import [java.util LinkedList]))
 
 ;; sanity check
 (let [ms migrations/migrations]
@@ -82,11 +84,7 @@
     (d/create-database db-connect-string)
     (let [conn (d/connect db-connect-string)
           tx-reports-ch (async/chan)
-          listen (async/mult (async/map< 
-                              (fn [i]
-                                 #_(debug "passing i" i)
-                                 i)
-                              tx-reports-ch))]
+          listen (async/mult tx-reports-ch)]
       (async/thread
         (try (let [queue (d/tx-report-queue conn)]
            (while true
@@ -110,53 +108,81 @@
 (defn database-datomic [db-connect-string]
   (map->DatabaseDatomic {:db-connect-string db-connect-string}))
 
-(defn stream-from [conn listen from out]
-  (let [catch-up (chan) ;; get what we have from from to now in conn
-        stream (chan)
-        ch (chan)]
-    (tap listen stream)
-    (go (loop [last-t -1]
-          (let [{:keys [db-after] :as txr} (<! ch)]
-            (if txr
-              (let [t (or (d/as-of-t db-after)
-                          (d/basis-t db-after))]
-                (if (< last-t t)
-                  (do (>! out txr)
-                      (recur t))
-                  (recur last-t)))
-              (close! out)))))
+;; shh! nothing to see here
+(deftype UnboundedBuffer [^LinkedList buf]
+  impl/UnblockingBuffer
+  impl/Buffer
+  (full? [this]
+    false)
+  (remove! [this]
+    (.removeLast buf))
+  (add! [this itm]
+    (.addFirst buf itm))
+  clojure.lang.Counted
+  (count [this]
+    (.size buf)))
+
+(defn unbounded-buffer []
+  (UnboundedBuffer. (LinkedList.)))
+
+(defn stream-from [conn listen from out & [id]]
+  ;; out <- <tx-report for tx t> <tx-report for tx t+1> .. <tx-report for tx+n> 
+  ;; this stream is the concatenation of db's at tx t from (db conn)
+  ;; in 'catch-up' and from (listen! ..) in 'stream'
+  ;; only tx's after 'from' are put into 'out'
+  ;; 'catch-up' and 'stream' may overlap or have a
+  ;; gap between them (not sure on the timing between (db conn) and
+  ;; (listen! ..) notifications)
+  ;; the number of tx's to get from (db conn) for 'catch-up' is bounded so it should
+  ;; be safe to use an unbounded buffer for 'stream', while it
+  ;; waits on the first part to finish
+  (let [catch-up (chan)
+        stream (chan (unbounded-buffer))
+        txrs (fn [db from to]
+               (for [tx (->> (q '{:find [?tx]
+                                  :in [$ ?from-tx ?to-tx]
+                                  :where [[?tx :db/txInstant]
+                                          [(< ?from-tx ?tx)]
+                                          [(<= ?tx ?to-tx)]]}
+                                db (d/t->tx from) (d/t->tx to))
+                             (map first)
+                             (sort <))
+                     :let [d (d/as-of db tx)]
+                     :when (:dev/count (d/entity d :dev/counter))]
+                 {:db-after d
+                  :db-before :not-reconstructed
+                  :tx-data :not-reconstructed
+                  :tempids :not-reconstructed}))
+        _ (tap listen stream)
+        res (go (loop [in catch-up
+                       last-t 0
+                       at-gap false]
+                  (let [{:keys [db-after] :as txr} (<! in)]
+                    (if txr
+                      (let [t (or (d/as-of-t db-after)
+                                  (d/basis-t db-after))]
+                        (if at-gap
+                          (if (loop [txs-in-gap (txrs db-after last-t t)]
+                                   (if-let [txr (first txs-in-gap)]
+                                     (if (>! out txr)
+                                       (recur (rest txs-in-gap))
+                                       false)
+                                     true))
+                              (recur in t false)
+                              (untap listen stream))
+                          ;; usual case
+                          (if (< last-t t)
+                            (if (>! out txr)
+                                (recur in t false)
+                                (untap listen stream))
+                            (recur in last-t false))))
+                      ;; when in is closed switch from catch-up to stream
+                      (if (= in catch-up)
+                        (recur stream last-t true)
+                        ;; both catch-up and stream have closed
+                        (close! out))
+                      ))))]
     (let [db (db conn)
-          dbs (for [tx (->> (q '{:find [?tx]
-                                 :in [$ ?from-tx]
-                                 :where [[?tx :db/txInstant]
-                                         [(< ?from-tx ?tx)]]}
-                               db (d/t->tx from))
-                            (map first)
-                            (sort <))
-                    :let [d (d/as-of db tx)]
-                    :when (:dev/count (d/entity d :dev/counter))]
-                {:db-after d
-                 :db-before :not-reconstructed
-                 :tx-data :not-reconstructed
-                 :tempids :not-reconstructed})]
-      (debug "found dbs: " from (map #(:dev/count (d/entity (:db-after %) :dev/counter)) dbs) (count dbs))
-      (go (onto-chan catch-up dbs)))
-    ;; put everything from catch-up into ch, then concat stream, using
-    ;; an unlimited buffer for stream while catch-up is not closed
-    ;; should be fine since catch-up has small and finite length
-    (go (loop [buffer clojure.lang.PersistentQueue/EMPTY]
-          (alt!
-            catch-up ([old]
-                        (if old
-                          (do (>! ch old)
-                              (recur buffer ))
-                          (do
-                            (<! (onto-chan ch buffer false))
-                            (recur nil))))
-            stream ([s]
-                      (if buffer
-                        (recur (conj buffer s))
-                        (if s
-                          (do (>! ch s)
-                              (recur nil))
-                          (close! ch)))))))) )
+          ts (txrs db from Long/MAX_VALUE)]
+      (onto-chan catch-up ts))
+    res))
