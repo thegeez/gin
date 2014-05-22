@@ -42,15 +42,22 @@
                                           (close! chunks))
                                         (onTimeout [c]
                                           (.complete c))))
-            (go (loop []
-                  (if-let [chunk (<! chunks)]
-                    (do (doto (.getWriter response)
-                          (.write chunk)
-                          (.flush))
-                        (when (.checkError (.getWriter response))
-                          (close! chunks))
-                        (recur))
-                    (.complete continuation))))
+            (go (try
+                  (loop []
+                    (if-let [chunk (<! chunks)]
+                      (do (doto (.getWriter response)
+                            (.write chunk)
+                            (.flush))
+                          (when (.checkError (.getWriter response))
+                            (close! chunks))
+                          (recur))
+                      (.complete continuation)))
+                  (catch Exception e
+                    (.printStackTrace e)
+                    (debug "Exception async out chan: " e)
+                    (close! chunks)
+                    (.complete continuation)
+                    (throw e))))
             ;; 4 minutes is google default
             (.setTimeout continuation (get options :response-timeout (* 4 60 1000)))
             ))))))
