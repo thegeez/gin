@@ -125,7 +125,7 @@
 (defn unbounded-buffer []
   (UnboundedBuffer. (LinkedList.)))
 
-(defn stream-from [conn listen from out eid attr]
+(defn stream-from [conn listen from eid attr out]
   ;; out <- <tx-report for tx t> <tx-report for tx t+1> .. <tx-report for tx+n> 
   ;; this stream is the concatenation of db's at tx t from (db conn)
   ;; in 'catch-up' and from (listen! ..) in 'stream'

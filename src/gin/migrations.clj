@@ -74,7 +74,7 @@
                                  :db.install/_attribute :db.part/db}
                                 ])
 
-             @(d/transact conn [{:db/id (d/tempid :db.part/user)
+             @(d/transact conn [{:db/id (d/tempid :db.part/user -4)
                                  :event/type :game-created
                                  :event/game (d/tempid :db.part/user -3)
                                  :event/tx (d/tempid :db.part/tx)}
@@ -82,7 +82,8 @@
                                  :game/id "fix1"
                                  :game/player1 (d/tempid :db.part/user -1)
                                  :game/player2 (d/tempid :db.part/user -2)
-                                 :game/to-start (d/tempid :db.part/user -1)}
+                                 :game/to-start (d/tempid :db.part/user -1)
+                                 :game/last-event (d/tempid :db.part/user -4)}
                                 {:db/id (d/tempid :db.part/user -1)
                                  :account/slug "user1"
                                  :account/name "User One"}

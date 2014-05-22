@@ -155,7 +155,7 @@
                                                  :dev/count (inc (get game :dev/count 0))
                                                  :game/last-event event-eid}])})}])
     (<!! setup-counter)
-    (dd/stream-from conn listen 0 start eid attr)
+    (dd/stream-from conn listen 0 eid attr start)
     (let [first-batch (dotimes [i 50]
                         @(d/transact conn [[:inc]]))
           _ (<!! first-counter-done)
@@ -166,7 +166,7 @@
                                         (recur)
                                         (close! second-counter)))))
           _ (async/tap listen second-counter)
-          _ (dd/stream-from conn listen 0 mid eid attr)
+          _ (dd/stream-from conn listen 0 eid attr mid)
           sixty-txs (chan)
           second-batch (dotimes [i 50]
                          (let [res @(d/transact conn [[:inc]])]
@@ -174,9 +174,9 @@
                              (async/put! sixty-txs (d/basis-t (:db-after res))))
                            (when (= i 19)
                              (async/put! sixty-txs :start))))]
-      (dd/stream-from conn listen (first (<!! (async/into [] (async/take 2 sixty-txs)))) sixty eid attr)
+      (dd/stream-from conn listen (first (<!! (async/into [] (async/take 2 sixty-txs)))) eid attr sixty)
       (<!! second-counter-done)
-      (dd/stream-from conn listen 0 end eid attr)
+      (dd/stream-from conn listen 0 eid attr end)
       (let [starts (<!! start-out)
             mids (<!! mid-out)
             ends (<!! end-out)

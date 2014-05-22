@@ -52,17 +52,23 @@
                              msgs (chan)
                              conn (get-in ctx [:request :conn])
                              listen (get-in ctx [:request :listen])]
-                         (dd/stream-from conn listen 0 (async/map>
-                                                        (fn [msg]
-                                                          (let [db (:db-after msg)
-                                                                e (:event/_game (d/entity db [:game/id "fix1"]))]
-                                                            (debug "MSG" e)
-                                                            (debug "MSG touch" (d/touch (first e)))
-                                                            (str "id: 999\r\n"
-                                                                 "data: HW!!!!\r\n\r\n")))
-                                                        c)
-                                         eid [:game/id "fix1"]
-                                         attr :game/last-event)
+                         (async/go (async/<! (async/timeout 3000))
+                                   (d/transact conn [{:db/id [:game/id "fix1"]
+                                                      :game/last-event (d/tempid :db.part/user -1)}
+                                                     {:db/id (d/tempid :db.part/user -1)
+                                                      :event/type :some-mock-event}]))
+                         (dd/stream-from conn listen 0
+                                         [:game/id "fix1"]
+                                         :game/last-event
+                                         (async/map>
+                                          (fn [msg]
+                                            (let [db (:db-after msg)
+                                                  e (:event/type (:game/last-event (d/entity db [:game/id "fix1"])))]
+                                              (debug "MSG" e (or (d/as-of-t db)
+                                                                 (d/basis-t db)))
+                                              (str "id: 999\r\n"
+                                                   "data: HW!!!!\r\n\r\n")))
+                                          c))
                          (comment    
                            (async/put! c (str "id: " start-from "\r\n" "data: hello worl" start-from
                                               "\r\n\r\n"))
