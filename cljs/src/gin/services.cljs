@@ -4,14 +4,8 @@
             [goog.dom :as gdom]
             [datascript :as d]))
 
-(defn DELETE
-  "Not yet in cljs-ajax 0.2.3"
-  [uri & [opts]]
-  (ajax-core/ajax-request uri "DELETE" (ajax-core/transform-opts opts)))
-
-
-(defn todos-url []
-  (str (.. js/window -location -pathname) "/todos"))
+(defn game-url []
+  (str (.. js/window -location -pathname)))
 
 (defn csrf-token []
   (-> (goog.dom.getElement "csrf-token")
@@ -126,10 +120,15 @@
   [_ _] nil)
 
 (defn start-services [conn]
+  (.log js/console "HELLO REMOTE SERVICES!")
   (d/listen! conn (fn [{:keys [db-after] :as report}]
                     (let [[event args] (first (d/q '{:find [?event ?args]
                                                      :in [$ ?tx]
                                                      :where [[?e :event ?event ?tx]
                                                              [?e :args ?args]]}
                                                    db-after (:max-tx db-after)))]
-                      (handle event args db-after conn)))))
+                      (handle event args report conn))))
+  (let [source (js/EventSource. (str (game-url) "/events"))]
+    (set! (.-onmessage source)
+          (fn [e]
+            (.log js/console "from services:" e)))))

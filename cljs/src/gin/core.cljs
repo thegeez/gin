@@ -24,20 +24,12 @@
     (.log js/console "service" service)
     (render conn)
     (service conn)
-    (def app app))
-
-  ;;sse dev
-  (let [source (js/EventSource. "/dev-sse/events")]
-    (set! (.-onmessage source)
-          (fn [e]
-            (.log js/console e))))
-  
-  )
+    (def app app)))
 
 (defn ^:export main
   "Application entry point"
   []
-  (start-app (load-app)))              ; hook for development/debugging
+  (start-app (load-app)))
 
 (defn load-local-app
   []
@@ -47,4 +39,11 @@
 
 (defn ^:export client-local
   []
-  (start-app (load-local-app)))
+  (start-app (load-local-app))
+  ;;sse dev
+  (let [source (js/EventSource. "/dev-sse/events")]
+    (set! (.-onmessage source)
+          (fn [e]
+            (.log js/console e))))
+
+  )

@@ -7,6 +7,7 @@
             [gin.system.database-datomic :as database-datomic]
             [gin.system.email :as email]
             [gin.home :as home]
+            [gin.games :as games]
             [compojure.core :as compojure]
             [cemerick.friend :as friend]
             [cemerick.friend.workflows :as workflows]
@@ -14,6 +15,7 @@
 
 (compojure/defroutes main-routes
   home/home-routes
+  games/games-routes
   (compojure/ANY "*" _ "Not found")
   )
 

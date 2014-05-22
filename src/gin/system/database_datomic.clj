@@ -3,7 +3,7 @@
             [com.stuartsierra.component :as component]
             [datomic.api :refer [db q] :as d]
             [gin.migrations :as migrations]
-            [clojure.core.async :refer [go tap untap chan alt! >! <! onto-chan pipe close!] :as async]
+            [clojure.core.async :refer [go tap untap chan alt! >! <! filter> onto-chan pipe close!] :as async]
             [clojure.core.async.impl.protocols :as impl])
   (:import [java.util LinkedList]))
 
@@ -125,7 +125,7 @@
 (defn unbounded-buffer []
   (UnboundedBuffer. (LinkedList.)))
 
-(defn stream-from [conn listen from out & [id]]
+(defn stream-from [conn listen from out eid attr]
   ;; out <- <tx-report for tx t> <tx-report for tx t+1> .. <tx-report for tx+n> 
   ;; this stream is the concatenation of db's at tx t from (db conn)
   ;; in 'catch-up' and from (listen! ..) in 'stream'
@@ -139,49 +139,60 @@
   (let [catch-up (chan)
         stream (chan (unbounded-buffer))
         txrs (fn [db from to]
-               (for [tx (->> (q '{:find [?tx]
-                                  :in [$ ?from-tx ?to-tx]
-                                  :where [[?tx :db/txInstant]
-                                          [(< ?from-tx ?tx)]
-                                          [(<= ?tx ?to-tx)]]}
-                                db (d/t->tx from) (d/t->tx to))
-                             (map first)
-                             (sort <))
-                     :let [d (d/as-of db tx)]
-                     :when (:dev/count (d/entity d :dev/counter))]
-                 {:db-after d
-                  :db-before :not-reconstructed
-                  :tx-data :not-reconstructed
-                  :tempids :not-reconstructed}))
-        _ (tap listen stream)
-        res (go (loop [in catch-up
-                       last-t 0
-                       at-gap false]
-                  (let [{:keys [db-after] :as txr} (<! in)]
-                    (if txr
-                      (let [t (or (d/as-of-t db-after)
-                                  (d/basis-t db-after))]
-                        (if at-gap
-                          (if (loop [txs-in-gap (txrs db-after last-t t)]
-                                   (if-let [txr (first txs-in-gap)]
-                                     (if (>! out txr)
-                                       (recur (rest txs-in-gap))
-                                       false)
-                                     true))
-                              (recur in t false)
-                              (untap listen stream))
-                          ;; usual case
-                          (if (< last-t t)
-                            (if (>! out txr)
-                                (recur in t false)
-                                (untap listen stream))
-                            (recur in last-t false))))
-                      ;; when in is closed switch from catch-up to stream
-                      (if (= in catch-up)
-                        (recur stream last-t true)
-                        ;; both catch-up and stream have closed
-                        (close! out))
-                      ))))]
+               (let [about-entity (d/entity db eid)]
+                 (for [tx (->> (q '{:find [?tx]
+                                    :in [$ ?from-tx ?to-tx ?attr ?about]
+                                    :where [[?about ?attr _ ?tx true]
+                                            [(< ?from-tx ?tx)]
+                                            [(<= ?tx ?to-tx)]]}
+                                  (d/history db) (d/t->tx from) (d/t->tx to)
+                                  attr
+                                  (:db/id about-entity))
+                               (map first)
+                               (sort <))]
+                   {:db-after (d/as-of db tx)
+                    :db-before :not-reconstructed
+                    :tx-data :not-reconstructed
+                    :tempids :not-reconstructed})))
+        _ (tap listen
+               (filter> (fn [{:keys [db-after tx-data] :as txr}]
+                          (let [game-e (d/entity db-after eid)]
+                            (seq (q '{:find [?e]
+                                      :in [$ ?attr ?game-e]
+                                      :where [[?game-e ?attr ?e _ true]]}
+                                    tx-data (d/entid db-after attr) (:db/id game-e))))) stream))
+        res (go
+              (loop [in catch-up
+                     last-t 0
+                     at-gap false]
+                (let [{:keys [db-after] :as txr} (<! in)]
+                  (if txr
+                    (let [t (or (d/as-of-t db-after)
+                                (d/basis-t db-after))]
+                      (if at-gap
+                        (if (loop [txs-in-gap (txrs db-after last-t t)]
+                              (if-let [txr (first txs-in-gap)]
+                                (if (>! out txr)
+                                  (recur (rest txs-in-gap))
+                                  false)
+                                true))
+                          (recur in t false)
+                          (untap listen stream))
+                        ;; usual case
+                        (if (< last-t t)
+                          ;; todo
+                          ;; again also filter only events relative
+                          ;; to eid
+                          (if (>! out txr)
+                            (recur in t false)
+                            (untap listen stream))
+                          (recur in last-t false))))
+                    ;; when in is closed switch from catch-up to stream
+                    (if (= in catch-up)
+                      (recur stream last-t true)
+                      ;; both catch-up and stream have closed
+                      (close! out))
+                    ))))]
     (let [db (db conn)
           ts (txrs db from Long/MAX_VALUE)]
       (onto-chan catch-up ts))
