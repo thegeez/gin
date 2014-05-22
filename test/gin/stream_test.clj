@@ -156,6 +156,17 @@
                                                  :game/last-event event-eid}])})}])
     (<!! setup-counter)
     (dd/stream-from conn listen 0 eid attr start)
+    (go (dotimes [i 25]
+          (<! (timeout 1500))
+          @(d/transact conn (let [game (d/entity db [:game/id "some-other-game"])
+                                  event-eid (d/tempid :db.part/user)
+                                  game-eid (:db/id game)]
+                              [{:db/id event-eid
+                                :event/type :some-other-event
+                                :event/game game-eid
+                                :event/tx (d/tempid :db.part/tx)}
+                               {:db/id game-eid
+                                :game/last-event event-eid}]))))
     (let [first-batch (dotimes [i 50]
                         @(d/transact conn [[:inc]]))
           _ (<!! first-counter-done)
