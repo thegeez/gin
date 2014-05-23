@@ -31,12 +31,17 @@
                                  :db/cardinality :db.cardinality/one
                                  :db.install/_attribute :db.part/db}
                                 {:db/id (d/tempid :db.part/db)
-                                 :db/ident :game/last-event
-                                 :db/valueType :db.type/ref
+                                 :db/ident :event/by
+                                 :db/valueType :db.type/keyword
                                  :db/cardinality :db.cardinality/one
                                  :db.install/_attribute :db.part/db}
                                 {:db/id (d/tempid :db.part/db)
                                  :db/ident :event/tx
+                                 :db/valueType :db.type/ref
+                                 :db/cardinality :db.cardinality/one
+                                 :db.install/_attribute :db.part/db}
+                                {:db/id (d/tempid :db.part/db)
+                                 :db/ident :game/last-event
                                  :db/valueType :db.type/ref
                                  :db/cardinality :db.cardinality/one
                                  :db.install/_attribute :db.part/db}
@@ -62,6 +67,41 @@
                                  :db/cardinality :db.cardinality/one
                                  :db.install/_attribute :db.part/db}
                                 {:db/id (d/tempid :db.part/db)
+                                 :db/ident :game/player1-cards
+                                 :db/valueType :db.type/ref
+                                 :db/cardinality :db.cardinality/many
+                                 :db.install/_attribute :db.part/db}
+                                {:db/id (d/tempid :db.part/db)
+                                 :db/ident :game/player2-cards
+                                 :db/valueType :db.type/ref
+                                 :db/cardinality :db.cardinality/many
+                                 :db.install/_attribute :db.part/db}
+                                {:db/id (d/tempid :db.part/db)
+                                 :db/ident :game/pile
+                                 :db/valueType :db.type/ref
+                                 :db/cardinality :db.cardinality/many
+                                 :db.install/_attribute :db.part/db}
+                                {:db/id (d/tempid :db.part/db)
+                                 :db/ident :game/discard
+                                 :db/valueType :db.type/ref
+                                 :db/cardinality :db.cardinality/one
+                                 :db.install/_attribute :db.part/db}
+                                {:db/id (d/tempid :db.part/db)
+                                 :db/ident :card/suit
+                                 :db/valueType :db.type/keyword
+                                 :db/cardinality :db.cardinality/one
+                                 :db.install/_attribute :db.part/db}
+                                {:db/id (d/tempid :db.part/db)
+                                 :db/ident :card/rank
+                                 :db/valueType :db.type/keyword
+                                 :db/cardinality :db.cardinality/one
+                                 :db.install/_attribute :db.part/db}
+                                {:db/id (d/tempid :db.part/db)
+                                 :db/ident :card.discard/next
+                                 :db/valueType :db.type/ref
+                                 :db/cardinality :db.cardinality/one
+                                 :db.install/_attribute :db.part/db}
+                                {:db/id (d/tempid :db.part/db)
                                  :db/ident :account/slug
                                  :db/unique :db.unique/identity
                                  :db/valueType :db.type/string
@@ -82,7 +122,8 @@
                             [{:db/id event-id
                               :event/type :game-created
                               :event/game game-id
-                              :event/tx tx-id}
+                              :event/tx tx-id
+                              :event/by :migrations}
                              {:db/id game-id
                               :game/id "fix1"
                               :game/player1 p1-id

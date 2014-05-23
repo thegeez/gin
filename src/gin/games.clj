@@ -40,11 +40,11 @@
   :handle-ok {}
   :as-response (l/as-template-response game-page-layout))
 
-(defmulti event-to-msg (fn [event]
+(defmulti event-to-msg (fn [event player]
                          (:event/type event)))
 
 (defmethod event-to-msg :game-created
-  [event]
+  [event player]
   (let [game (:event/game event)]
     (str {:event :game-created
           :game-id (:game/id game)
@@ -54,12 +54,52 @@
                       :player1
                       :player2)})))
 
+(defmethod event-to-msg :deal
+  [event player]
+  (let [game (:event/game event)]
+    (str {:event :deal
+          :game-id (:game/id game)
+          :to-start (if (= (:game/to-start game) (:game/player1 game))
+                      :player1
+                      :player2)
+          :discard (let [discard (:game/discard game)]
+                     {:suit (:card/suit discard)
+                      :rank (:card/rank discard)})
+          :our-cards (for [card (get game (if (= player :player1)
+                                            :game/player1-cards
+                                            :game/player2-cards))]
+                       {:suit (:card/suit card)
+                        :rank (:card/rank card)})
+          })))
+
 (defmethod event-to-msg :default
-  [event]
+  [event player]
   (str (:event/type event)))
 
 (defresource game-events
   :available-media-types ["text/event-stream"]
+  :allowed? (fn [ctx]
+              {:slug (if (.contains (get-in ctx [:request :headers "user-agent"]) "Chrome")
+                "user2"
+                "user1")})
+  :exists? (fn [ctx]
+             (let [db (db (h/conn ctx))
+                   game-id (get-in ctx [:request :params :game-id])
+                   slug (:slug ctx)]
+               (when-let [game-e (ffirst (q '{:find [?e]
+                                              :in [$ ?game-id]
+                                              :where [[?e :game/id ?game-id]]}
+                                            db game-id))]
+                 (let [game (d/entity db game-e)]
+                   (cond
+                    (= (get-in game [:game/player1 :account/slug]) slug)
+                    {:game game
+                     :player :player1}
+                    (= (get-in game [:game/player2 :account/slug]) slug)
+                    {:game game
+                     :player :player2}
+                    :else nil)))))
+
   :handle-ok (fn [ctx]
                (lib-rep/ring-response
                 {:status 200
@@ -72,7 +112,8 @@
                              msgs (chan)
                              conn (get-in ctx [:request :conn])
                              listen (get-in ctx [:request :listen])
-                             here-since (.getTime (java.util.Date.))]
+                             here-since (.getTime (java.util.Date.))
+                             player (get-in ctx [:player])]
                          (async/go (async/<! (async/timeout 3000))
                                    (d/transact conn [{:db/id [:game/id "fix1"]
                                                       :game/last-event (d/tempid :db.part/user -1)}
@@ -92,7 +133,7 @@
                                                      here-since)
                                               (str "id: " t "\r\n"
                                                    "data: "
-                                                   (event-to-msg event)
+                                                   (spy (event-to-msg event player))
                                                    "\r\n\r\n")))
                                           c))
                          c)})))

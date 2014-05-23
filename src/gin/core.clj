@@ -6,6 +6,7 @@
             [gin.system.server :as server]
             [gin.system.database-datomic :as database-datomic]
             [gin.system.email :as email]
+            [gin.dealer :as dealer]
             [gin.home :as home]
             [gin.games :as games]
             [compojure.core :as compojure]
@@ -68,6 +69,9 @@
        ;;               (dev-db-fixtures)
        ;;               {:database :db
        ;;                :db-migrator :db-migrator})
+       :dealer (component/using
+                (dealer/dealer)
+                {:database :db})
        :ring-handler (component/using
                       (ring/ring-handler (dev-handler))
                       {:database :db
