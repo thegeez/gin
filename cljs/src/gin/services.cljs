@@ -2,7 +2,8 @@
   (:require [gin.transact :as t]
             [ajax.core :refer [GET POST PUT] :as ajax-core]
             [goog.dom :as gdom]
-            [datascript :as d]))
+            [datascript :as d]
+            [cljs.reader :as reader]))
 
 (defn game-url []
   (str (.. js/window -location -pathname)))
@@ -14,10 +15,10 @@
 (defn error-handler [conn]
   (d/transact! conn [[:db.fn/call t/error "fail"]]))
 
-(defmulti handle
+(defmulti handle-client
   (fn [event args db conn] event))
 
-(defmethod handle :create-item
+(defmethod handle-client :create-item
   [_ [temp-id text] db conn]
   (POST (todos-url)
         {:params {:id temp-id
@@ -31,7 +32,7 @@
                           (error-handler conn))
          :headers {"X-CSRF-Token" (csrf-token)}}))
 
-(defmethod handle :complete-edit
+(defmethod handle-client :complete-edit
   [event [id text] db conn]
   (PUT (todos-url)
        {:params {:id id
@@ -50,7 +51,7 @@
                         :description "EDN (CUSTOM)"})
         :headers {"X-CSRF-Token" (csrf-token)}}))
 
-(defmethod handle :toggle-item
+(defmethod handle-client :toggle-item
   [event [id completed] db conn]
   (PUT (todos-url)
        {:params {:id id
@@ -69,7 +70,7 @@
                         :description "EDN (CUSTOM)"})
         :headers {"X-CSRF-Token" (csrf-token)}}))
 
-(defmethod handle :remove-item
+(defmethod handle-client :remove-item
   [event [id] db conn]
   (DELETE (todos-url)
        {:params {:id id}
@@ -87,7 +88,7 @@
                         :description "EDN (CUSTOM)"})
         :headers {"X-CSRF-Token" (csrf-token)}}))
 
-(defmethod handle :clear-completed
+(defmethod handle-client :clear-completed
   [event [ids] db conn]
   ;; todo make batch delete enpoint and use that
   (doseq [id ids]
@@ -107,7 +108,7 @@
                              :description "EDN (CUSTOM)"})
              :headers {"X-CSRF-Token" (csrf-token)}})))
 
-(defmethod handle :toggle-all
+(defmethod handle-client :toggle-all
   [event _ db conn]
   (doseq [[id completed] (d/q '{:find [?id ?completed]
                                 :in [$ ?tx]
@@ -116,8 +117,22 @@
                               db (:max-tx db))]
     (handle :toggle-item [id completed] db conn)))
 
-(defmethod handle :default
+(defmethod handle-client :default
   [_ _] nil)
+
+(defmulti handle-server (fn [event conn]
+                          (let [res (:event event)]
+                            (.log js/console "dispatching on: " res)
+                            res)))
+
+(defmethod handle-server :game-created
+  [event conn]
+  (let [{:keys [game-id player1 player2 to-start]} event]
+    (d/transact! conn [[:db.fn/call t/game-created game-id player1 player2 to-start]])))
+
+(defmethod handle-server :default
+  [event conn]
+  (.log js/console (str "no handler for msg: " (pr-str msg))))
 
 (defn start-services [conn]
   (.log js/console "HELLO REMOTE SERVICES!")
@@ -127,8 +142,11 @@
                                                      :where [[?e :event ?event ?tx]
                                                              [?e :args ?args]]}
                                                    db-after (:max-tx db-after)))]
-                      (handle event args report conn))))
+                      (handle-client event args report conn))))
   (let [source (js/EventSource. (str (game-url) "/events"))]
     (set! (.-onmessage source)
           (fn [e]
-            (.log js/console "from services:" e)))))
+            (.log js/console "from services:" e)
+            (let [data (.-data e)
+                  event (reader/read-string data)]
+              (handle-server event conn))))))

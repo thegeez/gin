@@ -27,6 +27,8 @@
 (defresource game-page
   :available-media-types ["text/html"]
   ;; :authorized :authenticated :todo
+          
+  ;; use a early decision point to temporarily create a game here
   :exists? (fn [ctx]
              (let [db (db (h/conn ctx))
                    game-id (get-in ctx [:request :params :game-id])]
@@ -37,6 +39,24 @@
                        {:game (d/entity db game-e)})))
   :handle-ok {}
   :as-response (l/as-template-response game-page-layout))
+
+(defmulti event-to-msg (fn [event]
+                         (:event/type event)))
+
+(defmethod event-to-msg :game-created
+  [event]
+  (let [game (:event/game event)]
+    (str {:event :game-created
+          :game-id (:game/id game)
+          :player1 (get-in game [:game/player1 :account/name])
+          :player2 (get-in game [:game/player2 :account/name])
+          :to-start (if (= (:game/to-start game) (:game/player1 game))
+                      :player1
+                      :player2)})))
+
+(defmethod event-to-msg :default
+  [event]
+  (str (:event/type event)))
 
 (defresource game-events
   :available-media-types ["text/event-stream"]
@@ -51,7 +71,8 @@
                                              (catch Exception e 0))
                              msgs (chan)
                              conn (get-in ctx [:request :conn])
-                             listen (get-in ctx [:request :listen])]
+                             listen (get-in ctx [:request :listen])
+                             here-since (.getTime (java.util.Date.))]
                          (async/go (async/<! (async/timeout 3000))
                                    (d/transact conn [{:db/id [:game/id "fix1"]
                                                       :game/last-event (d/tempid :db.part/user -1)}
@@ -63,37 +84,17 @@
                                          (async/map>
                                           (fn [msg]
                                             (let [db (:db-after msg)
-                                                  e (:event/type (:game/last-event (d/entity db [:game/id "fix1"])))]
-                                              (debug "MSG" e (or (d/as-of-t db)
-                                                                 (d/basis-t db)))
-                                              (str "id: 999\r\n"
-                                                   "data: HW!!!!\r\n\r\n")))
+                                                  t (or (d/as-of-t db)
+                                                        (d/basis-t db))
+                                                  event (:game/last-event (d/entity db [:game/id "fix1"]))]
+                                              (debug "MSG" (:event/type event)
+                                                     t
+                                                     here-since)
+                                              (str "id: " t "\r\n"
+                                                   "data: "
+                                                   (event-to-msg event)
+                                                   "\r\n\r\n")))
                                           c))
-                         (comment    
-                           (async/put! c (str "id: " start-from "\r\n" "data: hello worl" start-from
-                                              "\r\n\r\n"))
-                           (async/tap (get-in ctx [:request :listen]) msgs)
-                           (go (loop []
-                                 (let [msg (<! msgs)
-                                       i (:dev/count (d/entity (:db-after msg) :dev/counter) 0)]
-                                   ;; there are 3 catch-up cases:
-                                   ;; get everything from db from
-                                   ;; current connection that is after
-                                   ;; last-event-id
-                                   ;; upon first report from listen do
-                                   ;; the same thing to get everything
-                                   ;; after last-event-id upto the
-                                   ;; report
-                                   ;; then forward all reports
-
-                                   (if (= i 20)
-                                     (do (close! c)
-                                         (close! msgs))
-                                     (do
-                                       (debug "msg i is" i)
-                                       (>! c (str "id: " i "\r\n" "data: hello worl" i
-                                                  "\r\n\r\n"))
-                                       (recur)))))))
                          c)})))
 
 (defroutes games-routes
