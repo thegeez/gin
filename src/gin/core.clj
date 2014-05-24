@@ -32,6 +32,10 @@
                  res)
                )))))
       (friend/authenticate {:login-uri "/login"
+                            ;; TODO
+                            ;; rather than redirect to /login try to
+                            ;; throw an exception, this should
+                            ;; redirect properly after login
                             :default-landing-uri "/login"
                             :workflows [(fn [req]
                                           ((workflows/interactive-form

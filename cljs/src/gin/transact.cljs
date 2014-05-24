@@ -45,8 +45,7 @@
 
 (defn deal [db game-id discard-card our-cards to-start]
   (into [[:db.fn/call log-event :deal game-id discard-card our-cards to-start]]
-        (let [;; todo wrap this is (d/by-index :av :game-id game-id)
-              {game-e :db/id :as game} (dh/entity-lookup db [:game-id game-id])
+        (let [{game-e :db/id :as game} (dh/entity-lookup db [:game-id game-id])
               cards (for [cid (:pile game)]
                       (dh/entity-lookup db [:dom/id cid]))
               [pile [discard & other]] (split-at 31 cards)

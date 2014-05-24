@@ -18,14 +18,15 @@
 (defmulti handle-client
   (fn [event args db conn] event))
 
-(defmethod handle-client :create-item
-  [_ [temp-id text] db conn]
-  (POST (todos-url)
-        {:params {:id temp-id
-                  :text text}
+(defmethod handle-client :player-ready
+  [_ [game-id player] db conn]
+  (.log js/console "Player is ready, tell this to the server!")
+  (POST (str (game-url) "/action")
+        {:params {:game-id game-id
+                  :player player}
          :handler (fn [res]
                     (.log js/console (str "Succesful res: " res))
-                    (let [id (:id res)]
+                    #_(let [id (:id res)]
                       (d/transact! conn [[:db.fn/call t/commit-item temp-id id]])))
          :error-handler (fn [res]
                           (.log js/console (str "FAil res: " res))
@@ -127,8 +128,8 @@
 
 (defmethod handle-server :game-created
   [event conn]
-  (let [{:keys [game-id player1 player2 to-start]} event]
-    (d/transact! conn [[:db.fn/call t/game-created game-id player1 player2 to-start]])))
+  (let [{:keys [game-id player1 player2 us]} event]
+    (d/transact! conn [[:db.fn/call t/game-created game-id player1 player2 us]])))
 
 (defmethod handle-server :deal
   [event conn]

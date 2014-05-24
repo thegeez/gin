@@ -22,9 +22,25 @@
                                " vs. "
                                (get-in ctx [:game :game/player2 :account/name])
                                ". To start: "
-                               (get-in ctx [:game :game/to-start :account/name])))))
+                               (get-in ctx [:game :game/to-start :account/name])))
+   [:#csrf-token] (html/set-attr :value (get-in ctx [:request :session "__anti-forgery-token"]))))
 
 (defresource game-page
+  :available-media-types ["text/html"]
+  ;; :authorized :authenticated :todo
+  :exists? (fn [ctx]
+             (let [db (db (h/conn ctx))
+                   game-id (get-in ctx [:request :params :game-id])]
+               (when-let [game-e (ffirst (q '{:find [?e]
+                                              :in [$ ?game-id]
+                                              :where [[?e :game/id ?game-id]]}
+                                            db game-id))]
+                       {:game (d/entity db game-e)})))
+  :handle-ok {}
+  :as-response (l/as-template-response game-page-layout))
+
+(defresource game-action
+  :allowed-methods [:post]
   :available-media-types ["text/html"]
   ;; :authorized :authenticated :todo
           
@@ -38,7 +54,7 @@
                                             db game-id))]
                        {:game (d/entity db game-e)})))
   :handle-ok {}
-  :as-response (l/as-template-response game-page-layout))
+  :as-response (l/as-template-response nil))
 
 (defmulti event-to-msg (fn [event player]
                          (:event/type event)))
@@ -50,9 +66,7 @@
           :game-id (:game/id game)
           :player1 (get-in game [:game/player1 :account/name])
           :player2 (get-in game [:game/player2 :account/name])
-          :to-start (if (= (:game/to-start game) (:game/player1 game))
-                      :player1
-                      :player2)})))
+          :us player})))
 
 (defmethod event-to-msg :deal
   [event player]
@@ -140,4 +154,5 @@
 
 (defroutes games-routes
   (ANY "/games/:game-id" _ game-page)
-  (ANY "/games/:game-id/events" _ game-events))
+  (ANY "/games/:game-id/events" _ game-events)
+  (ANY "/games/:game-id/action" _ game-action))

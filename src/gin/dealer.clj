@@ -29,7 +29,7 @@
         player1 (get-in event [:event/game :game/player1 :db/id])
         player2 (get-in event [:event/game :game/player2 :db/id])
         starting (rand-nth [player1 player2])]
-    @(d/transact conn
+    (d/transact-async conn
                  (let [event-id (d/tempid :db.part/user)
                        game-id (:db/id (:event/game event))]
                    (-> [{:db/id event-id
@@ -48,6 +48,12 @@
                                 :card/suit suit
                                 :card/rank rank
                                 location game-id})))))))
+
+(defmethod handle :player-ready
+  [event conn]
+  ;; check if both players are ready
+  (debug "A player is ready")
+  )
 
 (defmethod handle :default
   [event conn]
