@@ -136,6 +136,16 @@
   (let [{:keys [game-id discard our-cards to-start]} event]
     (d/transact! conn [[:db.fn/call t/deal game-id discard our-cards to-start]])))
 
+(defmethod handle-server :turn-assigned
+  [event conn]
+  (let [{:keys [game-id turn]} event]
+    (d/transact! conn [[:db.fn/call t/turn-assigned game-id turn]])))
+
+(defmethod handle-server :game-finished
+  [event conn]
+  (let [{:keys [game-id result opp-cards]} event]
+    (d/transact! conn [[:db.fn/call t/game-finished game-id result opp-cards]])))
+
 (defmethod handle-server :default
   [event conn]
   (.log js/console (str "no handler for msg: " (pr-str msg))))
