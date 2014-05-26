@@ -20,7 +20,19 @@
                                  :db.install/_attribute :db.part/db}]))
        :down identity}]
    [3 {:up (fn [conn]
-             @(d/transact conn [{:db/id (d/tempid :db.part/db)
+             @(d/transact conn [{:db/id (d/tempid :db.part/user)
+                                 :db/ident :log-event
+                                 :db/fn (d/function '{:lang :clojure
+                                                      :requires [[datomic.api :as d]]
+                                                      :params [db event-type game by]
+                                                      :code
+                                                      [{:db/id (d/tempid :db.part/user)
+                                                        :event/type event-type
+                                                        :event/game game
+                                                        :game/_last-event game
+                                                        :event/by by
+                                                        :event/tx (d/tempid :db.part/tx)}]})}
+                                {:db/id (d/tempid :db.part/db)
                                  :db/ident :event/type
                                  :db/valueType :db.type/keyword
                                  :db/cardinality :db.cardinality/one
@@ -65,6 +77,26 @@
                                  :db/ident :game/to-start
                                  :db/valueType :db.type/ref
                                  :db/cardinality :db.cardinality/one
+                                 :db.install/_attribute :db.part/db}
+                                {:db/id (d/tempid :db.part/db)
+                                 :db/ident :game/turn
+                                 :db/valueType :db.type/ref
+                                 :db/cardinality :db.cardinality/one
+                                 :db.install/_attribute :db.part/db}
+                                {:db/id (d/tempid :db.part/db)
+                                 :db/ident :game/result
+                                 :db/valueType :db.type/keyword
+                                 :db/cardinality :db.cardinality/one
+                                 :db.install/_attribute :db.part/db}
+                                {:db/id (d/tempid :db.part/db)
+                                 :db/ident :game/winner
+                                 :db/valueType :db.type/ref
+                                 :db/cardinality :db.cardinality/one
+                                 :db.install/_attribute :db.part/db}
+                                {:db/id (d/tempid :db.part/db)
+                                 :db/ident :game/ready
+                                 :db/valueType :db.type/ref
+                                 :db/cardinality :db.cardinality/many
                                  :db.install/_attribute :db.part/db}
                                 {:db/id (d/tempid :db.part/db)
                                  :db/ident :game/player1-cards

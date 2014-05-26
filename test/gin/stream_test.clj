@@ -102,7 +102,7 @@
                                          c (q '{:find [?e]
                                                 :where [[?e :game/id "test1"]]}
                                               (:db-after tx-report))]
-                                     (if (nil? c)
+                                     (if (nil? (seq c))
                                        (recur)
                                        (close! setup-counter))))
                                  (catch Exception e
@@ -163,6 +163,7 @@
                                                 {:db/id game-eid
                                                  :dev/count (inc (get game :dev/count 0))
                                                  :game/last-event event-eid}])})}])
+    (debug "Waiting on setup-counter")
     (<!! setup-counter)
     (dd/stream-from conn listen 0 eid attr start)
     (go (try 

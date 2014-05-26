@@ -41,19 +41,47 @@
 
 (defresource game-action
   :allowed-methods [:post]
-  :available-media-types ["text/html"]
+  :available-media-types ["application/edn"]
   ;; :authorized :authenticated :todo
           
   ;; use a early decision point to temporarily create a game here
+  :allowed? (fn [ctx]
+              {:slug (if (.contains (get-in ctx [:request :headers "user-agent"]) "Chrome")
+                "user2"
+                "user1")})
   :exists? (fn [ctx]
              (let [db (db (h/conn ctx))
-                   game-id (get-in ctx [:request :params :game-id])]
+                   game-id (get-in ctx [:request :params :game-id])
+                   slug (:slug ctx)]
                (when-let [game-e (ffirst (q '{:find [?e]
                                               :in [$ ?game-id]
                                               :where [[?e :game/id ?game-id]]}
                                             db game-id))]
-                       {:game (d/entity db game-e)})))
-  :handle-ok {}
+                 (let [game (d/entity db game-e)]
+                   (cond
+                    (= (get-in game [:game/player1 :account/slug]) slug)
+                    {:game game
+                     :player :player1}
+                    (= (get-in game [:game/player2 :account/slug]) slug)
+                    {:game game
+                     :player :player2}
+                    :else nil)))))
+
+  :post! (fn [ctx]
+           (let [{:keys [game player]} ctx]
+             @(d/transact (h/conn ctx)
+                          (let [game-id (:db/id game)]
+                            [{:db/id (d/tempid :db.part/user)
+                              :event/type :player-ready
+                              :event/game game-id
+                              :game/_last-event game-id
+                              :event/tx (d/tempid :db.part/tx)
+                              :event/by player}
+                             [:db/add game-id
+                              :game/ready (get-in game [(if (= player :player1)
+                                                          :game/player1
+                                                          :game/player2) :db/id])]]))))
+  :handle-created {:is-there :a-message-here?}
   :as-response (l/as-template-response nil))
 
 (defmulti event-to-msg (fn [event player]
@@ -82,6 +110,61 @@
           :our-cards (for [card (get game (if (= player :player1)
                                             :game/player1-cards
                                             :game/player2-cards))]
+                       {:suit (:card/suit card)
+                        :rank (:card/rank card)})
+          })))
+
+(defmethod event-to-msg :deal
+  [event player]
+  (let [game (:event/game event)]
+    (str {:event :deal
+          :game-id (:game/id game)
+          :to-start (if (= (:game/to-start game) (:game/player1 game))
+                      :player1
+                      :player2)
+          :discard (let [discard (:game/discard game)]
+                     {:suit (:card/suit discard)
+                      :rank (:card/rank discard)})
+          :our-cards (for [card (get game (if (= player :player1)
+                                            :game/player1-cards
+                                            :game/player2-cards))]
+                       {:suit (:card/suit card)
+                        :rank (:card/rank card)})
+          })))
+
+(defmethod event-to-msg :turn-assigned
+  [event player]
+  (let [game (:event/game event)]
+    (str {:event :turn-assigned
+          :game-id (:game/id game)
+          :turn (if (= (:game/turn game) (:game/player1 game))
+                  :player1
+                  :player2)
+          })))
+
+(defmethod event-to-msg :game-finished
+  [event player]
+  (let [game (:event/game event)
+        result (:game/result game)
+        our-win (or (and (= player :player1)
+                         (= (:game/winner game) (:game/player1 game)))
+                    (and (= player :player2)
+                         (= (:game/winner game) (:game/player2 game))))]
+    (str {:event :game-finished
+          :game-id (:game/id game)
+          :result (cond
+                   (= result :pat-tie) :pat-tie
+                   (= result :pat-win)
+                   (if our-win
+                     :pat-our-win
+                     :pat-opp-win)
+                   (= result :win)
+                   (if our-win
+                     :our-win
+                     :opp-win))
+          :opp-cards (for [card (get game (if (= player :player1)
+                                            :game/player2-cards
+                                            :game/player1-cards))]
                        {:suit (:card/suit card)
                         :rank (:card/rank card)})
           })))
@@ -128,14 +211,15 @@
                              conn (get-in ctx [:request :conn])
                              listen (get-in ctx [:request :listen])
                              here-since (.getTime (java.util.Date.))
-                             player (get-in ctx [:player])]
+                             player (get-in ctx [:player])
+                             game-id (get-in ctx [:game :db/id])]
                          (async/go (async/<! (async/timeout 3000))
                                    (d/transact conn [{:db/id [:game/id "fix1"]
                                                       :game/last-event (d/tempid :db.part/user -1)}
                                                      {:db/id (d/tempid :db.part/user -1)
                                                       :event/type :some-mock-event}]))
                          (dd/stream-from conn listen start-from
-                                         [:game/id "fix1"]
+                                         game-id
                                          :game/last-event
                                          (async/map>
                                           (fn [msg]
