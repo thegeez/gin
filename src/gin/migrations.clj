@@ -112,29 +112,6 @@
                                  :db/valueType :db.type/string
                                  :db/cardinality :db.cardinality/one
                                  :db.install/_attribute :db.part/db}
-                                ])
-             @(d/transact conn
-                          (let [event-id (d/tempid :db.part/user)
-                                game-id (d/tempid :db.part/user)
-                                p1-id (d/tempid :db.part/user)
-                                p2-id (d/tempid :db.part/user)
-                                tx-id (d/tempid :db.part/tx)]
-                            [{:db/id event-id
-                              :event/type :game-created
-                              :event/game game-id
-                              :event/tx tx-id
-                              :event/by :migrations}
-                             {:db/id game-id
-                              :game/id "fix1"
-                              :game/player1 p1-id
-                              :game/player2 p2-id
-                              :game/to-start p1-id
-                              :game/last-event event-id}
-                             {:db/id p1-id
-                              :account/slug "user1"
-                              :account/name "User One"}
-                             {:db/id p2-id
-                              :account/slug "user2"
-                              :account/name "Player Two"}])))
+                                ]))
        :down identity}]
    ])

@@ -12,7 +12,8 @@
             [compojure.core :as compojure]
             [cemerick.friend :as friend]
             [cemerick.friend.workflows :as workflows]
-            [cemerick.friend.credentials :as credentials]))
+            [cemerick.friend.credentials :as credentials]
+            [datomic.api :as d]))
 
 (compojure/defroutes main-routes
   home/home-routes
@@ -53,6 +54,42 @@
   (-> (main-handler)
       ring/wrap-dev))
 
+(defrecord DevDBFixtures [database]
+  component/Lifecycle
+  (start [component]
+         (info "Insert test fixtures")
+         (let [conn (:connection database)]
+           @(d/transact conn
+                        (let [event-id (d/tempid :db.part/user)
+                              game-id (d/tempid :db.part/user)
+                              p1-id (d/tempid :db.part/user)
+                              p2-id (d/tempid :db.part/user)
+                              tx-id (d/tempid :db.part/tx)]
+                          [{:db/id event-id
+                            :event/type :game-created
+                            :event/game game-id
+                            :event/tx tx-id
+                            :event/by :migrations}
+                           {:db/id game-id
+                            :game/id "fix1"
+                            :game/player1 p1-id
+                            :game/player2 p2-id
+                            :game/to-start p1-id
+                            :game/last-event event-id}
+                           {:db/id p1-id
+                            :account/slug "user1"
+                            :account/name "User One"}
+                           {:db/id p2-id
+                            :account/slug "user2"
+                            :account/name "Player Two"}])))
+    component)
+  (stop [component]
+    (info "Not bothering to remove test fixtures")
+    component))
+
+(defn dev-db-fixtures []
+  (map->DevDBFixtures {}))
+
 (defrecord GinSystem []
   component/Lifecycle
   (start [this]
@@ -69,10 +106,11 @@
        :db-migrator (component/using
                      (database-datomic/dev-migrator)
                      {:database :db})
-       ;; :db-fixtures (component/using
-       ;;               (dev-db-fixtures)
-       ;;               {:database :db
-       ;;                :db-migrator :db-migrator})
+       :db-fixtures (component/using
+                     (dev-db-fixtures)
+                     {:database :db
+                      :db-migrator :db-migrator
+                      :dealer :dealer})
        :dealer (component/using
                 (dealer/dealer)
                 {:database :db

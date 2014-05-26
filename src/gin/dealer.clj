@@ -35,6 +35,7 @@
                    (-> [{:db/id event-id
                          :event/type :deal
                          :event/game game-id
+                         :event/by :dealer
                          :event/tx (d/tempid :db.part/tx)}
                         {:db/id game-id
                          :game/to-start starting
@@ -65,28 +66,29 @@
     (info "Starting dealer")
     ;; TODO make dealer survive restarts by using stream-from and
     ;; marking its progress in the db
-    (let [conn (:connection database)]
-      (go (try       
+    (let [conn (:connection database)
+          listen (:listen database)]
+      (go (try 
             (loop []
-             (when-let [txr (<! ch)]
-               (debug "txr in dealer" txr)
-               (when-let [event-id (let [event-type-attr-id (d/entid (:db-after txr) :event/type)]
-                                     (some (fn [[e attr _ _ _]]
-                                             (when (= attr event-type-attr-id)
-                                               e))
-                                           (:tx-data txr)))]
-                 (let [event (d/entity (:db-after txr) event-id)]
-                   (debug "event in DEALER" event (:event/type event))
-                   (handle event conn)
-                   (debug "event in DEALER done")))
-               (debug "dealer txr done")
-               )
-             (recur))
+              (when-let [txr (<! ch)]
+                (debug "txr in dealer" txr)
+                (when-let [event-id (let [event-type-attr-id (d/entid (:db-after txr) :event/type)]
+                                      (some (fn [[e attr _ _ _]]
+                                              (when (= attr event-type-attr-id)
+                                                e))
+                                            (:tx-data txr)))]
+                  (let [event (d/entity (:db-after txr) event-id)]
+                    (debug "event in DEALER" event (:event/type event))
+                    (handle event conn)
+                    (debug "event in DEALER done")))
+                (debug "dealer txr done")
+                )
+              (recur))
             (catch Exception e
               (debug "Exception in DEALER loop " e)
               #_(.printStackTrace e)
-              (throw e)))))
-    (async/tap (:listen database) ch)
+              (throw e))))
+      (async/tap listen ch))
     (assoc component :ch ch))
 
   (stop [component]
