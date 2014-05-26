@@ -29,7 +29,7 @@
         player1 (get-in event [:event/game :game/player1 :db/id])
         player2 (get-in event [:event/game :game/player2 :db/id])
         starting (rand-nth [player1 player2])]
-    (d/transact-async conn
+    @(d/transact #_-async conn
                  (let [event-id (d/tempid :db.part/user)
                        game-id (:db/id (:event/game event))]
                    (-> [{:db/id event-id
@@ -77,11 +77,15 @@
                                            (:tx-data txr)))]
                  (let [event (d/entity (:db-after txr) event-id)]
                    (debug "event in DEALER" event (:event/type event))
-                   (handle event conn)))
+                   (handle event conn)
+                   (debug "event in DEALER done")))
+               (debug "dealer txr done")
                )
              (recur))
             (catch Exception e
-              (debug "Exception in DEALER loop " e)))))
+              (debug "Exception in DEALER loop " e)
+              #_(.printStackTrace e)
+              (throw e)))))
     (async/tap (:listen database) ch)
     (assoc component :ch ch))
 

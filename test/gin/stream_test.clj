@@ -83,6 +83,7 @@
 ;;         (is (= (map #(:dev/count (d/entity (:db-after %) :dev/counter)) sixty) (range 61 101)))))))
 
 (deftest event-stream-test
+  (debug "start event-stream-test")
   (let [sys (tc/reuse-system)
         conn (get-in sys [:db :connection])
         listen (get-in sys [:db :listen])
@@ -95,25 +96,33 @@
         end (chan)
         end-out (async/into [] (async/take 100 end))
         setup-counter (chan)
-        setup-counter-done (go (loop []
-                                 (let [tx-report (<! setup-counter)
-                                       c (q '{:find [?e]
-                                              :where [[?e :game/id "test1"]]}
-                                            (:db-after tx-report))]
-                                   (if (nil? c)
-                                     (recur)
-                                     (close! setup-counter)))))
+        setup-counter-done (go (try 
+                                 (loop []
+                                   (let [tx-report (<! setup-counter)
+                                         c (q '{:find [?e]
+                                                :where [[?e :game/id "test1"]]}
+                                              (:db-after tx-report))]
+                                     (if (nil? c)
+                                       (recur)
+                                       (close! setup-counter))))
+                                 (catch Exception e
+                                   (debug "Exception setup counter" e)
+                                   (throw e))))
         _ (async/tap listen setup-counter)
         first-counter (chan)
-        first-counter-done (go (loop []
-                                 (let [tx-report (<! first-counter)
-                                       c (:dev/count (d/entity (:db-after tx-report) [:game/id "test1"]))]
-                                   (if-not (= 50 c)
-                                     (recur)
-                                     (close! first-counter)))))
+        first-counter-done (go (try 
+                                 (loop []
+                                   (let [tx-report (<! first-counter)
+                                         c (:dev/count (d/entity (:db-after tx-report) [:game/id "test1"]))]
+                                     (if-not (= 50 c)
+                                       (recur)
+                                       (close! first-counter))))
+                                 (catch Exception e
+                                   (debug "First counter exception " e)
+                                   (throw e))))
 
         eid [:game/id "test1"]
-        attr :game/last-event]
+        attr :dev/count]
     (async/tap listen first-counter)
     @(d/transact conn [{:db/id (d/tempid :db.part/user)
                         :event/type :game-created
@@ -156,26 +165,34 @@
                                                  :game/last-event event-eid}])})}])
     (<!! setup-counter)
     (dd/stream-from conn listen 0 eid attr start)
-    (go (dotimes [i 25]
-          (<! (timeout 1500))
-          @(d/transact conn (let [game (d/entity db [:game/id "some-other-game"])
-                                  event-eid (d/tempid :db.part/user)
-                                  game-eid (:db/id game)]
-                              [{:db/id event-eid
-                                :event/type :some-other-event
-                                :event/game game-eid
-                                :event/tx (d/tempid :db.part/tx)}
-                               {:db/id game-eid
-                                :game/last-event event-eid}]))))
+    (go (try 
+          (dotimes [i 25]
+           (<! (timeout 1500))
+           @(d/transact conn (let [event-eid (d/tempid :db.part/user)
+                                   game-eid (d/tempid :db.part/user)]
+                               [{:db/id event-eid
+                                 :event/type :some-other-event
+                                 :event/game game-eid
+                                 :event/tx (d/tempid :db.part/tx)}
+                                {:db/id game-eid
+                                 :game/id "some-other-game"
+                                 :game/last-event event-eid}])))
+          (catch Exception e
+            (debug "Random events exception: " e)
+            (throw e))))
     (let [first-batch (dotimes [i 50]
                         @(d/transact conn [[:inc]]))
           _ (<!! first-counter-done)
           second-counter (chan)
-          second-counter-done (go (loop []
-                                    (let [tx-report (<! second-counter)]
-                                      (if-not (= 100 (:dev/count (d/entity (:db-after tx-report) [:game/id "test1"])))
-                                        (recur)
-                                        (close! second-counter)))))
+          second-counter-done (go (try
+                                    (loop []
+                                     (let [tx-report (<! second-counter)]
+                                       (if-not (= 100 (:dev/count (d/entity (:db-after tx-report) [:game/id "test1"])))
+                                         (recur)
+                                         (close! second-counter))))
+                                    (catch Exception e
+                                      (debug "Second counter done: " e)
+                                      (throw e))))
           _ (async/tap listen second-counter)
           _ (dd/stream-from conn listen 0 eid attr mid)
           sixty-txs (chan)
@@ -185,7 +202,9 @@
                              (async/put! sixty-txs (d/basis-t (:db-after res))))
                            (when (= i 19)
                              (async/put! sixty-txs :start))))]
-      (dd/stream-from conn listen (first (<!! (async/into [] (async/take 2 sixty-txs)))) eid attr sixty)
+      (let [from-sixty-tx (first (<!! (async/into [] (async/take 2 sixty-txs))))]
+        (debug "from-sixty-tx" from-sixty-tx)
+        (dd/stream-from conn listen from-sixty-tx eid attr sixty))
       (<!! second-counter-done)
       (dd/stream-from conn listen 0 eid attr end)
       (let [starts (<!! start-out)

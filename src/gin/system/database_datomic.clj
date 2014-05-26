@@ -162,37 +162,42 @@
                                       :where [[?game-e ?attr ?e _ true]]}
                                     tx-data (d/entid db-after attr) (:db/id game-e))))) stream))
         res (go
-              (loop [in catch-up
-                     last-t 0
-                     at-gap false]
-                (let [{:keys [db-after] :as txr} (<! in)]
-                  (if txr
-                    (let [t (or (d/as-of-t db-after)
-                                (d/basis-t db-after))]
-                      (if at-gap
-                        (if (loop [txs-in-gap (txrs db-after last-t t)]
-                              (if-let [txr (first txs-in-gap)]
-                                (if (>! out txr)
-                                  (recur (rest txs-in-gap))
-                                  false)
-                                true))
-                          (recur in t false)
-                          (untap listen stream))
-                        ;; usual case
-                        (if (< last-t t)
-                          ;; todo
-                          ;; again also filter only events relative
-                          ;; to eid
-                          (if (>! out txr)
-                            (recur in t false)
-                            (untap listen stream))
-                          (recur in last-t false))))
-                    ;; when in is closed switch from catch-up to stream
-                    (if (= in catch-up)
-                      (recur stream last-t true)
-                      ;; both catch-up and stream have closed
-                      (close! out))
-                    ))))]
+              (try
+                (loop [in catch-up
+                      last-t 0
+                      at-gap false]
+                 (let [{:keys [db-after] :as txr} (<! in)]
+                   (if txr
+                     (let [t (or (d/as-of-t db-after)
+                                 (d/basis-t db-after))]
+                       (if at-gap
+                         (if (loop [txs-in-gap (txrs db-after last-t t)]
+                               (if-let [txr (first txs-in-gap)]
+                                 (if (>! out txr)
+                                   (recur (rest txs-in-gap))
+                                   false)
+                                 true))
+                           (recur in t false)
+                           (untap listen stream))
+                         ;; usual case
+                         (if (< last-t t)
+                           ;; todo
+                           ;; again also filter only events relative
+                           ;; to eid
+                           (if (>! out txr)
+                             (recur in t false)
+                             (untap listen stream))
+                           (recur in last-t false))))
+                     ;; when in is closed switch from catch-up to stream
+                     (if (= in catch-up)
+                       (recur stream last-t true)
+                       ;; both catch-up and stream have closed
+                       (close! out))
+                     )))
+                (catch Exception e
+                  (debug "Stream from loop " e)
+                  (.printStackTrace e)
+                  (throw e))))]
     (let [db (db conn)
           ts (txrs db from Long/MAX_VALUE)]
       (onto-chan catch-up ts))

@@ -75,7 +75,8 @@
        ;;                :db-migrator :db-migrator})
        :dealer (component/using
                 (dealer/dealer)
-                {:database :db})
+                {:database :db
+                 :db-migrator :db-migrator})
        :ring-handler (component/using
                       (ring/ring-handler (dev-handler))
                       {:database :db

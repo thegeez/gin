@@ -123,6 +123,7 @@
                  :body (let [c (chan)
                              start-from (try (inc (Long/parseLong (get-in ctx [:request :headers "last-event-id"])))
                                              (catch Exception e 0))
+                             _ (debug "Start from: " start-from "for player: " (get-in ctx [:player]))
                              msgs (chan)
                              conn (get-in ctx [:request :conn])
                              listen (get-in ctx [:request :listen])
@@ -133,7 +134,7 @@
                                                       :game/last-event (d/tempid :db.part/user -1)}
                                                      {:db/id (d/tempid :db.part/user -1)
                                                       :event/type :some-mock-event}]))
-                         (dd/stream-from conn listen 0
+                         (dd/stream-from conn listen start-from
                                          [:game/id "fix1"]
                                          :game/last-event
                                          (async/map>
@@ -144,7 +145,9 @@
                                                   event (:game/last-event (d/entity db [:game/id "fix1"]))]
                                               (debug "MSG" (:event/type event)
                                                      t
-                                                     here-since)
+                                                     here-since
+                                                     start-from
+                                                     (<= start-from t))
                                               (str "id: " t "\r\n"
                                                    "data: "
                                                    (spy (event-to-msg event player))
