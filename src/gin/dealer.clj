@@ -48,14 +48,10 @@
 
 (defmethod handle :player-ready
   [event conn]
-  ;; check if both players are ready
-  
-  ;; check for pat gin or assign turn based on to-start
   (debug "A player is ready")
   (let [game (:event/game event)
         game-ref (:db/id game)]
     (when (= 2 (count (:game/ready game)))
-      (debug "Both players are ready, check wins or assign turn!")
       (let [player1-ginsize (game/gin-size (for [card (:game/player1-cards game)]
                                              {:suit (:card/suit card)
                                               :rank (:card/rank card)}))
@@ -78,11 +74,37 @@
                              :game/result :pat-win
                              :game/winner (:db/id (:game/player2 game))}])
          :else
-         (let [turn (:db/id (:game/to-start game))]
-           @(d/transact conn [[:log-event :turn-assigned game-ref :dealer]
-                              {:db/id game-ref
-                               :game/turn turn}]))))))
-  )
+         (let [player-ref (:db/id (:game/to-start game))]
+           @(d/transact conn [[:turn-assigned game-ref player-ref :dealer]])))))))
+
+(defmethod handle :discard-chosen
+  [event conn]
+  (let [game (:event/game event)
+        game-ref (:db/id game)
+        player-ref (:db/id (:game/turn game))
+        card-attr (if (= player-ref (get-in game [:game/player1 :db/id]))
+                    :game/player1-cards
+                    :game/player2-cards)]
+    (let [player-ginsize (game/gin-size (for [card (get game card-attr)]
+                                          {:suit (:card/suit card)
+                                           :rank (:card/rank card)}))]
+      (if (= 10 player-ginsize)
+        @(d/transact conn [[:log-event :game-finished game-ref :dealer]
+                           {:db/id game-ref
+                            :game/result :win
+                            :game/winner player-ref}])
+        (let [next-player-ref (get-in game [(if (= player-ref (get-in game [:game/player1 :db/id]))
+                                              :game/player2
+                                              :game/player1) :db/id])]
+          @(d/transact conn [[:turn-assigned game-ref next-player-ref :dealer]]))))))
+
+(defmethod handle :pile-picked
+  [event conn]
+  (let [game (:event/game event)
+        game-ref (:db/id game)
+        player-ref (:db/id (:game/turn game))
+        card (rand-nth (seq (:game/pile game)))]
+    @(d/transact conn [[:pile-pick-revealed game-ref player-ref card :dealer]])))
 
 (defmethod handle :default
   [event conn]

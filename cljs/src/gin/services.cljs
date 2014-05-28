@@ -32,121 +32,27 @@
 
 (defmethod handle-client :player-ready
   [_ [game-id player] db conn]
-  (.log js/console "Player is ready, tell this to the server!")
-  (POST (str (game-url) "/player-ready")
+  (POST-ACTION (str (game-url) "/player-ready")
         {:params {:game-id game-id
-                  :player player}
-         :handler (fn [res]
-                    (.log js/console (str "Succesful res: " res)))
-         :error-handler (fn [res]
-                          (.log js/console (str "FAil res: " res))
-                          (error-handler conn))
-         :headers {"X-CSRF-Token" (csrf-token)}}))
+                  :player player}}))
 
 (defmethod handle-client :our-discard-picked
   [_ [game-id card-id] db conn]
-  (.log js/console ":our-discard-picked")
-  (POST (str (game-url) "/discard-picked")
-        {:params {:game-id game-id}
-         :handler (fn [res]
-                    (.log js/console (str "Succesful res: " res)))
-         :error-handler (fn [res]
-                          (.log js/console (str "FAil res: " res))
-                          (error-handler conn))
-         :headers {"X-CSRF-Token" (csrf-token)}}))
+  (POST-ACTION (str (game-url) "/discard-picked")
+        {:params {:game-id game-id}}))
 
 (defmethod handle-client :our-discard-chosen
   [_ [game-id card-id suit rank] db conn]
-  (.log js/console "OUR_DISCARD_CHOSEN POST" (pr-str suit) (pr-str rank))
   (POST-ACTION (str (game-url) "/discard-chosen")
                {:params {:game-id game-id
                          :suit suit
                          :rank rank}}))
 
-(defmethod handle-client :complete-edit
-  [event [id text] db conn]
-  (PUT (todos-url)
-       {:params {:id id
-                 :text text}
-        :handler (fn [res]
-                   (.log js/console (str "Succesful res for complete-edit: " res " id is " id " text is " text))
-                   (d/transact! conn [[:db.fn/call t/commit-edit id]]))
-        :error-handler (fn [res]
-                         (.log js/console (str "Fail res: " res))
-                         (error-handler conn))
-        :format (merge (ajax-core/edn-request-format)
-                       {:read (fn [res]
-                                (let [res-text (.getResponseText res)]
-                                  (when (pos? (count res-text))
-                                    (throw (js/Error. (str  "Assumed no content response has content: " res-text))))))
-                        :description "EDN (CUSTOM)"})
-        :headers {"X-CSRF-Token" (csrf-token)}}))
-
-(defmethod handle-client :toggle-item
-  [event [id completed] db conn]
-  (PUT (todos-url)
-       {:params {:id id
-                 :completed completed}
-        :handler (fn [res]
-                   ;; nothing todo
-                   (.log js/console (str "Succesful res: " res)))
-        :error-handler (fn [res]
-                         (.log js/console (str "Fail res: " res))
-                         (error-handler conn))
-        :format (merge (ajax-core/edn-request-format)
-                       {:read (fn [res]
-                                (let [res-text (.getResponseText res)]
-                                  (when (pos? (count res-text))
-                                    (throw (js/Error. (str  "Assumed no content response has content: " res-text))))))
-                        :description "EDN (CUSTOM)"})
-        :headers {"X-CSRF-Token" (csrf-token)}}))
-
-(defmethod handle-client :remove-item
-  [event [id] db conn]
-  (DELETE (todos-url)
-       {:params {:id id}
-        :handler (fn [res]
-                   ;; nothing todo
-                   (.log js/console (str "Succesful res: " res)))
-        :error-handler (fn [res]
-                         (.log js/console (str "Fail res: " res))
-                         (error-handler conn))
-        :format (merge (ajax-core/edn-request-format)
-                       {:read (fn [res]
-                                (let [res-text (.getResponseText res)]
-                                  (when (pos? (count res-text))
-                                    (throw (js/Error. (str  "Assumed no content response has content: " res-text))))))
-                        :description "EDN (CUSTOM)"})
-        :headers {"X-CSRF-Token" (csrf-token)}}))
-
-(defmethod handle-client :clear-completed
-  [event [ids] db conn]
-  ;; todo make batch delete enpoint and use that
-  (doseq [id ids]
-    (DELETE (todos-url)
-            {:params {:id id}
-             :handler (fn [res]
-                        ;; nothing todo
-                        (.log js/console (str "Succesful res: " res)))
-             :error-handler (fn [res]
-                              (.log js/console (str "Fail res: " res))
-                              (error-handler conn))
-             :format (merge (ajax-core/edn-request-format)
-                            {:read (fn [res]
-                                     (let [res-text (.getResponseText res)]
-                                       (when (pos? (count res-text))
-                                         (throw (js/Error. (str  "Assumed no content response has content: " res-text))))))
-                             :description "EDN (CUSTOM)"})
-             :headers {"X-CSRF-Token" (csrf-token)}})))
-
-(defmethod handle-client :toggle-all
-  [event _ db conn]
-  (doseq [[id completed] (d/q '{:find [?id ?completed]
-                                :in [$ ?tx]
-                                :where [[?e :id ?id]
-                                        [?e :completed ?completed ?tx]]}
-                              db (:max-tx db))]
-    (handle :toggle-item [id completed] db conn)))
+(defmethod handle-client :our-pile-picked
+  [_ [game-id card-id] db conn]
+  (.log js/console "OUR_PILE_PICKED POST" (pr-str suit) (pr-str rank))
+  (POST-ACTION (str (game-url) "/pile-picked")
+               {:params {:game-id game-id}}))
 
 (defmethod handle-client :default
   [_ _] nil)
@@ -176,6 +82,16 @@
   ;; nothing todo, this is a confirmation only
   )
 
+(defmethod handle-server :our-pile-picked
+  [event conn]
+  ;; nothing todo, this is a confirmation only
+  )
+
+(defmethod handle-server :our-pile-pick-revealed
+  [event conn]
+  (let [{:keys [game-id suit rank]} event]
+    (d/transact! conn [[:db.fn/call t/our-pile-pick-revealed game-id suit rank]])))
+
 (defmethod handle-server :our-discard-chosen
   [event conn]
   ;; nothing todo, this is a confirmation only
@@ -186,6 +102,16 @@
   [event conn]
   (let [{:keys [game-id]} event]
     (d/transact! conn [[:db.fn/call t/their-discard-picked game-id]])))
+
+(defmethod handle-server :their-pile-picked
+  [event conn]
+  (let [{:keys [game-id]} event]
+    (d/transact! conn [[:db.fn/call t/their-pile-picked game-id]])))
+
+(defmethod handle-server :their-pile-pick-revealed
+  [event conn]
+  ;; nothing to do
+  )
 
 (defmethod handle-server :their-discard-chosen
   [event conn]

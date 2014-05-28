@@ -26,7 +26,7 @@
                                                       :requires [[datomic.api :as d]]
                                                       :params [db event-type game-ref by]
                                                       :code
-                                                      [{:db/id (d/tempid :db.part/user)
+                                                      [{:db/id (d/tempid :db.part/user -1)
                                                         :event/type event-type
                                                         :event/game game-ref
                                                         :game/_last-event game-ref
@@ -160,6 +160,17 @@
                                                         [[:log-event :player-ready game-ref player]
                                                          [:db/add game-ref :game/ready player-ref]])})}
                                 {:db/id (d/tempid :db.part/user)
+                                 :db/ident :turn-assigned
+                                 :db/fn (d/function '{:lang :clojure
+                                                      :requires [[datomic.api :as d]]
+                                                      :params [db game-ref player-ref by]
+                                                      :code
+                                                      (let [game (d/entity db game-ref)]
+                                                        (when (= (:game/turn game) player-ref)
+                                                          (throw (Exception. "Can't assign turn to same player")))
+                                                        [[:log-event :turn-assigned game-ref by]
+                                                         [:db/add game-ref :game/turn player-ref]])})}
+                                {:db/id (d/tempid :db.part/user)
                                  :db/ident :discard-picked
                                  :db/fn (d/function
                                          '{:lang :clojure
@@ -185,6 +196,46 @@
                                                        [[:db/add game-ref :game/discard next-discard-ref]
                                                         [:db/retract (:db/id discard) :card.discard/next next-discard-ref]]
                                                        [[:db/retract game-ref :game/discard (:db/id discard)]]))))})}
+                                {:db/id (d/tempid :db.part/user)
+                                 :db/ident :pile-picked
+                                 :db/fn (d/function
+                                         '{:lang :clojure
+                                           :requires [[datomic.api :as d]]
+                                           :params [db game-ref player]
+                                           :code
+                                           (let [game (d/entity db game-ref)
+                                                 player-ref (get-in game [(if (= player :player1)
+                                                                            :game/player1
+                                                                            :game/player2) :db/id])
+                                                 card-attr (if (= player :player1)
+                                                             :game/player1-cards
+                                                             :game/player2-cards)]
+                                             (when (or (not= (get-in game [:game/turn :db/id]) player-ref)
+                                                       (not= 10 (count (get game card-attr))))
+                                               (throw (Exception. "Can't make pile picked for player at this time.")))
+                                             [[:log-event :pile-picked game-ref player]])})}
+                                {:db/id (d/tempid :db.part/user)
+                                 :db/ident :pile-pick-revealed
+                                 :db/fn (d/function
+                                         '{:lang :clojure
+                                           :requires [[datomic.api :as d]]
+                                           :params [db game-ref player-ref card by]
+                                           :code
+                                           (let [game (d/entity db game-ref)
+                                                 card-attr (if (= player-ref (get-in game [:game/player1 :db/id]))
+                                                             :game/player1-cards
+                                                             :game/player2-cards)
+                                                 card-ref (:db/id card)]
+                                             (when (or (not= (get-in game [:game/turn :db/id]) player-ref)
+                                                       (not= 10 (count (get game card-attr)))
+                                                       (not (contains? (:game/pile game) card)))
+                                               (throw (Exception. "Can't reveal this pile pick for player at this time.")))
+                                             [[:log-event :pile-pick-revealed game-ref by]
+                                              {:db/id (d/tempid :db.part/user -1)
+                                               :card/suit (:card/suit card)
+                                               :card/rank (:card/rank card)}
+                                              [:db/add game-ref card-attr card-ref]
+                                              [:db/retract game-ref :game/pile card-ref]])})}
                                 {:db/id (d/tempid :db.part/user)
                                  :db/ident :discard-chosen
                                  :db/fn (d/function

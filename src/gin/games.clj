@@ -86,6 +86,14 @@
                           (let [game-ref (:db/id game)]
                             [[:discard-picked game-ref player]])))))
 
+(defresource game-pile-picked
+  game-action
+  :post! (fn [ctx]
+           (let [{:keys [game player]} ctx]
+             @(d/transact (h/conn ctx)
+                          (let [game-ref (:db/id game)]
+                            [[:pile-picked game-ref player]])))))
+
 (defresource game-discard-chosen
   game-action
   :processable? (fn [ctx]
@@ -170,6 +178,32 @@
                    :their-discard-picked)
           :game-id (:game/id game)
           :player by})))
+
+(defmethod event-to-msg :pile-picked
+  [event player]
+  (let [game (:event/game event)
+        by (:event/by event)]
+    (str {:event (if (= by player)
+                   :our-pile-picked
+                   :their-pile-picked)
+          :game-id (:game/id game)
+          :player by})))
+
+(defmethod event-to-msg :pile-pick-revealed
+  [event player]
+  (let [game (:event/game event)]
+    (if (or (and (= player :player1)
+                 (= (:game/turn game) (:game/player1 game)))
+            (and (= player :player2)
+                 (= (:game/turn game) (:game/player2 game))))
+      (str {:event :our-pile-pick-revealed
+            :game-id (:game/id game)
+            :player player
+            :suit (:card/suit event)
+            :rank (:card/rank event)})
+      (str {:event :their-pile-pick-revealed
+            :game-id (:game/id game)
+            :player player}))))
 
 (defmethod event-to-msg :discard-chosen
   [event player]
@@ -286,4 +320,5 @@
   (ANY "/games/:game-id/events" _ game-events)
   (ANY "/games/:game-id/player-ready" _ game-player-ready)
   (ANY "/games/:game-id/discard-picked" _ game-discard-picked)
+  (ANY "/games/:game-id/pile-picked" _ game-pile-picked)
   (ANY "/games/:game-id/discard-chosen" _ game-discard-chosen))
