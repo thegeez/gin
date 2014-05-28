@@ -230,12 +230,22 @@
                                                        (not= 10 (count (get game card-attr)))
                                                        (not (contains? (:game/pile game) card)))
                                                (throw (Exception. "Can't reveal this pile pick for player at this time.")))
-                                             [[:log-event :pile-pick-revealed game-ref by]
-                                              {:db/id (d/tempid :db.part/user -1)
-                                               :card/suit (:card/suit card)
-                                               :card/rank (:card/rank card)}
-                                              [:db/add game-ref card-attr card-ref]
-                                              [:db/retract game-ref :game/pile card-ref]])})}
+                                             (into [[:log-event :pile-pick-revealed game-ref by]
+                                                    {:db/id (d/tempid :db.part/user -1)
+                                                     :card/suit (:card/suit card)
+                                                     :card/rank (:card/rank card)}
+                                                    [:db/add game-ref card-attr card-ref]
+                                                    [:db/retract game-ref :game/pile card-ref]]
+                                                   (when (= 1 (count (:game/pile game)))
+                                                     (loop [datoms [[:db/retract game-ref :game/discard (:db/id (:game/discard game))]]
+                                                            card (:game/discard game)]
+                                                       (let [card-ref (:db/id card)]
+                                                         (if-let [next-card (:card.discard/next card)]
+                                                           (recur (into datoms
+                                                                        [[:db/add game-ref :game/pile card-ref]
+                                                                         [:db/retract card-ref :card.discard/next (:db/id next-card)]])
+                                                                  next-card)
+                                                           (conj datoms [:db/add game-ref :game/pile card-ref])))))))})}
                                 {:db/id (d/tempid :db.part/user)
                                  :db/ident :discard-chosen
                                  :db/fn (d/function
@@ -262,7 +272,7 @@
                                              (into [[:log-event :discard-chosen game-ref player]
                                                     [:db/retract game-ref card-attr card-ref]
                                                     [:db/add game-ref :game/discard card-ref]]
-                                                   (when-let [old-discard-ref  (get-in game [:game/discard :db/id])]
+                                                   (when-let [old-discard-ref (get-in game [:game/discard :db/id])]
                                                      [[:db/add card-ref :card.discard/next old-discard-ref]])))})}]))
        :down identity}]
    ])
