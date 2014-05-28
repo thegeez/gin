@@ -24,12 +24,12 @@
                                  :db/ident :log-event
                                  :db/fn (d/function '{:lang :clojure
                                                       :requires [[datomic.api :as d]]
-                                                      :params [db event-type game by]
+                                                      :params [db event-type game-ref by]
                                                       :code
                                                       [{:db/id (d/tempid :db.part/user)
                                                         :event/type event-type
-                                                        :event/game game
-                                                        :game/_last-event game
+                                                        :event/game game-ref
+                                                        :game/_last-event game-ref
                                                         :event/by by
                                                         :event/tx (d/tempid :db.part/tx)}]})}
                                 {:db/id (d/tempid :db.part/db)
@@ -144,6 +144,74 @@
                                  :db/valueType :db.type/string
                                  :db/cardinality :db.cardinality/one
                                  :db.install/_attribute :db.part/db}
-                                ]))
+
+                                {:db/id (d/tempid :db.part/user)
+                                 :db/ident :player-ready
+                                 :db/fn (d/function '{:lang :clojure
+                                                      :requires [[datomic.api :as d]]
+                                                      :params [db game-ref player]
+                                                      :code
+                                                      (let [game (d/entity db game-ref)
+                                                            player-ref (get-in game [(if (= player :player1)
+                                                                                       :game/player1
+                                                                                       :game/player2) :db/id])]
+                                                        (when (contains? (:game/ready game) player-ref)
+                                                          (throw (Exception. "Player already registered as ready")))
+                                                        [[:log-event :player-ready game-ref player]
+                                                         [:db/add game-ref :game/ready player-ref]])})}
+                                {:db/id (d/tempid :db.part/user)
+                                 :db/ident :discard-picked
+                                 :db/fn (d/function
+                                         '{:lang :clojure
+                                           :requires [[datomic.api :as d]]
+                                           :params [db game-ref player]
+                                           :code
+                                           (let [game (d/entity db game-ref)
+                                                 player-ref (get-in game [(if (= player :player1)
+                                                                            :game/player1
+                                                                            :game/player2) :db/id])
+                                                 card-attr (if (= player :player1)
+                                                             :game/player1-cards
+                                                             :game/player2-cards)]
+                                             (when (or (not= (get-in game [:game/turn :db/id]) player-ref)
+                                                       (not= 10 (count (get game card-attr))))
+                                               (throw (Exception. "Can't make discard picked for player at this time.")))
+                                             (let [discard (:game/discard game)
+                                                   next-discard-ref (get-in discard [:card.discard/next :db/id])]
+                                               (into [[:log-event :discard-picked game-ref player]
+                                                      [:db/add game-ref card-attr (:db/id discard)]
+                                                      ]
+                                                     (if next-discard-ref
+                                                       [[:db/add game-ref :game/discard next-discard-ref]
+                                                        [:db/retract (:db/id discard) :card.discard/next next-discard-ref]]
+                                                       [[:db/retract game-ref :game/discard (:db/id discard)]]))))})}
+                                {:db/id (d/tempid :db.part/user)
+                                 :db/ident :discard-chosen
+                                 :db/fn (d/function
+                                         '{:lang :clojure
+                                           :requires [[datomic.api :as d]]
+                                           :params [db game-ref player suit rank]
+                                           :code
+                                           (let [game (d/entity db game-ref)
+                                                 player-ref (get-in game [(if (= player :player1)
+                                                                            :game/player1
+                                                                            :game/player2) :db/id])
+                                                 card-attr (if (= player :player1)
+                                                             :game/player1-cards
+                                                             :game/player2-cards)
+                                                 card-ref (some (fn [card]
+                                                                  (when (and (= suit (:card/suit card))
+                                                                             (= rank (:card/rank card)))
+                                                                    (:db/id card)))
+                                                              (get game card-attr))]
+                                             (when (or (not= (get-in game [:game/turn :db/id]) player-ref)
+                                                       (not= 11 (count (get game card-attr)))
+                                                       (not card-ref))
+                                               (throw (Exception. "Can't make discard chosen for player at this time.")))
+                                             (into [[:log-event :discard-chosen game-ref player]
+                                                    [:db/retract game-ref card-attr card-ref]
+                                                    [:db/add game-ref :game/discard card-ref]]
+                                                   (when-let [old-discard-ref  (get-in game [:game/discard :db/id])]
+                                                     [[:db/add card-ref :card.discard/next old-discard-ref]])))})}]))
        :down identity}]
    ])

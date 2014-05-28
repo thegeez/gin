@@ -15,23 +15,53 @@
 (defn error-handler [conn]
   (d/transact! conn [[:db.fn/call t/error "fail"]]))
 
+(defn POST-ACTION [url options]
+  (.log js/console "Post-action" url)
+  (POST url
+        (merge {:params {}
+                :handler (fn [res]
+                           (.log js/console (str "Succesful res: " res)))
+                :error-handler (fn [res]
+                                 (.log js/console (str "FAil res: " res))
+                                 (error-handler conn))
+                :headers {"X-CSRF-Token" (csrf-token)}}
+               options)))
+
 (defmulti handle-client
   (fn [event args db conn] event))
 
 (defmethod handle-client :player-ready
   [_ [game-id player] db conn]
   (.log js/console "Player is ready, tell this to the server!")
-  (POST (str (game-url) "/action")
+  (POST (str (game-url) "/player-ready")
         {:params {:game-id game-id
                   :player player}
          :handler (fn [res]
-                    (.log js/console (str "Succesful res: " res))
-                    #_(let [id (:id res)]
-                      (d/transact! conn [[:db.fn/call t/commit-item temp-id id]])))
+                    (.log js/console (str "Succesful res: " res)))
          :error-handler (fn [res]
                           (.log js/console (str "FAil res: " res))
                           (error-handler conn))
          :headers {"X-CSRF-Token" (csrf-token)}}))
+
+(defmethod handle-client :our-discard-picked
+  [_ [game-id card-id] db conn]
+  (.log js/console ":our-discard-picked")
+  (POST (str (game-url) "/discard-picked")
+        {:params {:game-id game-id}
+         :handler (fn [res]
+                    (.log js/console (str "Succesful res: " res)))
+         :error-handler (fn [res]
+                          (.log js/console (str "FAil res: " res))
+                          (error-handler conn))
+         :headers {"X-CSRF-Token" (csrf-token)}}))
+
+(defmethod handle-client :our-discard-chosen
+  [_ [game-id card-id suit rank] db conn]
+  (.log js/console "OUR_DISCARD_CHOSEN POST" (pr-str suit) (pr-str rank))
+  (POST-ACTION (str (game-url) "/discard-chosen")
+               {:params {:game-id game-id
+                         :suit suit
+                         :rank rank}}))
 
 (defmethod handle-client :complete-edit
   [event [id text] db conn]
@@ -140,6 +170,27 @@
   [event conn]
   (let [{:keys [game-id turn]} event]
     (d/transact! conn [[:db.fn/call t/turn-assigned game-id turn]])))
+
+(defmethod handle-server :our-discard-picked
+  [event conn]
+  ;; nothing todo, this is a confirmation only
+  )
+
+(defmethod handle-server :our-discard-chosen
+  [event conn]
+  ;; nothing todo, this is a confirmation only
+  (.log js/console "Server thinks we chose as discard: " (pr-str (:suit event)) (pr-str (:rank event)))
+  )
+
+(defmethod handle-server :their-discard-picked
+  [event conn]
+  (let [{:keys [game-id]} event]
+    (d/transact! conn [[:db.fn/call t/their-discard-picked game-id]])))
+
+(defmethod handle-server :their-discard-chosen
+  [event conn]
+  (let [{:keys [game-id]} event]
+    (d/transact! conn [[:db.fn/call t/their-discard-chosen game-id (:suit event) (:rank event)]])))
 
 (defmethod handle-server :game-finished
   [event conn]

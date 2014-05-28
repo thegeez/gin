@@ -1,5 +1,6 @@
 (ns gin.games
   (:require [clojure.tools.logging :refer [debug spy]]
+            [clojure.edn :as edn]
             [gin.util.helpers :as h]
             [gin.util.layout :as l]
             [gin.common :as c]
@@ -39,50 +40,68 @@
   :handle-ok {}
   :as-response (l/as-template-response game-page-layout))
 
-(defresource game-action
-  :allowed-methods [:post]
-  :available-media-types ["application/edn"]
-  ;; :authorized :authenticated :todo
-          
-  ;; use a early decision point to temporarily create a game here
-  :allowed? (fn [ctx]
-              {:slug (if (.contains (get-in ctx [:request :headers "user-agent"]) "Chrome")
-                "user2"
-                "user1")})
-  :exists? (fn [ctx]
-             (let [db (db (h/conn ctx))
-                   game-id (get-in ctx [:request :params :game-id])
-                   slug (:slug ctx)]
-               (when-let [game-e (ffirst (q '{:find [?e]
-                                              :in [$ ?game-id]
-                                              :where [[?e :game/id ?game-id]]}
-                                            db game-id))]
-                 (let [game (d/entity db game-e)]
-                   (cond
-                    (= (get-in game [:game/player1 :account/slug]) slug)
-                    {:game game
-                     :player :player1}
-                    (= (get-in game [:game/player2 :account/slug]) slug)
-                    {:game game
-                     :player :player2}
-                    :else nil)))))
+(def game-action
+  {:allowed-methods [:post]
+   :available-media-types ["application/edn"]
+   ;; :authorized :authenticated :todo
+   
+   ;; use a early decision point to temporarily create a game here
+   :allowed? (fn [ctx]
+               {:slug (if (.contains (get-in ctx [:request :headers "user-agent"]) "Chrome")
+                        "user2"
+                        "user1")})
+   :exists? (fn [ctx]
+              (let [db (db (h/conn ctx))
+                    game-id (get-in ctx [:request :params :game-id])
+                    slug (:slug ctx)]
+                (when-let [game-e (ffirst (q '{:find [?e]
+                                               :in [$ ?game-id]
+                                               :where [[?e :game/id ?game-id]]}
+                                             db game-id))]
+                  (let [game (d/entity db game-e)]
+                    (cond
+                     (= (get-in game [:game/player1 :account/slug]) slug)
+                     {:game game
+                      :player :player1}
+                     (= (get-in game [:game/player2 :account/slug]) slug)
+                     {:game game
+                      :player :player2}
+                     :else nil)))))
+   :handle-created {:is-there :a-message-here?}
+   :as-response (l/as-template-response nil)})
 
+(defresource game-player-ready
+  game-action
   :post! (fn [ctx]
            (let [{:keys [game player]} ctx]
              @(d/transact (h/conn ctx)
-                          (let [game-id (:db/id game)]
-                            [{:db/id (d/tempid :db.part/user)
-                              :event/type :player-ready
-                              :event/game game-id
-                              :game/_last-event game-id
-                              :event/tx (d/tempid :db.part/tx)
-                              :event/by player}
-                             [:db/add game-id
-                              :game/ready (get-in game [(if (= player :player1)
-                                                          :game/player1
-                                                          :game/player2) :db/id])]]))))
-  :handle-created {:is-there :a-message-here?}
-  :as-response (l/as-template-response nil))
+                          (let [game-ref (:db/id game)]
+                            [[:player-ready game-ref player]])))))
+
+(defresource game-discard-picked
+  game-action
+  :post! (fn [ctx]
+           (let [{:keys [game player]} ctx]
+             @(d/transact (h/conn ctx)
+                          (let [game-ref (:db/id game)]
+                            [[:discard-picked game-ref player]])))))
+
+(defresource game-discard-chosen
+  game-action
+  :processable? (fn [ctx]
+                  (let [{:keys [suit rank]} (try (-> (get-in ctx [:request :body])
+                                                     slurp
+                                                     edn/read-string)
+                                                 (catch Exception e nil))]
+                    (when (and (contains? #{:heart :diamond :club :spade} suit)
+                               (contains? #{:r2 :r3 :r4 :r5 :r6 :r7 :r8 :r9 :T :J :Q :K :A} rank))
+                      {:suit suit
+                       :rank rank})))
+  :post! (fn [ctx]
+           (let [{:keys [game player suit rank]} ctx]
+             @(d/transact (h/conn ctx)
+                          (let [game-ref (:db/id game)]
+                            [[:discard-chosen game-ref player suit rank]])))))
 
 (defmulti event-to-msg (fn [event player]
                          (:event/type event)))
@@ -141,6 +160,29 @@
                   :player1
                   :player2)
           })))
+
+(defmethod event-to-msg :discard-picked
+  [event player]
+  (let [game (:event/game event)
+        by (:event/by event)]
+    (str {:event (if (= by player)
+                   :our-discard-picked
+                   :their-discard-picked)
+          :game-id (:game/id game)
+          :player by})))
+
+(defmethod event-to-msg :discard-chosen
+  [event player]
+  (let [game (:event/game event)
+        by (:event/by event)
+        {suit :card/suit rank :card/rank} (get-in game [:game/discard])]
+    (str {:event (if (= by player)
+                   :our-discard-chosen
+                   :their-discard-chosen)
+          :game-id (:game/id game)
+          :player by
+          :suit suit
+          :rank rank})))
 
 (defmethod event-to-msg :game-finished
   [event player]
@@ -242,4 +284,6 @@
 (defroutes games-routes
   (ANY "/games/:game-id" _ game-page)
   (ANY "/games/:game-id/events" _ game-events)
-  (ANY "/games/:game-id/action" _ game-action))
+  (ANY "/games/:game-id/player-ready" _ game-player-ready)
+  (ANY "/games/:game-id/discard-picked" _ game-discard-picked)
+  (ANY "/games/:game-id/discard-chosen" _ game-discard-chosen))
