@@ -21,7 +21,7 @@
 
 (defmethod msg :player-ready
   [_ _ _ _]
-  (set-msg "Ready"))
+  (set-msg "Ready, waiting on opponent"))
 
 (defmethod msg :turn-assigned
   [event [game-id] {:keys [db-after]} _]
