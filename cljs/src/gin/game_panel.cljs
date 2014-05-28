@@ -354,8 +354,7 @@
                                        (fn [] (dom/show-on-top %2)))
                                 (range)
                                 (map dom/get-element opp-cards)))
-                          [#(dom/set-card-class discard-card "card_back")
-                           #(d/transact! conn [[:db.fn/call t/their-pile-pick-revealed game-id]])]))))
+                          [#(dom/set-card-class discard-card "card_back")]))))
 
 (defmethod handle :their-discard-chosen
   [event [game-id card-id suit rank] {:keys [db-after] :as report} conn]
