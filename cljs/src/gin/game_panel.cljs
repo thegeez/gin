@@ -307,7 +307,7 @@
   (when pile-reshuffle
     (let [game (dh/entity-lookup db-after [:game-id game-id])]
       (dom/schedule (dom/simultanious (map #(concat [(fn [] (dom/set-card-class % "card_back"))]
-                                                    (dom/slide-from % pile-position))
+                                                    (dom/slide-from % (pile-position)))
                                            (map dom/get-element (:pile game))))))))
 
 (defmethod handle :our-discard-picked
