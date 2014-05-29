@@ -240,10 +240,10 @@
                                                      (into [[:db/retract game-ref :game/discard (:db/id (:game/discard game))]]
                                                            (->> (iterate :card.discard/next (:game/discard game))
                                                                 (take-while identity)
-                                                                (mapcat  (fn [{card-ref :db/id :as card}]
-                                                                           (into [[:db/add game-ref :game/pile card-ref]]
-                                                                                 (when-let [next-card (:card.discard/next card)]
-                                                                                   [:db/retract card-ref :card.discard/next (:db/id next-card)])))))))))})}
+                                                                (mapcat (fn [{card-ref :db/id :as card}]
+                                                                          (into [[:db/add game-ref :game/pile card-ref]]
+                                                                                (when-let [next-card (:card.discard/next card)]
+                                                                                  [[:db/retract card-ref :card.discard/next (:db/id next-card)]])))))))))})}
                                 {:db/id (d/tempid :db.part/user)
                                  :db/ident :discard-chosen
                                  :db/fn (d/function
