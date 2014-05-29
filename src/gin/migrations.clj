@@ -237,15 +237,13 @@
                                                     [:db/add game-ref card-attr card-ref]
                                                     [:db/retract game-ref :game/pile card-ref]]
                                                    (when (= 1 (count (:game/pile game)))
-                                                     (loop [datoms [[:db/retract game-ref :game/discard (:db/id (:game/discard game))]]
-                                                            card (:game/discard game)]
-                                                       (let [card-ref (:db/id card)]
-                                                         (if-let [next-card (:card.discard/next card)]
-                                                           (recur (into datoms
-                                                                        [[:db/add game-ref :game/pile card-ref]
-                                                                         [:db/retract card-ref :card.discard/next (:db/id next-card)]])
-                                                                  next-card)
-                                                           (conj datoms [:db/add game-ref :game/pile card-ref])))))))})}
+                                                     (into [[:db/retract game-ref :game/discard (:db/id (:game/discard game))]]
+                                                           (->> (iterate :card.discard/next (:game/discard game))
+                                                                (take-while identity)
+                                                                (mapcat  (fn [{card-ref :db/id :as card}]
+                                                                           (into [[:db/add game-ref :game/pile card-ref]]
+                                                                                 (when-let [next-card (:card.discard/next card)]
+                                                                                   [:db/retract card-ref :card.discard/next (:db/id next-card)])))))))))})}
                                 {:db/id (d/tempid :db.part/user)
                                  :db/ident :discard-chosen
                                  :db/fn (d/function
