@@ -16,8 +16,8 @@
 
 (defn maybe-pile-reshuffle [db game-id]
   (let [game (dh/entity-lookup db [:game-id game-id])
-        pile (pop (:pile game))]
-    (if (empty? pile)
+        pile (:pile game)]
+    (when (empty? pile)
       (let [new-pile (:discards game)]
         (into [{:db/id (:db/id game)
                 :pile new-pile
@@ -25,8 +25,7 @@
               (for [card-id new-pile]
                 {:db/id (:db/id (dh/entity-lookup db [:dom/id card-id]))
                  :card/suit :hidden
-                 :card/rank :hidden})))
-      [[:db/add (:db/id game) :pile pile]])))
+                 :card/rank :hidden}))))))
 
 (defn game-created [db game-id player1-id player2-id us]
   [[:db.fn/call log-event :game-created game-id player1-id player2-id us]
@@ -76,10 +75,6 @@
               [discards other] (split-at (count discard-cards) cards)
               [ours other] (split-at (count our-cards) other)
               [theirs pile] (split-at their-cards-count other)]
-          (.log js/console (str "found:theirs " (count theirs) "d" (count discards) "ours"(count ours) "pile"(count pile) "their-cards-count" their-cards-count))
-          (.log js/console "pile" (count pile) (count discards) (count ours) (count theirs))
-          (.log js/console "discard-cards" (pr-str discard-cards) (count discard-cards)
-                (pr-str ["turn" turn]))
           (concat [{:db/id game-e
                     :starting to-start
                     :pile (mapv :dom/id pile)
@@ -89,16 +84,14 @@
                     :turn turn}]
                   (for [[e did suit rank] (map (fn [e {:keys [suit rank]}]
                                                  [(:db/id e) (:dom/id e) suit rank]) discards discard-cards)]
-                    (do (.log js/console "Set an discard: " (pr-str [e suit rank]))
-                        {:db/id e
-                         :card/suit suit
-                         :card/rank rank}))
+                    {:db/id e
+                     :card/suit suit
+                     :card/rank rank})
                   (for [[e did suit rank] (map (fn [e {:keys [suit rank]}]
                                                  [(:db/id e) (:dom/id e) suit rank]) ours our-cards)]
-                    (do (.log js/console "Set an ours: " (pr-str [e suit rank]))
-                        {:db/id e
-                         :card/suit suit
-                         :card/rank rank}))))))
+                    {:db/id e
+                     :card/suit suit
+                     :card/rank rank})))))
 
 (defn player-ready [db game-id player]
   [[:db.fn/call log-event :player-ready game-id player]
@@ -120,16 +113,24 @@
                                                     [?e :game-id ?game-id]
                                                     [(?last ?ps) ?p]
                                                     [(= ?p ?card-id)]]}
-                                          db card-id last))]
-    [[:db.fn/call log-event :our-pile-picked game-id card-id]]))
+                                          db card-id last))
+        game (dh/entity-lookup db [:game-id game-id])]
+    [[:db.fn/call log-event :our-pile-picked game-id card-id]
+     {:db/id (:db/id game)
+      :pile (pop (:pile game))
+      :our-cards (conj (:our-cards game) card-id)}]))
 
 (defn our-pile-pick-revealed [db game-id suit rank]
   (let [game (dh/entity-lookup db [:game-id game-id])
-        card-taken (dh/entity-lookup db [:dom/id (peek (:pile game))])
+        card-taken (some (fn [did]
+                           (let [card-e (dh/entity-lookup db [:dom/id did])]
+                             (when (and (= (:card/suit card-e) :hidden)
+                                        (= (:card/rank card-e) :hidden))
+                               card-e)))
+                    (:our-cards game))
         card-id (:dom/id card-taken)
         pile-reshuffle (not (next (:pile game)))]
     [[:db.fn/call log-event :our-pile-pick-revealed game-id card-id suit rank pile-reshuffle]
-     [:db/add (:db/id game) :our-cards (conj (:our-cards game) card-id)]
      {:db/id (:db/id card-taken)
       :card/suit suit
       :card/rank rank}
@@ -159,7 +160,8 @@
      {:db/id (:db/id game)
       :discards (conj (:discards game) card-id)
       :our-cards (filterv (fn [c]
-                            (not= c card-id)) (:our-cards game))}]))
+                            (not= c card-id)) (:our-cards game))}
+     [:db/add (:db/id game) :turn :done]]))
 
 (defn their-pile-picked [db game-id]
   (let [game (dh/entity-lookup db [:game-id game-id])
@@ -168,15 +170,16 @@
         [before after] (split-at insert-idx (:their-cards game))
         pile-reshuffle (not (next (:pile game)))]
     [[:db.fn/call log-event :their-pile-picked game-id card-id pile-reshuffle]
-     [:db/add (:db/id game)
+     {:db/id (:db/id game)
       :their-cards (-> []
                        (into before)
                        (conj card-id)
-                       (into after))]
-     [:db.fn/call maybe-pile-reshuffle game-id]]))
+                       (into after))
+      :pile (pop (:pile game))}]))
 
 (defn their-pile-pick-revealed [db game-id]
-  [[:db.fn/call log-event :their-pile-pick-revealed game-id]])
+  [[:db.fn/call log-event :their-pile-pick-revealed game-id]
+   [:db.fn/call maybe-pile-reshuffle game-id]])
 
 (defn their-discard-picked [db game-id]
   (let [game (dh/entity-lookup db [:game-id game-id])

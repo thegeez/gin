@@ -123,6 +123,10 @@
 (defn get-position [e]
   (style/getPosition e))
 
+(defn get-pos [e]
+  (let [p (style/getPosition e)]
+    [(.-x p) (.-y p)]))
+
 (def z-level (atom 100))
 
 (defn show-on-top [card]

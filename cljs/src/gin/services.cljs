@@ -118,8 +118,8 @@
 
 (defmethod handle-server :their-pile-pick-revealed
   [event conn]
-  ;; nothing to do
-  )
+  (let [{:keys [game-id]} event]
+    (d/transact! conn [[:db.fn/call t/their-pile-pick-revealed game-id]])))
 
 (defmethod handle-server :their-discard-chosen
   [event conn]
