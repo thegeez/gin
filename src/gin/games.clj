@@ -134,29 +134,12 @@
           :discard (let [discard (:game/discard game)]
                      {:suit (:card/suit discard)
                       :rank (:card/rank discard)})
-          :our-cards (for [card (get game (if (= player :player1)
-                                            :game/player1-cards
-                                            :game/player2-cards))]
-                       {:suit (:card/suit card)
-                        :rank (:card/rank card)})
-          })))
-
-(defmethod event-to-msg :deal
-  [event player]
-  (let [game (:event/game event)]
-    (str {:event :deal
-          :game-id (:game/id game)
-          :to-start (if (= (:game/to-start game) (:game/player1 game))
-                      :player1
-                      :player2)
-          :discard (let [discard (:game/discard game)]
-                     {:suit (:card/suit discard)
-                      :rank (:card/rank discard)})
-          :our-cards (for [card (get game (if (= player :player1)
-                                            :game/player1-cards
-                                            :game/player2-cards))]
-                       {:suit (:card/suit card)
-                        :rank (:card/rank card)})
+          :our-cards (mapv (fn [card ]
+                             {:suit (:card/suit card)
+                              :rank (:card/rank card)})
+                           (get game (if (= player :player1)
+                                       :game/player1-cards
+                                       :game/player2-cards)))
           })))
 
 (defmethod event-to-msg :turn-assigned
@@ -281,19 +264,69 @@
                            "Connection" "keep-alive"}
                  :body (let [c (chan)
                              start-from (try (inc (Long/parseLong (get-in ctx [:request :headers "last-event-id"])))
-                                             (catch Exception e 0))
-                             _ (debug "Start from: " start-from "for player: " (get-in ctx [:player]))
-                             msgs (chan)
+                                             (catch Exception e nil))
                              conn (get-in ctx [:request :conn])
                              listen (get-in ctx [:request :listen])
                              here-since (.getTime (java.util.Date.))
                              player (get-in ctx [:player])
-                             game-id (get-in ctx [:game :db/id])]
-                         (async/go (async/<! (async/timeout 3000))
+                             game-id (get-in ctx [:game :db/id])
+                             ;; sent summary to join game in progress or
+                             ;; start from the beginning
+                             start-from (if start-from
+                                          start-from
+                                          (if (get-in ctx [:game :game/turn])
+                                            (let [db (d/entity-db (get-in ctx [:game]))
+                                                  latest-tx (get-in ctx [:game :game/last-event :event/tx :db/id])
+                                                  from-t (d/tx->t latest-tx)
+                                                  game (get-in ctx [:game])]
+                                              
+                                              (debug "latest-tx: " latest-tx (d/touch (get-in ctx [:game :game/last-event])))
+                                              (async/put! c (str "id: " from-t "\r\n"
+                                                           "data: "
+                                                           {:event :join-game
+                                                            :game-id (:game/id game)
+                                                            :player1 (get-in game [:game/player1 :account/name])
+                                                            :player2 (get-in game [:game/player2 :account/name])
+                                                            :us player
+                                                            :to-start (if (= (:game/to-start game) (:game/player1 game))
+                                                                        :player1
+                                                                        :player2)
+                                                            :turn (if (= (:game/turn game) (:game/player1 game))
+                                                                    :player1
+                                                                    :player2)
+                                                            :discards
+                                                            (->> (iterate :card.discard/next (:game/discard game))
+                                                                 (take-while identity)
+                                                                 reverse
+                                                                 (mapv (fn [card]
+                                                                         {:suit (:card/suit card)
+                                                                          :rank (:card/rank card)})))
+                                                            :our-cards (mapv (fn [card]
+                                                                               {:suit (:card/suit card)
+                                                                                :rank (:card/rank card)})
+                                                                             (get game (if (= player :player1)
+                                                                                         :game/player1-cards
+                                                                                         :game/player2-cards)))
+                                                            :their-cards-count (count (get game (if (= player :player1)
+                                                                                         :game/player2-cards
+                                                                                         :game/player1-cards)))}
+                                                           "\r\n\r\n"))
+                                              from-t)
+                                            0 ;; game hasn't started
+                                            ;; yet, sent everything
+                                            ;; from the beginning
+                                            ))
+
+]
+
+                         (debug "Start from: " start-from "for player: " (get-in ctx [:player]))
+
+                         #_(async/go (async/<! (async/timeout 3000))
                                    (d/transact conn [{:db/id [:game/id "fix1"]
                                                       :game/last-event (d/tempid :db.part/user -1)}
                                                      {:db/id (d/tempid :db.part/user -1)
-                                                      :event/type :some-mock-event}]))
+                                                      :event/type :some-mock-event
+                                                      :event/tx (d/tempid :db.part/tx)}]))
                          (dd/stream-from conn listen start-from
                                          game-id
                                          :game/last-event

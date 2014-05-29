@@ -23,6 +23,19 @@
   [_ _ _ _]
   (set-msg "Ready, waiting on opponent"))
 
+(defmethod msg :join-game
+  [event [game-id] {:keys [db-after]} _]
+  (let [game (dh/entity-lookup db-after [:game-id game-id])]
+    (set-msg (str "Returned to game: "
+                  (do (.log js/console "GAME: " (pr-str [(:us game) (:turn game)])))
+                  (if (= (:us game) (:turn game))
+                    "Your turn to "
+                    "Opponent to ")
+                  (if (= 20 (+ (count (:their-cards game)) (count (:our-cards game))))
+                    "draw a card or pick a discard"
+                    "choose card to discard"
+                    )))))
+
 (defmethod msg :turn-assigned
   [event [game-id] {:keys [db-after]} _]
   (let [{:keys [us turn] :as game} (dh/entity-lookup db-after [:game-id game-id])]
@@ -33,6 +46,10 @@
 (defmethod msg :our-pile-picked
   [_ _ _ _]
   (set-msg "You've chosen a card from the deck."))
+
+(defmethod msg :our-pile-pick-revealed
+  [_ _ _ _]
+  (set-msg "Drag a card from your hand to discard."))
 
 (defmethod msg :our-discard-picked
   [_ _ _ _]
@@ -280,6 +297,39 @@
                                           (d/transact! conn [[:db.fn/call t/player-ready (:game-id game) (:us game)]]))])))))
   )
 
+(defmethod handle :join-game
+  [event [game-id] {:keys [db-after] :as report} conn]
+  (let [game (dh/entity-lookup db-after [:game-id game-id])
+        opp-cards-el (map dom/get-element (:their-cards game))
+        our-cards-es (map #(dh/entity-lookup db-after [:dom/id %]) (:our-cards game))
+        discards-es (map #(dh/entity-lookup db-after [:dom/id %]) (:discards game))
+        [their-region-offset-x their-region-offset-y] (their-region-position)
+        [our-region-offset-x our-region-offset-y] (our-region-position)
+        their-cards (map (fn [idx el]
+                           (fn []
+                             (dom/show-on-top el)
+                             (dom/set-position el (+ their-region-offset-x (* idx 53)) (+ their-region-offset-y (* idx 4)))))
+                         (range)
+                         opp-cards-el)
+        our-cards (map (fn [idx {id :dom/id suit :card/suit rank :card/rank}]
+                         (let [el (dom/get-element id)]
+                           (fn []
+                             (dom/show-on-top el)
+                             (dom/set-position el (+ our-region-offset-x (* idx 53)) (+ our-region-offset-y (* idx 4)))
+                             (dom/set-card-class el (str (name suit) "_" (name rank)))
+                             (set-drag-handler el (home-region-handler conn)))))
+                       (range)
+                       our-cards-es)
+        discards (map (fn [idx {id :dom/id suit :card/suit rank :card/rank}]
+                        (let [el (dom/get-element id)]
+                          (fn []
+                            (dom/show-on-top el)
+                            (apply dom/set-position el (discard-position))
+                            (dom/set-card-class el (str (name suit) "_" (name rank))))))
+                      (range)
+                      discards-es)]
+    (dom/schedule (concat their-cards our-cards discards))))
+
 (defmethod handle :turn-assigned
   [event [game-id turn] {:keys [db-after] :as report} conn]
   (let [{:keys [us turn] :as game} (dh/entity-lookup db-after [:game-id game-id])
@@ -297,7 +347,9 @@
 
 (defmethod handle :our-pile-picked
   [event [game-id card-id] {:keys [db-after] :as report} conn]
-  (set-drag-handler (dom/get-element card-id) (undraggable-handler conn)))
+  (set-drag-handler (dom/get-element card-id) (undraggable-handler conn))
+  (let [game (dh/entity-lookup db-after [:game-id game-id])]
+    (set-drag-handler (dom/get-element (peek (:discards game)) card-id) (undraggable-handler conn))))
 
 (defmethod handle :our-pile-pick-revealed
   [event [game-id card-id suit rank pile-reshuffle] {:keys [db-after] :as report} conn]

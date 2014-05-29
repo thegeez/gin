@@ -68,6 +68,38 @@
                      :card/suit suit
                      :card/rank rank})))))
 
+(defn join-game [db game-id discard-cards our-cards their-cards-count to-start turn]
+  (into [[:db.fn/call log-event :join-game game-id discard-cards our-cards their-cards-count to-start turn]]
+        (let [{game-e :db/id :as game} (dh/entity-lookup db [:game-id game-id])
+              cards (for [cid (:pile game)]
+                      (dh/entity-lookup db [:dom/id cid]))
+              [discards other] (split-at (count discard-cards) cards)
+              [ours other] (split-at (count our-cards) other)
+              [theirs pile] (split-at their-cards-count other)]
+          (.log js/console (str "found:theirs " (count theirs) "d" (count discards) "ours"(count ours) "pile"(count pile) "their-cards-count" their-cards-count))
+          (.log js/console "pile" (count pile) (count discards) (count ours) (count theirs))
+          (.log js/console "discard-cards" (pr-str discard-cards) (count discard-cards)
+                (pr-str ["turn" turn]))
+          (concat [{:db/id game-e
+                    :starting to-start
+                    :pile (mapv :dom/id pile)
+                    :discards (mapv :dom/id discards)
+                    :their-cards (mapv :dom/id theirs)
+                    :our-cards (mapv :dom/id ours)
+                    :turn turn}]
+                  (for [[e did suit rank] (map (fn [e {:keys [suit rank]}]
+                                                 [(:db/id e) (:dom/id e) suit rank]) discards discard-cards)]
+                    (do (.log js/console "Set an discard: " (pr-str [e suit rank]))
+                        {:db/id e
+                         :card/suit suit
+                         :card/rank rank}))
+                  (for [[e did suit rank] (map (fn [e {:keys [suit rank]}]
+                                                 [(:db/id e) (:dom/id e) suit rank]) ours our-cards)]
+                    (do (.log js/console "Set an ours: " (pr-str [e suit rank]))
+                        {:db/id e
+                         :card/suit suit
+                         :card/rank rank}))))))
+
 (defn player-ready [db game-id player]
   [[:db.fn/call log-event :player-ready game-id player]
    (let [game (dh/entity-lookup db [:game-id game-id])]
