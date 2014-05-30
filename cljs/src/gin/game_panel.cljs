@@ -195,10 +195,7 @@
                             [:div {:id "our_region"
                                    :class "region our_region"}]]))
     (dom/append (dom/build [:div.msg {:id "msg"}]))
-    (dom/append (dom/build (into [:div]
-                                 (for [suit [:diamond :club :heart :spade]
-                                       rank [:A :K :Q :J :T :r9 :r8 :r7 :r6 :r5 :r4 :r3 :r2]]
-                                   [:div {:class (str "offscreen_loading card " (str (name suit) "_" (name rank)))}])))))
+    (dom/append (dom/build [:div {:class (str "offscreen_loading card card_back")}])))
   (let [container-wrap (let [r (goog.style.getBounds (dom/get-element "game-panel"))]
                          (goog.math.Rect. (. r -left) (. r -top) (- (. r -width) 81) (- (. r -height) 96 37)))
         [pile-x pile-y] (pile-position)
@@ -285,7 +282,8 @@
      :else
      (let [_ (.log js/console "Regular draw case")
            us-pick-card (and (= (:us game) (:turn game))
-                             (= 10 (count (:our-cards game))))
+                             (= 10 (count (:our-cards game)))
+                             (= (:move game) :assigned))
            our-cards-es (map #(dh/entity-lookup db [:dom/id %]) (:our-cards game))
            opp-cards-es (map #(dh/entity-lookup db [:dom/id %]) (:their-cards game))
            pile-cards-el (mapv dom/get-element (:pile game))
@@ -326,17 +324,19 @@
                                   (dom/set-position el (+ their-region-offset-x (* idx 53)) (+ their-region-offset-y (* idx 4)))))
                               (range)
                               opp-cards-el))
-           (if-let [from-pile (some (fn [el]
-                                      (when (= (pile-position) (dom/get-pos el))
-                                        el)) opp-cards-el)]
+           (if-let [from-pile (and (= 11 (count opp-cards-el))
+                                   (some (fn [el]
+                                           (when (= (pile-position) (dom/get-pos el))
+                                             el)) opp-cards-el))]
              (dom/schedule (concat (dom/simultanious
                                     (map #(conj (dom/slide-from %2 [(+ their-region-offset-x (* %1 48.18)) (+ their-region-offset-y (* %1 3.63))])
                                                 (fn [] (dom/show-on-top %2)))
                                          (range)
                                          opp-cards-el))))
-             (if-let [from-discard (some (fn [el]
-                                           (when (= (discard-position) (dom/get-pos el))
-                                             el)) opp-cards-el)]
+             (if-let [from-discard (and (= 11 (count opp-cards-el))
+                                        (some (fn [el]
+                                                (when (= (discard-position) (dom/get-pos el))
+                                                  el)) opp-cards-el))]
                (dom/schedule (concat [#(dom/set-card-class from-discard "card_back")]
                                      (dom/simultanious
                                       (map #(conj (dom/slide-from %2 [(+ their-region-offset-x (* %1 48.18)) (+ their-region-offset-y (* %1 3.63))])
@@ -347,6 +347,7 @@
                (let [[x-step y-step] (if (= 10 (count opp-cards-el))
                                        [53 4]
                                        [48.18 3.63])]
+               
                  (dom/schedule (dom/simultanious (map #(dom/slide-from %2 [(+ their-region-offset-x (* %1 x-step)) (+ their-region-offset-y (* %1 y-step))])
                                                       (range)
                                                       opp-cards-el))))
@@ -358,7 +359,8 @@
                    rank (:card/rank es)]
                (dom/set-card-class el (str (name suit) "_" (name rank)))))))
        ;; our-cards
-       (if (= (:turn game) (:us game))
+       (if (and (= (:turn game) (:us game))
+                (= (:move game) :assigned))
          (if (= 11 (count our-cards-es))
            ;; choose discard
            (do
@@ -386,7 +388,9 @@
               :opp-win "Game over: Opponent wins."))
            ;; not our turn, home-region only
            (do
-             (set-msg "Opponent's turn.")
+             (if (not= (:turn game) (:us game))
+               (set-msg "Opponent's turn.")
+               (set-msg "Your turn is done."))
              (doseq [our-card-es our-cards-es]
                (set-drag-handler (dom/get-element (:dom/id our-card-es)) (home-region-handler conn))))))))))
 
@@ -397,6 +401,7 @@
                                              :where [[?e :event ?event ?tx]
                                                      [?e :args ?args]]}
                                            db-after (:max-tx db-after)))]
+      (.log js/console "event: " (pr-str (into [event game-id] args)))
       (draw db-after game-id conn))))
 
 (defn start-game-panel [conn]

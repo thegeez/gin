@@ -99,12 +99,14 @@
      [:db/add (:db/id game) :ready player])])
 
 (defn turn-assigned [db game-id turn]
-  [[:db.fn/call log-event :turn-assigned game-id turn]
-   (let [game-eid (ffirst (d/q '{:find [?e]
-                                 :in [$ ?game-id]
-                                 :where [[?e :game-id ?game-id]]}
-                               db game-id))]
-     [:db/add game-eid :turn turn])])
+  (let [game-eid (ffirst (d/q '{:find [?e]
+                                :in [$ ?game-id]
+                                :where [[?e :game-id ?game-id]]}
+                              db game-id))]
+    [[:db.fn/call log-event :turn-assigned game-id turn]
+     {:db/id game-eid
+      :turn turn
+      :move :assigned}]))
 
 (defn our-pile-picked [db card-id]
   (let [game-id (ffirst (d/q '{:find [?game-id]
@@ -160,7 +162,7 @@
       :discards (conj (:discards game) card-id)
       :our-cards (filterv (fn [c]
                             (not= c card-id)) (:our-cards game))}
-     [:db/add (:db/id game) :turn :done]]))
+     [:db/add (:db/id game) :move :done]]))
 
 (defn their-pile-picked [db game-id]
   (let [game (dh/entity-lookup db [:game-id game-id])
@@ -216,7 +218,8 @@
     [[:db.fn/call log-event :their-discard-chosen game-id card-id suit rank]
      {:db/id (:db/id game)
       :discards (conj (:discards game) card-id)
-      :their-cards (filterv (complement #{card-id}) (:their-cards game))}
+      :their-cards (filterv (complement #{card-id}) (:their-cards game))
+      :move :done}
      {:db/id (:db/id card)
       :card/suit suit
       :card/rank rank}]))

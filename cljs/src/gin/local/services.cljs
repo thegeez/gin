@@ -40,6 +40,7 @@
       (let [turn (get {:player1 :player2
                        :player2 :player1}
                       (:turn (dh/entity-lookup db-after [:game-id game-id])))]
+        (.log js/console "find turn: " (pr-str (dh/entity-lookup db-after [:game-id game-id])))
         (d/transact! conn [[:db.fn/call t/turn-assigned game-id turn]])))))
 
 (defmethod handle :turn-assigned
@@ -52,8 +53,17 @@
                    t/their-discard-picked)]
         (d/transact! conn [[:db.fn/call move game-id]])))))
 
+(defmethod handle :their-discard-picked
+  [event [game-id] {:keys [db-after] :as report} conn]
+  (let [[{:keys [suit rank]} from] (:last @table/table)]
+    (d/transact! conn [[:db.fn/call t/their-discard-chosen game-id suit rank]]) 500))
+
+(defmethod handle :their-pile-picked
+  [event [game-id] {:keys [db-after] :as report} conn]
+  (d/transact! conn [[:db.fn/call t/their-pile-pick-revealed game-id]]))
+
 (defmethod handle :their-pile-pick-revealed
-  [event [game-id pile-reshuffle] {:keys [db-after] :as report} conn]
+  [event [game-id] {:keys [db-after] :as report} conn]
   (let [[{:keys [suit rank]} from] (:last @table/table)]
     (d/transact! conn [[:db.fn/call t/their-discard-chosen game-id suit rank]])))
 
