@@ -161,8 +161,6 @@
                  (dom/add-remove-class card-el "cursor_hand" "cursor_drag")
                  (dom/remove-class (dom/get-element "discard_pile") "region_hover")
                  (dom/schedule (concat (dom/slide-from card-el (discard-position))
-                                       ;;[#(our-move-drop-discard
-                                       ;;card-id)]
                                        [#(d/transact! conn [[:db.fn/call t/our-discard-chosen card-id]])]))))})
 
 (defn home-discard-handler [conn]
@@ -291,7 +289,7 @@
            [their-region-offset-x their-region-offset-y] (their-region-position)]
        ;; pile-cards, anim to pile when needed, including reshuffle
        (doseq [pile-card-el pile-cards-el
-               :when (not= (pile-position) (dom/get-pos pile-card-el))]
+               :when (not= (pile-position) (dom/get-current-position pile-card-el))]
          (dom/schedule (into [(fn [] (dom/set-card-class pile-card-el "card_back"))
                               (fn [] (dom/show-on-top pile-card-el))]
                              (dom/slide-from pile-card-el (pile-position)))))
@@ -303,7 +301,7 @@
        ;; discards
        (doseq [discard-card-es (map #(dh/entity-lookup db [:dom/id %]) (:discards game))
                :let [discard-card-el (dom/get-element (:dom/id discard-card-es))]
-               :when (not= (discard-position) (dom/get-pos discard-card-el))]
+               :when (not= (discard-position) (dom/get-current-position discard-card-el))]
          (let [suit (:card/suit discard-card-es)
                rank (:card/rank discard-card-es)]
            (dom/schedule (into [(fn [] (dom/set-card-class discard-card-el (str (name suit) "_" (name rank))))
@@ -316,7 +314,7 @@
 
        ;; opp-cards positions
        (let [opp-cards-el (map #(dom/get-element (:dom/id %)) opp-cards-es)]
-         (if (= (pile-position) (dom/get-pos (first opp-cards-el)) (dom/get-pos (second opp-cards-el)))
+         (if (= (pile-position) (dom/get-current-position (first opp-cards-el)) (dom/get-current-position (second opp-cards-el)))
            ;; put all ten of them in place from join game
            (dom/schedule (map (fn [idx el]
                                 (fn []
@@ -326,31 +324,35 @@
                               opp-cards-el))
            (if-let [from-pile (and (= 11 (count opp-cards-el))
                                    (some (fn [el]
-                                           (when (= (pile-position) (dom/get-pos el))
+                                           (when (= (pile-position) (dom/get-current-position el))
                                              el)) opp-cards-el))]
-             (dom/schedule (concat (dom/simultanious
-                                    (map #(conj (dom/slide-from %2 [(+ their-region-offset-x (* %1 48.18)) (+ their-region-offset-y (* %1 3.63))])
-                                                (fn [] (dom/show-on-top %2)))
-                                         (range)
-                                         opp-cards-el))))
+             (do
+               (.log js/console "opp from pile")
+               (dom/schedule (concat (dom/simultanious
+                                     (map #(conj (dom/slide-from %2 [(+ their-region-offset-x (* %1 48.18)) (+ their-region-offset-y (* %1 3.63))])
+                                                 (fn [] (dom/show-on-top %2)))
+                                          (range)
+                                          opp-cards-el)))))
              (if-let [from-discard (and (= 11 (count opp-cards-el))
                                         (some (fn [el]
-                                                (when (= (discard-position) (dom/get-pos el))
+                                                (when (= (discard-position) (dom/get-current-position el))
                                                   el)) opp-cards-el))]
-               (dom/schedule (concat [#(dom/set-card-class from-discard "card_back")]
-                                     (dom/simultanious
-                                      (map #(conj (dom/slide-from %2 [(+ their-region-offset-x (* %1 48.18)) (+ their-region-offset-y (* %1 3.63))])
-                                                  (fn [] (dom/show-on-top %2)))
-                                           (range)
-                                           opp-cards-el))))
+               (do 
+                 (.log js/console "opp-from-discard")
+                 (dom/schedule (concat [#(dom/set-card-class from-discard "card_back")]
+                                      (dom/simultanious
+                                       (map #(conj (dom/slide-from %2 [(+ their-region-offset-x (* %1 48.18)) (+ their-region-offset-y (* %1 3.63))])
+                                                   (fn [] (dom/show-on-top %2)))
+                                            (range)
+                                            opp-cards-el)))))
                ;; put 10 or 11 of opp cards in usual place
                (let [[x-step y-step] (if (= 10 (count opp-cards-el))
                                        [53 4]
                                        [48.18 3.63])]
-               
+                 (.log js/console "opp reg")
                  (dom/schedule (dom/simultanious (map #(dom/slide-from %2 [(+ their-region-offset-x (* %1 x-step)) (+ their-region-offset-y (* %1 y-step))])
-                                                      (range)
-                                                      opp-cards-el))))
+                                                  (range)
+                                                  opp-cards-el))))
                )))
          ;; show what opp card were when game is finished
          (when (not= :hidden (:card/suit (first opp-cards-es)))

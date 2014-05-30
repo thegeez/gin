@@ -16,7 +16,7 @@ goog.require('gin.game_panel');
 */
 gin.core.load_app = (function load_app(){return new cljs.core.PersistentArrayMap(null, 3, [new cljs.core.Keyword(null,"conn","conn",1016963742),datascript.create_conn.call(null,gin.transact.schema),new cljs.core.Keyword(null,"render","render",4374279432),gin.game_panel.start_game_panel,new cljs.core.Keyword(null,"service","service",2998057511),gin.services.start_services], null);
 });
-gin.core.start_app = (function start_app(app_config){var map__18261 = app_config;var map__18261__$1 = ((cljs.core.seq_QMARK_.call(null,map__18261))?cljs.core.apply.call(null,cljs.core.hash_map,map__18261):map__18261);var app = map__18261__$1;var service = cljs.core.get.call(null,map__18261__$1,new cljs.core.Keyword(null,"service","service",2998057511));var render = cljs.core.get.call(null,map__18261__$1,new cljs.core.Keyword(null,"render","render",4374279432));var conn = cljs.core.get.call(null,map__18261__$1,new cljs.core.Keyword(null,"conn","conn",1016963742));console.log("service",service);
+gin.core.start_app = (function start_app(app_config){var map__18891 = app_config;var map__18891__$1 = ((cljs.core.seq_QMARK_.call(null,map__18891))?cljs.core.apply.call(null,cljs.core.hash_map,map__18891):map__18891);var app = map__18891__$1;var service = cljs.core.get.call(null,map__18891__$1,new cljs.core.Keyword(null,"service","service",2998057511));var render = cljs.core.get.call(null,map__18891__$1,new cljs.core.Keyword(null,"render","render",4374279432));var conn = cljs.core.get.call(null,map__18891__$1,new cljs.core.Keyword(null,"conn","conn",1016963742));console.log("service",service);
 render.call(null,conn);
 service.call(null,conn);
 gin.core.app = app;

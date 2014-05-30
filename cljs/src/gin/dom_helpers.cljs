@@ -123,9 +123,8 @@
 (defn get-position [e]
   (style/getPosition e))
 
-(defn get-pos [e]
-  (let [p (style/getPosition e)]
-    [(.-x p) (.-y p)]))
+(defn get-current-position [e]
+  (.-currentPosition e))
 
 (def z-level (atom 100))
 
@@ -170,12 +169,18 @@
      (let [dx (/ (- to-x from-x) steps)
            dy (/ (- to-y from-y) steps)
            step-time (/ msec steps)]
+       
+       
+       
+       (.log js/console "don't make the moves when already at to-x to-y")
+
+       (set! (.-currentPosition el) [to-x to-y])
        ;; this adds a step-time after as well vs. interpose
        ;; this seems to make the anims finish smoother
        (interleave (for [n (range (inc steps))]
                      #(goog.style/setPosition el
-                                              (+ from-x (* n dx))
-                                              (+ from-y (* n dy))))
+                                              (long (+ from-x (* n dx)))
+                                              (long (+ from-y (* n dy)))))
                    (repeat step-time)))))
 
 (defn slide-from

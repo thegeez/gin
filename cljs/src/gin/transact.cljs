@@ -167,6 +167,7 @@
 (defn their-pile-picked [db game-id]
   (let [game (dh/entity-lookup db [:game-id game-id])
         card-id (peek (:pile game))
+        card (dh/entity-lookup db [:dom/id card-id])
         insert-idx (rand-nth (range 10))
         [before after] (split-at insert-idx (:their-cards game))]
     [[:db.fn/call log-event :their-pile-picked game-id card-id]
@@ -175,7 +176,10 @@
                        (into before)
                        (conj card-id)
                        (into after))
-      :pile (pop (:pile game))}]))
+      :pile (pop (:pile game))}
+     {:db/id (:db/id card)
+      :card/suit :hidden
+      :card/rank :hidden}]))
 
 (defn their-pile-pick-revealed [db game-id]
   [[:db.fn/call log-event :their-pile-pick-revealed game-id]
