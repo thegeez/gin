@@ -128,9 +128,8 @@
                                         (= (:card/rank card-e) :hidden))
                                card-e)))
                     (:our-cards game))
-        card-id (:dom/id card-taken)
-        pile-reshuffle (not (next (:pile game)))]
-    [[:db.fn/call log-event :our-pile-pick-revealed game-id card-id suit rank pile-reshuffle]
+        card-id (:dom/id card-taken)]
+    [[:db.fn/call log-event :our-pile-pick-revealed game-id card-id suit rank]
      {:db/id (:db/id card-taken)
       :card/suit suit
       :card/rank rank}
@@ -167,9 +166,8 @@
   (let [game (dh/entity-lookup db [:game-id game-id])
         card-id (peek (:pile game))
         insert-idx (rand-nth (range 10))
-        [before after] (split-at insert-idx (:their-cards game))
-        pile-reshuffle (not (next (:pile game)))]
-    [[:db.fn/call log-event :their-pile-picked game-id card-id pile-reshuffle]
+        [before after] (split-at insert-idx (:their-cards game))]
+    [[:db.fn/call log-event :their-pile-picked game-id card-id]
      {:db/id (:db/id game)
       :their-cards (-> []
                        (into before)
