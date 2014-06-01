@@ -48,6 +48,7 @@ body {
 }
 
 .card {
+    background-image: url('../images/cards_sprite.png');
     width: 71px;
     height: 96px;
     display: block;
@@ -66,215 +67,162 @@ body {
     left: -1000px;
 }
 .club_r2 {
-    background-image: url('../images/cards_sprite.png');
     background-position: 0px 0px;
 }
 .club_r3 {
-    background-image: url('../images/cards_sprite.png');
     background-position: -71px 0px;
 }
 .club_r4 {
-    background-image: url('../images/cards_sprite.png');
     background-position: -142px 0px;
 }
 .club_r5 {
-    background-image: url('../images/cards_sprite.png');
     background-position: -213px 0px;
 }
 .club_r6 {
-    background-image: url('../images/cards_sprite.png');
     background-position: -284px 0px;
 }
 .club_r7 {
-    background-image: url('../images/cards_sprite.png');
     background-position: -355px 0px;
 }
 .club_r8 {
-    background-image: url('../images/cards_sprite.png');
     background-position: -426px 0px;
 }
 .club_r9 {
-    background-image: url('../images/cards_sprite.png');
     background-position: -497px 0px;
 }
 .club_T {
-    background-image: url('../images/cards_sprite.png');
     background-position: -568px 0px;
 }
 .club_J {
-    background-image: url('../images/cards_sprite.png');
     background-position: -639px 0px;
 }
 .club_Q {
-    background-image: url('../images/cards_sprite.png');
     background-position: -710px 0px;
 }
 .club_K {
-    background-image: url('../images/cards_sprite.png');
     background-position: -781px 0px;
 }
 .club_A {
-    background-image: url('../images/cards_sprite.png');
     background-position: -852px 0px;
 }
 .diamond_r2 {
-    background-image: url('../images/cards_sprite.png');
     background-position: 0px -96px;
 }
 .diamond_r3 {
-    background-image: url('../images/cards_sprite.png');
     background-position: -71px -96px;
 }
 .diamond_r4 {
-    background-image: url('../images/cards_sprite.png');
     background-position: -142px -96px;
 }
 .diamond_r5 {
-    background-image: url('../images/cards_sprite.png');
     background-position: -213px -96px;
 }
 .diamond_r6 {
-    background-image: url('../images/cards_sprite.png');
     background-position: -284px -96px;
 }
 .diamond_r7 {
-    background-image: url('../images/cards_sprite.png');
     background-position: -355px -96px;
 }
 .diamond_r8 {
-    background-image: url('../images/cards_sprite.png');
     background-position: -426px -96px;
 }
 .diamond_r9 {
-    background-image: url('../images/cards_sprite.png');
     background-position: -497px -96px;
 }
 .diamond_T {
-    background-image: url('../images/cards_sprite.png');
     background-position: -568px -96px;
 }
 .diamond_J {
-    background-image: url('../images/cards_sprite.png');
     background-position: -639px -96px;
 }
 .diamond_Q {
-    background-image: url('../images/cards_sprite.png');
     background-position: -710px -96px;
 }
 .diamond_K {
-    background-image: url('../images/cards_sprite.png');
     background-position: -781px -96px;
 }
 .diamond_A {
-    background-image: url('../images/cards_sprite.png');
     background-position: -852px -96px;
 }
 .spade_r2 {
-    background-image: url('../images/cards_sprite.png');
     background-position: 0px -192px;
 }
 .spade_r3 {
-    background-image: url('../images/cards_sprite.png');
     background-position: -71px -192px;
 }
 .spade_r4 {
-    background-image: url('../images/cards_sprite.png');
     background-position: -142px -192px;
 }
 .spade_r5 {
-    background-image: url('../images/cards_sprite.png');
     background-position: -213px -192px;
 }
 .spade_r6 {
-    background-image: url('../images/cards_sprite.png');
     background-position: -284px -192px;
 }
 .spade_r7 {
-    background-image: url('../images/cards_sprite.png');
     background-position: -355px -192px;
 }
 .spade_r8 {
-    background-image: url('../images/cards_sprite.png');
     background-position: -426px -192px;
 }
 .spade_r9 {
-    background-image: url('../images/cards_sprite.png');
     background-position: -497px -192px;
 }
 .spade_T {
-    background-image: url('../images/cards_sprite.png');
     background-position: -568px -192px;
 }
 .spade_J {
-    background-image: url('../images/cards_sprite.png');
     background-position: -639px -192px;
 }
 .spade_Q {
-    background-image: url('../images/cards_sprite.png');
     background-position: -710px -192px;
 }
 .spade_K {
-    background-image: url('../images/cards_sprite.png');
     background-position: -781px -192px;
 }
 .spade_A {
-    background-image: url('../images/cards_sprite.png');
     background-position: -852px -192px;
 }
 .heart_r2 {
-    background-image: url('../images/cards_sprite.png');
     background-position: 0px -288px;
 }
 .heart_r3 {
-    background-image: url('../images/cards_sprite.png');
     background-position: -71px -288px;
 }
 .heart_r4 {
-    background-image: url('../images/cards_sprite.png');
     background-position: -142px -288px;
 }
 .heart_r5 {
-    background-image: url('../images/cards_sprite.png');
     background-position: -213px -288px;
 }
 .heart_r6 {
-    background-image: url('../images/cards_sprite.png');
     background-position: -284px -288px;
 }
 .heart_r7 {
-    background-image: url('../images/cards_sprite.png');
     background-position: -355px -288px;
 }
 .heart_r8 {
-    background-image: url('../images/cards_sprite.png');
     background-position: -426px -288px;
 }
 .heart_r9 {
-    background-image: url('../images/cards_sprite.png');
     background-position: -497px -288px;
 }
 .heart_T {
-    background-image: url('../images/cards_sprite.png');
     background-position: -568px -288px;
 }
 .heart_J {
-    background-image: url('../images/cards_sprite.png');
     background-position: -639px -288px;
 }
 .heart_Q {
-    background-image: url('../images/cards_sprite.png');
     background-position: -710px -288px;
 }
 .heart_K {
-    background-image: url('../images/cards_sprite.png');
     background-position: -781px -288px;
 }
 .heart_A {
-    background-image: url('../images/cards_sprite.png');
     background-position: -852px -288px;
 }
 .card_back {
-    background-image: url('../images/cards_sprite.png');
     background-position: -923px 0px;
 }
 
