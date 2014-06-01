@@ -36743,49 +36743,49 @@ gin.dom_helpers.get_radio_value = function get_radio_value(form_name, name) {
 };
 gin.dom_helpers.append = function() {
   var append__delegate = function(parent, children) {
-    var seq__19057_19061 = cljs.core.seq.call(null, children);
-    var chunk__19058_19062 = null;
-    var count__19059_19063 = 0;
-    var i__19060_19064 = 0;
+    var seq__44145_44149 = cljs.core.seq.call(null, children);
+    var chunk__44146_44150 = null;
+    var count__44147_44151 = 0;
+    var i__44148_44152 = 0;
     while (true) {
-      if (i__19060_19064 < count__19059_19063) {
-        var child_19065 = cljs.core._nth.call(null, chunk__19058_19062, i__19060_19064);
-        goog.dom.appendChild(parent, child_19065);
-        var G__19066 = seq__19057_19061;
-        var G__19067 = chunk__19058_19062;
-        var G__19068 = count__19059_19063;
-        var G__19069 = i__19060_19064 + 1;
-        seq__19057_19061 = G__19066;
-        chunk__19058_19062 = G__19067;
-        count__19059_19063 = G__19068;
-        i__19060_19064 = G__19069;
+      if (i__44148_44152 < count__44147_44151) {
+        var child_44153 = cljs.core._nth.call(null, chunk__44146_44150, i__44148_44152);
+        goog.dom.appendChild(parent, child_44153);
+        var G__44154 = seq__44145_44149;
+        var G__44155 = chunk__44146_44150;
+        var G__44156 = count__44147_44151;
+        var G__44157 = i__44148_44152 + 1;
+        seq__44145_44149 = G__44154;
+        chunk__44146_44150 = G__44155;
+        count__44147_44151 = G__44156;
+        i__44148_44152 = G__44157;
         continue;
       } else {
-        var temp__4092__auto___19070 = cljs.core.seq.call(null, seq__19057_19061);
-        if (temp__4092__auto___19070) {
-          var seq__19057_19071__$1 = temp__4092__auto___19070;
-          if (cljs.core.chunked_seq_QMARK_.call(null, seq__19057_19071__$1)) {
-            var c__17389__auto___19072 = cljs.core.chunk_first.call(null, seq__19057_19071__$1);
-            var G__19073 = cljs.core.chunk_rest.call(null, seq__19057_19071__$1);
-            var G__19074 = c__17389__auto___19072;
-            var G__19075 = cljs.core.count.call(null, c__17389__auto___19072);
-            var G__19076 = 0;
-            seq__19057_19061 = G__19073;
-            chunk__19058_19062 = G__19074;
-            count__19059_19063 = G__19075;
-            i__19060_19064 = G__19076;
+        var temp__4092__auto___44158 = cljs.core.seq.call(null, seq__44145_44149);
+        if (temp__4092__auto___44158) {
+          var seq__44145_44159__$1 = temp__4092__auto___44158;
+          if (cljs.core.chunked_seq_QMARK_.call(null, seq__44145_44159__$1)) {
+            var c__17389__auto___44160 = cljs.core.chunk_first.call(null, seq__44145_44159__$1);
+            var G__44161 = cljs.core.chunk_rest.call(null, seq__44145_44159__$1);
+            var G__44162 = c__17389__auto___44160;
+            var G__44163 = cljs.core.count.call(null, c__17389__auto___44160);
+            var G__44164 = 0;
+            seq__44145_44149 = G__44161;
+            chunk__44146_44150 = G__44162;
+            count__44147_44151 = G__44163;
+            i__44148_44152 = G__44164;
             continue;
           } else {
-            var child_19077 = cljs.core.first.call(null, seq__19057_19071__$1);
-            goog.dom.appendChild(parent, child_19077);
-            var G__19078 = cljs.core.next.call(null, seq__19057_19071__$1);
-            var G__19079 = null;
-            var G__19080 = 0;
-            var G__19081 = 0;
-            seq__19057_19061 = G__19078;
-            chunk__19058_19062 = G__19079;
-            count__19059_19063 = G__19080;
-            i__19060_19064 = G__19081;
+            var child_44165 = cljs.core.first.call(null, seq__44145_44159__$1);
+            goog.dom.appendChild(parent, child_44165);
+            var G__44166 = cljs.core.next.call(null, seq__44145_44159__$1);
+            var G__44167 = null;
+            var G__44168 = 0;
+            var G__44169 = 0;
+            seq__44145_44149 = G__44166;
+            chunk__44146_44150 = G__44167;
+            count__44147_44151 = G__44168;
+            i__44148_44152 = G__44169;
             continue;
           }
         } else {
@@ -36803,9 +36803,9 @@ gin.dom_helpers.append = function() {
     return append__delegate.call(this, parent, children);
   };
   append.cljs$lang$maxFixedArity = 1;
-  append.cljs$lang$applyTo = function(arglist__19082) {
-    var parent = cljs.core.first(arglist__19082);
-    var children = cljs.core.rest(arglist__19082);
+  append.cljs$lang$applyTo = function(arglist__44170) {
+    var parent = cljs.core.first(arglist__44170);
+    var children = cljs.core.rest(arglist__44170);
     return append__delegate(parent, children);
   };
   append.cljs$core$IFn$_invoke$arity$variadic = append__delegate;
@@ -36813,22 +36813,22 @@ gin.dom_helpers.append = function() {
 }();
 gin.dom_helpers.set_text = function set_text(e, s) {
   var e__$1 = e instanceof cljs.core.Keyword || typeof e === "string" ? gin.dom_helpers.get_element.call(null, e) : e;
-  var G__19084 = e__$1;
-  goog.dom.setTextContent(G__19084, s);
-  return G__19084;
+  var G__44172 = e__$1;
+  goog.dom.setTextContent(G__44172, s);
+  return G__44172;
 };
 gin.dom_helpers.normalize_args = function normalize_args(tag, args) {
   var parts = clojure.string.split.call(null, tag, /(\.|#)/);
-  var vec__19087 = new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [cljs.core.first.call(null, parts), cljs.core.apply.call(null, cljs.core.hash_map, cljs.core.map.call(null, function(parts) {
-    return function(p1__19085_SHARP_) {
-      if (cljs.core._EQ_.call(null, p1__19085_SHARP_, ".")) {
+  var vec__44175 = new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [cljs.core.first.call(null, parts), cljs.core.apply.call(null, cljs.core.hash_map, cljs.core.map.call(null, function(parts) {
+    return function(p1__44173_SHARP_) {
+      if (cljs.core._EQ_.call(null, p1__44173_SHARP_, ".")) {
         return new cljs.core.Keyword(null, "class", "class", 1108647146);
       } else {
-        if (cljs.core._EQ_.call(null, p1__19085_SHARP_, "#")) {
+        if (cljs.core._EQ_.call(null, p1__44173_SHARP_, "#")) {
           return new cljs.core.Keyword(null, "id", "id", 1013907597);
         } else {
           if (new cljs.core.Keyword(null, "else", "else", 1017020587)) {
-            return p1__19085_SHARP_;
+            return p1__44173_SHARP_;
           } else {
             return null;
           }
@@ -36836,8 +36836,8 @@ gin.dom_helpers.normalize_args = function normalize_args(tag, args) {
       }
     };
   }(parts), cljs.core.rest.call(null, parts)))], null);
-  var tag__$1 = cljs.core.nth.call(null, vec__19087, 0, null);
-  var attrs = cljs.core.nth.call(null, vec__19087, 1, null);
+  var tag__$1 = cljs.core.nth.call(null, vec__44175, 0, null);
+  var attrs = cljs.core.nth.call(null, vec__44175, 1, null);
   if (cljs.core.map_QMARK_.call(null, cljs.core.first.call(null, args))) {
     return new cljs.core.PersistentVector(null, 3, 5, cljs.core.PersistentVector.EMPTY_NODE, [tag__$1, cljs.core.merge.call(null, attrs, cljs.core.first.call(null, args)), cljs.core.rest.call(null, args)], null);
   } else {
@@ -36846,25 +36846,25 @@ gin.dom_helpers.normalize_args = function normalize_args(tag, args) {
 };
 gin.dom_helpers.element = function() {
   var element__delegate = function(tag, args) {
-    var vec__19094 = gin.dom_helpers.normalize_args.call(null, tag, args);
-    var tag__$1 = cljs.core.nth.call(null, vec__19094, 0, null);
-    var attrs = cljs.core.nth.call(null, vec__19094, 1, null);
-    var children = cljs.core.nth.call(null, vec__19094, 2, null);
-    var parent = goog.dom.createDom(cljs.core.subs.call(null, tag__$1, 1), cljs.core.clj__GT_js.call(null, cljs.core.reduce.call(null, function(vec__19094, tag__$1, attrs, children) {
-      return function(m, p__19096) {
-        var vec__19097 = p__19096;
-        var k = cljs.core.nth.call(null, vec__19097, 0, null);
-        var v = cljs.core.nth.call(null, vec__19097, 1, null);
+    var vec__44182 = gin.dom_helpers.normalize_args.call(null, tag, args);
+    var tag__$1 = cljs.core.nth.call(null, vec__44182, 0, null);
+    var attrs = cljs.core.nth.call(null, vec__44182, 1, null);
+    var children = cljs.core.nth.call(null, vec__44182, 2, null);
+    var parent = goog.dom.createDom(cljs.core.subs.call(null, tag__$1, 1), cljs.core.clj__GT_js.call(null, cljs.core.reduce.call(null, function(vec__44182, tag__$1, attrs, children) {
+      return function(m, p__44184) {
+        var vec__44185 = p__44184;
+        var k = cljs.core.nth.call(null, vec__44185, 0, null);
+        var v = cljs.core.nth.call(null, vec__44185, 1, null);
         return cljs.core.assoc.call(null, m, k, v);
       };
-    }(vec__19094, tag__$1, attrs, children), cljs.core.PersistentArrayMap.EMPTY, cljs.core.map.call(null, function(vec__19094, tag__$1, attrs, children) {
-      return function(p1__19088_SHARP_, p2__19089_SHARP_) {
-        return new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [cljs.core.name.call(null, p1__19088_SHARP_), p2__19089_SHARP_], null);
+    }(vec__44182, tag__$1, attrs, children), cljs.core.PersistentArrayMap.EMPTY, cljs.core.map.call(null, function(vec__44182, tag__$1, attrs, children) {
+      return function(p1__44176_SHARP_, p2__44177_SHARP_) {
+        return new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [cljs.core.name.call(null, p1__44176_SHARP_), p2__44177_SHARP_], null);
       };
-    }(vec__19094, tag__$1, attrs, children), cljs.core.keys.call(null, attrs), cljs.core.vals.call(null, attrs)))));
-    var vec__19095 = typeof cljs.core.first.call(null, children) === "string" ? new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [gin.dom_helpers.set_text.call(null, element.call(null, tag__$1, attrs), cljs.core.first.call(null, children)), cljs.core.rest.call(null, children)], null) : new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [parent, children], null);
-    var parent__$1 = cljs.core.nth.call(null, vec__19095, 0, null);
-    var children__$1 = cljs.core.nth.call(null, vec__19095, 1, null);
+    }(vec__44182, tag__$1, attrs, children), cljs.core.keys.call(null, attrs), cljs.core.vals.call(null, attrs)))));
+    var vec__44183 = typeof cljs.core.first.call(null, children) === "string" ? new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [gin.dom_helpers.set_text.call(null, element.call(null, tag__$1, attrs), cljs.core.first.call(null, children)), cljs.core.rest.call(null, children)], null) : new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [parent, children], null);
+    var parent__$1 = cljs.core.nth.call(null, vec__44183, 0, null);
+    var children__$1 = cljs.core.nth.call(null, vec__44183, 1, null);
     return cljs.core.apply.call(null, gin.dom_helpers.append, parent__$1, children__$1);
   };
   var element = function(tag, var_args) {
@@ -36875,9 +36875,9 @@ gin.dom_helpers.element = function() {
     return element__delegate.call(this, tag, args);
   };
   element.cljs$lang$maxFixedArity = 1;
-  element.cljs$lang$applyTo = function(arglist__19098) {
-    var tag = cljs.core.first(arglist__19098);
-    var args = cljs.core.rest(arglist__19098);
+  element.cljs$lang$applyTo = function(arglist__44186) {
+    var tag = cljs.core.first(arglist__44186);
+    var args = cljs.core.rest(arglist__44186);
     return element__delegate(tag, args);
   };
   element.cljs$core$IFn$_invoke$arity$variadic = element__delegate;
@@ -36894,10 +36894,10 @@ gin.dom_helpers.element_arg_QMARK_ = function element_arg_QMARK_(x) {
 };
 gin.dom_helpers.build = function build(x) {
   if (cljs.core.vector_QMARK_.call(null, x)) {
-    var vec__19100 = cljs.core.first.call(null, x) instanceof cljs.core.Keyword ? new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [cljs.core.apply.call(null, gin.dom_helpers.element, cljs.core.take_while.call(null, gin.dom_helpers.element_arg_QMARK_, x)), cljs.core.drop_while.call(null, gin.dom_helpers.element_arg_QMARK_, x)], null) : new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [cljs.core.first.call(null, x), cljs.core.rest.call(null, 
+    var vec__44188 = cljs.core.first.call(null, x) instanceof cljs.core.Keyword ? new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [cljs.core.apply.call(null, gin.dom_helpers.element, cljs.core.take_while.call(null, gin.dom_helpers.element_arg_QMARK_, x)), cljs.core.drop_while.call(null, gin.dom_helpers.element_arg_QMARK_, x)], null) : new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [cljs.core.first.call(null, x), cljs.core.rest.call(null, 
     x)], null);
-    var parent = cljs.core.nth.call(null, vec__19100, 0, null);
-    var children = cljs.core.nth.call(null, vec__19100, 1, null);
+    var parent = cljs.core.nth.call(null, vec__44188, 0, null);
+    var children = cljs.core.nth.call(null, vec__44188, 1, null);
     var children__$1 = cljs.core.map.call(null, build, children);
     return cljs.core.apply.call(null, gin.dom_helpers.append, parent, children__$1);
   } else {
@@ -36956,57 +36956,57 @@ gin.dom_helpers.schedule = function schedule(steps) {
 };
 gin.dom_helpers.simultanious = function simultanious(stepss) {
   return cljs.core.apply.call(null, cljs.core.map, function() {
-    var G__19113__delegate = function(p__19107) {
-      var vec__19108 = p__19107;
-      var arg = cljs.core.nth.call(null, vec__19108, 0, null);
-      var args = vec__19108;
+    var G__44201__delegate = function(p__44195) {
+      var vec__44196 = p__44195;
+      var arg = cljs.core.nth.call(null, vec__44196, 0, null);
+      var args = vec__44196;
       if (typeof arg === "number") {
         return arg;
       } else {
         return function() {
-          var seq__19109 = cljs.core.seq.call(null, args);
-          var chunk__19110 = null;
-          var count__19111 = 0;
-          var i__19112 = 0;
+          var seq__44197 = cljs.core.seq.call(null, args);
+          var chunk__44198 = null;
+          var count__44199 = 0;
+          var i__44200 = 0;
           while (true) {
-            if (i__19112 < count__19111) {
-              var a = cljs.core._nth.call(null, chunk__19110, i__19112);
+            if (i__44200 < count__44199) {
+              var a = cljs.core._nth.call(null, chunk__44198, i__44200);
               a.call(null);
-              var G__19114 = seq__19109;
-              var G__19115 = chunk__19110;
-              var G__19116 = count__19111;
-              var G__19117 = i__19112 + 1;
-              seq__19109 = G__19114;
-              chunk__19110 = G__19115;
-              count__19111 = G__19116;
-              i__19112 = G__19117;
+              var G__44202 = seq__44197;
+              var G__44203 = chunk__44198;
+              var G__44204 = count__44199;
+              var G__44205 = i__44200 + 1;
+              seq__44197 = G__44202;
+              chunk__44198 = G__44203;
+              count__44199 = G__44204;
+              i__44200 = G__44205;
               continue;
             } else {
-              var temp__4092__auto__ = cljs.core.seq.call(null, seq__19109);
+              var temp__4092__auto__ = cljs.core.seq.call(null, seq__44197);
               if (temp__4092__auto__) {
-                var seq__19109__$1 = temp__4092__auto__;
-                if (cljs.core.chunked_seq_QMARK_.call(null, seq__19109__$1)) {
-                  var c__17389__auto__ = cljs.core.chunk_first.call(null, seq__19109__$1);
-                  var G__19118 = cljs.core.chunk_rest.call(null, seq__19109__$1);
-                  var G__19119 = c__17389__auto__;
-                  var G__19120 = cljs.core.count.call(null, c__17389__auto__);
-                  var G__19121 = 0;
-                  seq__19109 = G__19118;
-                  chunk__19110 = G__19119;
-                  count__19111 = G__19120;
-                  i__19112 = G__19121;
+                var seq__44197__$1 = temp__4092__auto__;
+                if (cljs.core.chunked_seq_QMARK_.call(null, seq__44197__$1)) {
+                  var c__17389__auto__ = cljs.core.chunk_first.call(null, seq__44197__$1);
+                  var G__44206 = cljs.core.chunk_rest.call(null, seq__44197__$1);
+                  var G__44207 = c__17389__auto__;
+                  var G__44208 = cljs.core.count.call(null, c__17389__auto__);
+                  var G__44209 = 0;
+                  seq__44197 = G__44206;
+                  chunk__44198 = G__44207;
+                  count__44199 = G__44208;
+                  i__44200 = G__44209;
                   continue;
                 } else {
-                  var a = cljs.core.first.call(null, seq__19109__$1);
+                  var a = cljs.core.first.call(null, seq__44197__$1);
                   a.call(null);
-                  var G__19122 = cljs.core.next.call(null, seq__19109__$1);
-                  var G__19123 = null;
-                  var G__19124 = 0;
-                  var G__19125 = 0;
-                  seq__19109 = G__19122;
-                  chunk__19110 = G__19123;
-                  count__19111 = G__19124;
-                  i__19112 = G__19125;
+                  var G__44210 = cljs.core.next.call(null, seq__44197__$1);
+                  var G__44211 = null;
+                  var G__44212 = 0;
+                  var G__44213 = 0;
+                  seq__44197 = G__44210;
+                  chunk__44198 = G__44211;
+                  count__44199 = G__44212;
+                  i__44200 = G__44213;
                   continue;
                 }
               } else {
@@ -37018,20 +37018,20 @@ gin.dom_helpers.simultanious = function simultanious(stepss) {
         };
       }
     };
-    var G__19113 = function(var_args) {
-      var p__19107 = null;
+    var G__44201 = function(var_args) {
+      var p__44195 = null;
       if (arguments.length > 0) {
-        p__19107 = cljs.core.array_seq(Array.prototype.slice.call(arguments, 0), 0);
+        p__44195 = cljs.core.array_seq(Array.prototype.slice.call(arguments, 0), 0);
       }
-      return G__19113__delegate.call(this, p__19107);
+      return G__44201__delegate.call(this, p__44195);
     };
-    G__19113.cljs$lang$maxFixedArity = 0;
-    G__19113.cljs$lang$applyTo = function(arglist__19126) {
-      var p__19107 = cljs.core.seq(arglist__19126);
-      return G__19113__delegate(p__19107);
+    G__44201.cljs$lang$maxFixedArity = 0;
+    G__44201.cljs$lang$applyTo = function(arglist__44214) {
+      var p__44195 = cljs.core.seq(arglist__44214);
+      return G__44201__delegate(p__44195);
     };
-    G__19113.cljs$core$IFn$_invoke$arity$variadic = G__19113__delegate;
-    return G__19113;
+    G__44201.cljs$core$IFn$_invoke$arity$variadic = G__44201__delegate;
+    return G__44201;
   }(), stepss);
 };
 gin.dom_helpers.slide = function() {
@@ -37039,42 +37039,42 @@ gin.dom_helpers.slide = function() {
   var slide__3 = function(el, from, to) {
     return slide.call(null, el, from, to, 300, 30);
   };
-  var slide__5 = function(el, p__19127, p__19128, msec, steps) {
-    var vec__19135 = p__19127;
-    var from_x = cljs.core.nth.call(null, vec__19135, 0, null);
-    var from_y = cljs.core.nth.call(null, vec__19135, 1, null);
-    var vec__19136 = p__19128;
-    var to_x = cljs.core.nth.call(null, vec__19136, 0, null);
-    var to_y = cljs.core.nth.call(null, vec__19136, 1, null);
+  var slide__5 = function(el, p__44215, p__44216, msec, steps) {
+    var vec__44223 = p__44215;
+    var from_x = cljs.core.nth.call(null, vec__44223, 0, null);
+    var from_y = cljs.core.nth.call(null, vec__44223, 1, null);
+    var vec__44224 = p__44216;
+    var to_x = cljs.core.nth.call(null, vec__44224, 0, null);
+    var to_y = cljs.core.nth.call(null, vec__44224, 1, null);
     var dx = (to_x - from_x) / steps;
     var dy = (to_y - from_y) / steps;
     var step_time = msec / steps;
     console.log("don't make the moves when already at to-x to-y");
     el.currentPosition = new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [to_x, to_y], null);
     return cljs.core.interleave.call(null, function() {
-      var iter__17358__auto__ = function iter__19137(s__19138) {
+      var iter__17358__auto__ = function iter__44225(s__44226) {
         return new cljs.core.LazySeq(null, function() {
-          var s__19138__$1 = s__19138;
+          var s__44226__$1 = s__44226;
           while (true) {
-            var temp__4092__auto__ = cljs.core.seq.call(null, s__19138__$1);
+            var temp__4092__auto__ = cljs.core.seq.call(null, s__44226__$1);
             if (temp__4092__auto__) {
-              var s__19138__$2 = temp__4092__auto__;
-              if (cljs.core.chunked_seq_QMARK_.call(null, s__19138__$2)) {
-                var c__17356__auto__ = cljs.core.chunk_first.call(null, s__19138__$2);
+              var s__44226__$2 = temp__4092__auto__;
+              if (cljs.core.chunked_seq_QMARK_.call(null, s__44226__$2)) {
+                var c__17356__auto__ = cljs.core.chunk_first.call(null, s__44226__$2);
                 var size__17357__auto__ = cljs.core.count.call(null, c__17356__auto__);
-                var b__19140 = cljs.core.chunk_buffer.call(null, size__17357__auto__);
+                var b__44228 = cljs.core.chunk_buffer.call(null, size__17357__auto__);
                 if (function() {
-                  var i__19139 = 0;
+                  var i__44227 = 0;
                   while (true) {
-                    if (i__19139 < size__17357__auto__) {
-                      var n = cljs.core._nth.call(null, c__17356__auto__, i__19139);
-                      cljs.core.chunk_append.call(null, b__19140, function(i__19139, n, c__17356__auto__, size__17357__auto__, b__19140, s__19138__$2, temp__4092__auto__) {
+                    if (i__44227 < size__17357__auto__) {
+                      var n = cljs.core._nth.call(null, c__17356__auto__, i__44227);
+                      cljs.core.chunk_append.call(null, b__44228, function(i__44227, n, c__17356__auto__, size__17357__auto__, b__44228, s__44226__$2, temp__4092__auto__) {
                         return function() {
                           return goog.style.setPosition(el, cljs.core.long$.call(null, from_x + n * dx), cljs.core.long$.call(null, from_y + n * dy));
                         };
-                      }(i__19139, n, c__17356__auto__, size__17357__auto__, b__19140, s__19138__$2, temp__4092__auto__));
-                      var G__19141 = i__19139 + 1;
-                      i__19139 = G__19141;
+                      }(i__44227, n, c__17356__auto__, size__17357__auto__, b__44228, s__44226__$2, temp__4092__auto__));
+                      var G__44229 = i__44227 + 1;
+                      i__44227 = G__44229;
                       continue;
                     } else {
                       return true;
@@ -37082,17 +37082,17 @@ gin.dom_helpers.slide = function() {
                     break;
                   }
                 }()) {
-                  return cljs.core.chunk_cons.call(null, cljs.core.chunk.call(null, b__19140), iter__19137.call(null, cljs.core.chunk_rest.call(null, s__19138__$2)));
+                  return cljs.core.chunk_cons.call(null, cljs.core.chunk.call(null, b__44228), iter__44225.call(null, cljs.core.chunk_rest.call(null, s__44226__$2)));
                 } else {
-                  return cljs.core.chunk_cons.call(null, cljs.core.chunk.call(null, b__19140), null);
+                  return cljs.core.chunk_cons.call(null, cljs.core.chunk.call(null, b__44228), null);
                 }
               } else {
-                var n = cljs.core.first.call(null, s__19138__$2);
-                return cljs.core.cons.call(null, function(n, s__19138__$2, temp__4092__auto__) {
+                var n = cljs.core.first.call(null, s__44226__$2);
+                return cljs.core.cons.call(null, function(n, s__44226__$2, temp__4092__auto__) {
                   return function() {
                     return goog.style.setPosition(el, cljs.core.long$.call(null, from_x + n * dx), cljs.core.long$.call(null, from_y + n * dy));
                   };
-                }(n, s__19138__$2, temp__4092__auto__), iter__19137.call(null, cljs.core.rest.call(null, s__19138__$2)));
+                }(n, s__44226__$2, temp__4092__auto__), iter__44225.call(null, cljs.core.rest.call(null, s__44226__$2)));
               }
             } else {
               return null;
@@ -37104,12 +37104,12 @@ gin.dom_helpers.slide = function() {
       return iter__17358__auto__.call(null, cljs.core.range.call(null, steps + 1));
     }(), cljs.core.repeat.call(null, step_time));
   };
-  slide = function(el, p__19127, p__19128, msec, steps) {
+  slide = function(el, p__44215, p__44216, msec, steps) {
     switch(arguments.length) {
       case 3:
-        return slide__3.call(this, el, p__19127, p__19128);
+        return slide__3.call(this, el, p__44215, p__44216);
       case 5:
-        return slide__5.call(this, el, p__19127, p__19128, msec, steps);
+        return slide__5.call(this, el, p__44215, p__44216, msec, steps);
     }
     throw new Error("Invalid arity: " + arguments.length);
   };
@@ -37431,14 +37431,81 @@ goog.require("goog.events");
 goog.require("gin.datascript_helpers");
 goog.require("goog.fx.Dragger");
 goog.require("goog.async.AnimationDelay");
+gin.game_panel.a = new Array(52 * cljs.core.count.call(null, new cljs.core.PersistentVector(null, 8, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null, "el", "el", 1013907481), new cljs.core.Keyword(null, "start", "start", 1123661780), new cljs.core.Keyword(null, "at", "at", 1013907365), new cljs.core.Keyword(null, "draw", "draw", 1016996022), new cljs.core.Keyword(null, "to", "to", 1013907949), new cljs.core.Keyword(null, "step", "step", 1017444926), new cljs.core.Keyword(null, 
+"dx", "dx", 1013907462), new cljs.core.Keyword(null, "dy", "dy", 1013907463)], null)));
+gin.game_panel.slide = function slide(idx, el, to) {
+  var i = idx * 8;
+  var vec__86946 = function() {
+    var p = gin.dom_helpers.get_position.call(null, el);
+    var from = new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [p.x, p.y], null);
+    gin.game_panel.a[i + 2] = from;
+    return from;
+  }();
+  var from_x = cljs.core.nth.call(null, vec__86946, 0, null);
+  var from_y = cljs.core.nth.call(null, vec__86946, 1, null);
+  var from = vec__86946;
+  var vec__86947 = to;
+  var to_x = cljs.core.nth.call(null, vec__86947, 0, null);
+  var to_y = cljs.core.nth.call(null, vec__86947, 1, null);
+  var steps = 30;
+  var dx = (to_x - from_x) / steps;
+  var dy = (to_y - from_y) / steps;
+  gin.game_panel.a[i] = el;
+  gin.game_panel.a[i + 1] = from;
+  gin.game_panel.a[i + 3] = true;
+  gin.game_panel.a[i + 4] = to;
+  gin.game_panel.a[i + 5] = steps;
+  gin.game_panel.a[i + 6] = dx;
+  return gin.game_panel.a[i + 7] = dy;
+};
+gin.game_panel.anim_loop = function anim_loop() {
+  var n__17489__auto___86952 = 52;
+  var card_idx_86953 = 0;
+  while (true) {
+    if (card_idx_86953 < n__17489__auto___86952) {
+      var i_86954 = card_idx_86953 * 8;
+      if (cljs.core.truth_(gin.game_panel.a[i_86954 + 3])) {
+        var el_86955 = gin.game_panel.a[i_86954];
+        var vec__86950_86956 = gin.game_panel.a[i_86954 + 1];
+        var start_x_86957 = cljs.core.nth.call(null, vec__86950_86956, 0, null);
+        var start_y_86958 = cljs.core.nth.call(null, vec__86950_86956, 1, null);
+        var at_86959 = gin.game_panel.a[i_86954 + 2];
+        var vec__86951_86960 = gin.game_panel.a[i_86954 + 4];
+        var x_86961 = cljs.core.nth.call(null, vec__86951_86960, 0, null);
+        var y_86962 = cljs.core.nth.call(null, vec__86951_86960, 1, null);
+        var to_86963 = vec__86951_86960;
+        var step_86964 = gin.game_panel.a[i_86954 + 5] - 1;
+        var dx_86965 = gin.game_panel.a[i_86954 + 6];
+        var dy_86966 = gin.game_panel.a[i_86954 + 7];
+        var nx_86967 = cljs.core.long$.call(null, start_x_86957 + (30 - step_86964) * dx_86965);
+        var ny_86968 = cljs.core.long$.call(null, start_y_86958 + (30 - step_86964) * dy_86966);
+        gin.game_panel.a[i_86954 + 2] = new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [nx_86967, ny_86968], null);
+        gin.dom_helpers.set_position.call(null, el_86955, nx_86967, ny_86968);
+        gin.game_panel.a[i_86954 + 5] = step_86964;
+        if (cljs.core._EQ_.call(null, x_86961, nx_86967) && cljs.core._EQ_.call(null, y_86962, ny_86968) || (step_86964 === 0 || dx_86965 === 0 && dy_86966 === 0)) {
+          gin.game_panel.a[i_86954 + 3] = false;
+        } else {
+        }
+      } else {
+      }
+      var G__86969 = card_idx_86953 + 1;
+      card_idx_86953 = G__86969;
+      continue;
+    } else {
+    }
+    break;
+  }
+  return gin.dom_helpers.set_timeout.call(null, anim_loop, 10);
+};
+gin.game_panel.anim_loop.call(null);
 gin.game_panel.set_msg = function set_msg(msg) {
   console.log("set-msg", msg);
   return gin.dom_helpers.set_text.call(null, gin.dom_helpers.get_element.call(null, "msg"), msg);
 };
-gin.game_panel.in_rect = function in_rect(rect, p__18398) {
-  var vec__18400 = p__18398;
-  var x = cljs.core.nth.call(null, vec__18400, 0, null);
-  var y = cljs.core.nth.call(null, vec__18400, 1, null);
+gin.game_panel.in_rect = function in_rect(rect, p__86970) {
+  var vec__86972 = p__86970;
+  var x = cljs.core.nth.call(null, vec__86972, 0, null);
+  var y = cljs.core.nth.call(null, vec__86972, 1, null);
   return x >= rect.left && (x <= rect.left + rect.width && (y >= rect.top && y <= rect.top + rect.height));
 };
 gin.game_panel.in_our_region = function in_our_region(x, y) {
@@ -37519,7 +37586,7 @@ gin.game_panel.pile_drag_handler = function pile_drag_handler(conn) {
   }, new cljs.core.Keyword(null, "drag-end", "drag-end", 4466041908), function(card_id, event) {
     var card_el = gin.dom_helpers.get_element.call(null, card_id);
     gin.dom_helpers.add_remove_class.call(null, card_el, "cursor_hand", "cursor_drag");
-    return gin.dom_helpers.schedule.call(null, gin.dom_helpers.slide_from.call(null, card_el, gin.game_panel.pile_position.call(null)));
+    return gin.dom_helpers.schedule.call(null, gin.game_panel.slide.call(null, card_el.anim_idx, card_el, gin.game_panel.pile_position.call(null)));
   }], null);
 };
 gin.game_panel.home_region_handler = function home_region_handler(conn) {
@@ -37577,7 +37644,7 @@ gin.game_panel.discard_drag_handler = function discard_drag_handler(conn) {
   }, new cljs.core.Keyword(null, "drag-end", "drag-end", 4466041908), function(card_id, event) {
     var card_el = gin.dom_helpers.get_element.call(null, card_id);
     gin.dom_helpers.add_remove_class.call(null, card_el, "cursor_hand", "cursor_drag");
-    return gin.dom_helpers.schedule.call(null, gin.dom_helpers.slide_from.call(null, card_el, gin.game_panel.discard_position.call(null)));
+    return gin.dom_helpers.schedule.call(null, gin.game_panel.slide.call(null, card_el.anim_idx, card_el, gin.game_panel.discard_position.call(null)));
   }], null);
 };
 gin.game_panel.snap_to_discard_handler = function snap_to_discard_handler(conn) {
@@ -37595,9 +37662,9 @@ gin.game_panel.snap_to_discard_handler = function snap_to_discard_handler(conn) 
     var card_el = gin.dom_helpers.get_element.call(null, card_id);
     gin.dom_helpers.add_remove_class.call(null, card_el, "cursor_hand", "cursor_drag");
     gin.dom_helpers.remove_class.call(null, gin.dom_helpers.get_element.call(null, "discard_pile"), "region_hover");
-    return gin.dom_helpers.schedule.call(null, cljs.core.concat.call(null, gin.dom_helpers.slide_from.call(null, card_el, gin.game_panel.discard_position.call(null)), new cljs.core.PersistentVector(null, 1, 5, cljs.core.PersistentVector.EMPTY_NODE, [function() {
-      return datascript.transact_BANG_.call(null, conn, new cljs.core.PersistentVector(null, 1, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.PersistentVector(null, 3, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword("db.fn", "call", "db.fn/call", 2901959894), gin.transact.our_discard_chosen, card_id], null)], null));
-    }], null)));
+    console.log("snap to discard slide", card_el.anim_idx, card_el.id);
+    gin.game_panel.slide.call(null, card_el.anim_idx, card_el, gin.game_panel.discard_position.call(null));
+    return datascript.transact_BANG_.call(null, conn, new cljs.core.PersistentVector(null, 1, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.PersistentVector(null, 3, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword("db.fn", "call", "db.fn/call", 2901959894), gin.transact.our_discard_chosen, card_id], null)], null));
   }], null);
 };
 gin.game_panel.home_discard_handler = function home_discard_handler(conn) {
@@ -37626,72 +37693,72 @@ gin.game_panel.home_discard_handler = function home_discard_handler(conn) {
   }], null);
 };
 gin.game_panel.draw_table = function draw_table(conn) {
-  var G__18425_18449 = gin.dom_helpers.get_element.call(null, "game-panel");
-  gin.dom_helpers.append.call(null, G__18425_18449, gin.dom_helpers.build.call(null, new cljs.core.PersistentVector(null, 5, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null, "div", "div", 1014003715), new cljs.core.PersistentArrayMap(null, 1, [new cljs.core.Keyword(null, "id", "id", 1013907597), "table"], null), new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null, "div", "div", 1014003715), new cljs.core.PersistentArrayMap(null, 
+  var G__86997_87021 = gin.dom_helpers.get_element.call(null, "game-panel");
+  gin.dom_helpers.append.call(null, G__86997_87021, gin.dom_helpers.build.call(null, new cljs.core.PersistentVector(null, 5, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null, "div", "div", 1014003715), new cljs.core.PersistentArrayMap(null, 1, [new cljs.core.Keyword(null, "id", "id", 1013907597), "table"], null), new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null, "div", "div", 1014003715), new cljs.core.PersistentArrayMap(null, 
   2, [new cljs.core.Keyword(null, "id", "id", 1013907597), "their_region", new cljs.core.Keyword(null, "class", "class", 1108647146), "region their_region"], null)], null), new cljs.core.PersistentVector(null, 3, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null, "div.pile_row", "div.pile_row", 1891661180), new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null, "div.pile", "div.pile", 1324047329), new cljs.core.PersistentArrayMap(null, 
   1, [new cljs.core.Keyword(null, "id", "id", 1013907597), "pile"], null)], null), new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null, "div.discard_pile", "div.discard_pile", 3988861410), new cljs.core.PersistentArrayMap(null, 1, [new cljs.core.Keyword(null, "id", "id", 1013907597), "discard_pile"], null)], null)], null), new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null, "div", 
   "div", 1014003715), new cljs.core.PersistentArrayMap(null, 2, [new cljs.core.Keyword(null, "id", "id", 1013907597), "our_region", new cljs.core.Keyword(null, "class", "class", 1108647146), "region our_region"], null)], null)], null)));
-  gin.dom_helpers.append.call(null, G__18425_18449, gin.dom_helpers.build.call(null, new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null, "div.msg", "div.msg", 2686474262), new cljs.core.PersistentArrayMap(null, 1, [new cljs.core.Keyword(null, "id", "id", 1013907597), "msg"], null)], null)));
-  gin.dom_helpers.append.call(null, G__18425_18449, gin.dom_helpers.build.call(null, new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null, "div", "div", 1014003715), new cljs.core.PersistentArrayMap(null, 1, [new cljs.core.Keyword(null, "class", "class", 1108647146), [cljs.core.str("offscreen_loading card card_back")].join("")], null)], null)));
+  gin.dom_helpers.append.call(null, G__86997_87021, gin.dom_helpers.build.call(null, new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null, "div.msg", "div.msg", 2686474262), new cljs.core.PersistentArrayMap(null, 1, [new cljs.core.Keyword(null, "id", "id", 1013907597), "msg"], null)], null)));
+  gin.dom_helpers.append.call(null, G__86997_87021, gin.dom_helpers.build.call(null, new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null, "div", "div", 1014003715), new cljs.core.PersistentArrayMap(null, 1, [new cljs.core.Keyword(null, "class", "class", 1108647146), [cljs.core.str("offscreen_loading card card_back")].join("")], null)], null)));
   var container_wrap = function() {
     var r = goog.style.getBounds(gin.dom_helpers.get_element.call(null, "game-panel"));
     return new goog.math.Rect(r.left, r.top, r.width - 81, r.height - 96 - 37);
   }();
-  var vec__18426 = gin.game_panel.pile_position.call(null);
-  var pile_x = cljs.core.nth.call(null, vec__18426, 0, null);
-  var pile_y = cljs.core.nth.call(null, vec__18426, 1, null);
+  var vec__86998 = gin.game_panel.pile_position.call(null);
+  var pile_x = cljs.core.nth.call(null, vec__86998, 0, null);
+  var pile_y = cljs.core.nth.call(null, vec__86998, 1, null);
   var cards = function() {
-    var iter__17358__auto__ = function(container_wrap, vec__18426, pile_x, pile_y) {
-      return function iter__18427(s__18428) {
-        return new cljs.core.LazySeq(null, function(container_wrap, vec__18426, pile_x, pile_y) {
+    var iter__17358__auto__ = function(container_wrap, vec__86998, pile_x, pile_y) {
+      return function iter__86999(s__87000) {
+        return new cljs.core.LazySeq(null, function(container_wrap, vec__86998, pile_x, pile_y) {
           return function() {
-            var s__18428__$1 = s__18428;
+            var s__87000__$1 = s__87000;
             while (true) {
-              var temp__4092__auto__ = cljs.core.seq.call(null, s__18428__$1);
+              var temp__4092__auto__ = cljs.core.seq.call(null, s__87000__$1);
               if (temp__4092__auto__) {
-                var s__18428__$2 = temp__4092__auto__;
-                if (cljs.core.chunked_seq_QMARK_.call(null, s__18428__$2)) {
-                  var c__17356__auto__ = cljs.core.chunk_first.call(null, s__18428__$2);
+                var s__87000__$2 = temp__4092__auto__;
+                if (cljs.core.chunked_seq_QMARK_.call(null, s__87000__$2)) {
+                  var c__17356__auto__ = cljs.core.chunk_first.call(null, s__87000__$2);
                   var size__17357__auto__ = cljs.core.count.call(null, c__17356__auto__);
-                  var b__18430 = cljs.core.chunk_buffer.call(null, size__17357__auto__);
+                  var b__87002 = cljs.core.chunk_buffer.call(null, size__17357__auto__);
                   if (function() {
-                    var i__18429 = 0;
+                    var i__87001 = 0;
                     while (true) {
-                      if (i__18429 < size__17357__auto__) {
-                        var i = cljs.core._nth.call(null, c__17356__auto__, i__18429);
-                        cljs.core.chunk_append.call(null, b__18430, function() {
+                      if (i__87001 < size__17357__auto__) {
+                        var i = cljs.core._nth.call(null, c__17356__auto__, i__87001);
+                        cljs.core.chunk_append.call(null, b__87002, function() {
                           var card_id = [cljs.core.str("card-"), cljs.core.str(i)].join("");
                           var card_el = gin.dom_helpers.element.call(null, new cljs.core.Keyword(null, "div", "div", 1014003715), new cljs.core.PersistentArrayMap(null, 2, [new cljs.core.Keyword(null, "id", "id", 1013907597), card_id, new cljs.core.Keyword(null, "class", "class", 1108647146), "card card_back"], null));
                           var dragger = function() {
-                            var G__18433 = new goog.fx.Dragger(card_el);
-                            G__18433.setLimits(container_wrap);
-                            return G__18433;
+                            var G__87005 = new goog.fx.Dragger(card_el);
+                            G__87005.setLimits(container_wrap);
+                            return G__87005;
                           }();
-                          card_el.dispose = function(i__18429, card_id, card_el, dragger, i, c__17356__auto__, size__17357__auto__, b__18430, s__18428__$2, temp__4092__auto__, container_wrap, vec__18426, pile_x, pile_y) {
+                          card_el.dispose = function(i__87001, card_id, card_el, dragger, i, c__17356__auto__, size__17357__auto__, b__87002, s__87000__$2, temp__4092__auto__, container_wrap, vec__86998, pile_x, pile_y) {
                             return function() {
                               return dragger.dispose;
                             };
-                          }(i__18429, card_id, card_el, dragger, i, c__17356__auto__, size__17357__auto__, b__18430, s__18428__$2, temp__4092__auto__, container_wrap, vec__18426, pile_x, pile_y);
+                          }(i__87001, card_id, card_el, dragger, i, c__17356__auto__, size__17357__auto__, b__87002, s__87000__$2, temp__4092__auto__, container_wrap, vec__86998, pile_x, pile_y);
                           gin.game_panel.set_drag_handler.call(null, card_el, gin.game_panel.undraggable_handler.call(null, conn));
-                          goog.events.listen(dragger, goog.fx.Dragger.EventType.START, function(i__18429, card_id, card_el, dragger, i, c__17356__auto__, size__17357__auto__, b__18430, s__18428__$2, temp__4092__auto__, container_wrap, vec__18426, pile_x, pile_y) {
+                          goog.events.listen(dragger, goog.fx.Dragger.EventType.START, function(i__87001, card_id, card_el, dragger, i, c__17356__auto__, size__17357__auto__, b__87002, s__87000__$2, temp__4092__auto__, container_wrap, vec__86998, pile_x, pile_y) {
                             return function(event) {
                               return(new cljs.core.Keyword(null, "drag-start", "drag-start", 2816557563)).cljs$core$IFn$_invoke$arity$1(card_el.drag_handler).call(null, card_id, event);
                             };
-                          }(i__18429, card_id, card_el, dragger, i, c__17356__auto__, size__17357__auto__, b__18430, s__18428__$2, temp__4092__auto__, container_wrap, vec__18426, pile_x, pile_y));
-                          goog.events.listen(dragger, goog.fx.Dragger.EventType.DRAG, function(i__18429, card_id, card_el, dragger, i, c__17356__auto__, size__17357__auto__, b__18430, s__18428__$2, temp__4092__auto__, container_wrap, vec__18426, pile_x, pile_y) {
+                          }(i__87001, card_id, card_el, dragger, i, c__17356__auto__, size__17357__auto__, b__87002, s__87000__$2, temp__4092__auto__, container_wrap, vec__86998, pile_x, pile_y));
+                          goog.events.listen(dragger, goog.fx.Dragger.EventType.DRAG, function(i__87001, card_id, card_el, dragger, i, c__17356__auto__, size__17357__auto__, b__87002, s__87000__$2, temp__4092__auto__, container_wrap, vec__86998, pile_x, pile_y) {
                             return function(event) {
                               return(new cljs.core.Keyword(null, "drag", "drag", 1016996006)).cljs$core$IFn$_invoke$arity$1(card_el.drag_handler).call(null, card_id, event);
                             };
-                          }(i__18429, card_id, card_el, dragger, i, c__17356__auto__, size__17357__auto__, b__18430, s__18428__$2, temp__4092__auto__, container_wrap, vec__18426, pile_x, pile_y));
-                          goog.events.listen(dragger, goog.fx.Dragger.EventType.END, function(i__18429, card_id, card_el, dragger, i, c__17356__auto__, size__17357__auto__, b__18430, s__18428__$2, temp__4092__auto__, container_wrap, vec__18426, pile_x, pile_y) {
+                          }(i__87001, card_id, card_el, dragger, i, c__17356__auto__, size__17357__auto__, b__87002, s__87000__$2, temp__4092__auto__, container_wrap, vec__86998, pile_x, pile_y));
+                          goog.events.listen(dragger, goog.fx.Dragger.EventType.END, function(i__87001, card_id, card_el, dragger, i, c__17356__auto__, size__17357__auto__, b__87002, s__87000__$2, temp__4092__auto__, container_wrap, vec__86998, pile_x, pile_y) {
                             return function(event) {
                               return(new cljs.core.Keyword(null, "drag-end", "drag-end", 4466041908)).cljs$core$IFn$_invoke$arity$1(card_el.drag_handler).call(null, card_id, event);
                             };
-                          }(i__18429, card_id, card_el, dragger, i, c__17356__auto__, size__17357__auto__, b__18430, s__18428__$2, temp__4092__auto__, container_wrap, vec__18426, pile_x, pile_y));
+                          }(i__87001, card_id, card_el, dragger, i, c__17356__auto__, size__17357__auto__, b__87002, s__87000__$2, temp__4092__auto__, container_wrap, vec__86998, pile_x, pile_y));
                           return new cljs.core.PersistentArrayMap(null, 3, [new cljs.core.Keyword(null, "id", "id", 1013907597), card_id, new cljs.core.Keyword(null, "idx", "idx", 1014008367), i, new cljs.core.Keyword(null, "card-el", "card-el", 1567790070), card_el], null);
                         }());
-                        var G__18450 = i__18429 + 1;
-                        i__18429 = G__18450;
+                        var G__87022 = i__87001 + 1;
+                        i__87001 = G__87022;
                         continue;
                       } else {
                         return true;
@@ -37699,43 +37766,43 @@ gin.game_panel.draw_table = function draw_table(conn) {
                       break;
                     }
                   }()) {
-                    return cljs.core.chunk_cons.call(null, cljs.core.chunk.call(null, b__18430), iter__18427.call(null, cljs.core.chunk_rest.call(null, s__18428__$2)));
+                    return cljs.core.chunk_cons.call(null, cljs.core.chunk.call(null, b__87002), iter__86999.call(null, cljs.core.chunk_rest.call(null, s__87000__$2)));
                   } else {
-                    return cljs.core.chunk_cons.call(null, cljs.core.chunk.call(null, b__18430), null);
+                    return cljs.core.chunk_cons.call(null, cljs.core.chunk.call(null, b__87002), null);
                   }
                 } else {
-                  var i = cljs.core.first.call(null, s__18428__$2);
+                  var i = cljs.core.first.call(null, s__87000__$2);
                   return cljs.core.cons.call(null, function() {
                     var card_id = [cljs.core.str("card-"), cljs.core.str(i)].join("");
                     var card_el = gin.dom_helpers.element.call(null, new cljs.core.Keyword(null, "div", "div", 1014003715), new cljs.core.PersistentArrayMap(null, 2, [new cljs.core.Keyword(null, "id", "id", 1013907597), card_id, new cljs.core.Keyword(null, "class", "class", 1108647146), "card card_back"], null));
                     var dragger = function() {
-                      var G__18434 = new goog.fx.Dragger(card_el);
-                      G__18434.setLimits(container_wrap);
-                      return G__18434;
+                      var G__87006 = new goog.fx.Dragger(card_el);
+                      G__87006.setLimits(container_wrap);
+                      return G__87006;
                     }();
-                    card_el.dispose = function(card_id, card_el, dragger, i, s__18428__$2, temp__4092__auto__, container_wrap, vec__18426, pile_x, pile_y) {
+                    card_el.dispose = function(card_id, card_el, dragger, i, s__87000__$2, temp__4092__auto__, container_wrap, vec__86998, pile_x, pile_y) {
                       return function() {
                         return dragger.dispose;
                       };
-                    }(card_id, card_el, dragger, i, s__18428__$2, temp__4092__auto__, container_wrap, vec__18426, pile_x, pile_y);
+                    }(card_id, card_el, dragger, i, s__87000__$2, temp__4092__auto__, container_wrap, vec__86998, pile_x, pile_y);
                     gin.game_panel.set_drag_handler.call(null, card_el, gin.game_panel.undraggable_handler.call(null, conn));
-                    goog.events.listen(dragger, goog.fx.Dragger.EventType.START, function(card_id, card_el, dragger, i, s__18428__$2, temp__4092__auto__, container_wrap, vec__18426, pile_x, pile_y) {
+                    goog.events.listen(dragger, goog.fx.Dragger.EventType.START, function(card_id, card_el, dragger, i, s__87000__$2, temp__4092__auto__, container_wrap, vec__86998, pile_x, pile_y) {
                       return function(event) {
                         return(new cljs.core.Keyword(null, "drag-start", "drag-start", 2816557563)).cljs$core$IFn$_invoke$arity$1(card_el.drag_handler).call(null, card_id, event);
                       };
-                    }(card_id, card_el, dragger, i, s__18428__$2, temp__4092__auto__, container_wrap, vec__18426, pile_x, pile_y));
-                    goog.events.listen(dragger, goog.fx.Dragger.EventType.DRAG, function(card_id, card_el, dragger, i, s__18428__$2, temp__4092__auto__, container_wrap, vec__18426, pile_x, pile_y) {
+                    }(card_id, card_el, dragger, i, s__87000__$2, temp__4092__auto__, container_wrap, vec__86998, pile_x, pile_y));
+                    goog.events.listen(dragger, goog.fx.Dragger.EventType.DRAG, function(card_id, card_el, dragger, i, s__87000__$2, temp__4092__auto__, container_wrap, vec__86998, pile_x, pile_y) {
                       return function(event) {
                         return(new cljs.core.Keyword(null, "drag", "drag", 1016996006)).cljs$core$IFn$_invoke$arity$1(card_el.drag_handler).call(null, card_id, event);
                       };
-                    }(card_id, card_el, dragger, i, s__18428__$2, temp__4092__auto__, container_wrap, vec__18426, pile_x, pile_y));
-                    goog.events.listen(dragger, goog.fx.Dragger.EventType.END, function(card_id, card_el, dragger, i, s__18428__$2, temp__4092__auto__, container_wrap, vec__18426, pile_x, pile_y) {
+                    }(card_id, card_el, dragger, i, s__87000__$2, temp__4092__auto__, container_wrap, vec__86998, pile_x, pile_y));
+                    goog.events.listen(dragger, goog.fx.Dragger.EventType.END, function(card_id, card_el, dragger, i, s__87000__$2, temp__4092__auto__, container_wrap, vec__86998, pile_x, pile_y) {
                       return function(event) {
                         return(new cljs.core.Keyword(null, "drag-end", "drag-end", 4466041908)).cljs$core$IFn$_invoke$arity$1(card_el.drag_handler).call(null, card_id, event);
                       };
-                    }(card_id, card_el, dragger, i, s__18428__$2, temp__4092__auto__, container_wrap, vec__18426, pile_x, pile_y));
+                    }(card_id, card_el, dragger, i, s__87000__$2, temp__4092__auto__, container_wrap, vec__86998, pile_x, pile_y));
                     return new cljs.core.PersistentArrayMap(null, 3, [new cljs.core.Keyword(null, "id", "id", 1013907597), card_id, new cljs.core.Keyword(null, "idx", "idx", 1014008367), i, new cljs.core.Keyword(null, "card-el", "card-el", 1567790070), card_el], null);
-                  }(), iter__18427.call(null, cljs.core.rest.call(null, s__18428__$2)));
+                  }(), iter__86999.call(null, cljs.core.rest.call(null, s__87000__$2)));
                 }
               } else {
                 return null;
@@ -37743,58 +37810,62 @@ gin.game_panel.draw_table = function draw_table(conn) {
               break;
             }
           };
-        }(container_wrap, vec__18426, pile_x, pile_y), null, null);
+        }(container_wrap, vec__86998, pile_x, pile_y), null, null);
       };
-    }(container_wrap, vec__18426, pile_x, pile_y);
+    }(container_wrap, vec__86998, pile_x, pile_y);
     return iter__17358__auto__.call(null, cljs.core.range.call(null, 52));
   }();
-  var seq__18435_18451 = cljs.core.seq.call(null, cards);
-  var chunk__18436_18452 = null;
-  var count__18437_18453 = 0;
-  var i__18438_18454 = 0;
+  var seq__87007_87023 = cljs.core.seq.call(null, cards);
+  var chunk__87008_87024 = null;
+  var count__87009_87025 = 0;
+  var i__87010_87026 = 0;
   while (true) {
-    if (i__18438_18454 < count__18437_18453) {
-      var map__18439_18455 = cljs.core._nth.call(null, chunk__18436_18452, i__18438_18454);
-      var map__18439_18456__$1 = cljs.core.seq_QMARK_.call(null, map__18439_18455) ? cljs.core.apply.call(null, cljs.core.hash_map, map__18439_18455) : map__18439_18455;
-      var card_el_18457 = cljs.core.get.call(null, map__18439_18456__$1, new cljs.core.Keyword(null, "card-el", "card-el", 1567790070));
-      gin.dom_helpers.append.call(null, gin.dom_helpers.get_element.call(null, "pile"), card_el_18457);
-      var G__18458 = seq__18435_18451;
-      var G__18459 = chunk__18436_18452;
-      var G__18460 = count__18437_18453;
-      var G__18461 = i__18438_18454 + 1;
-      seq__18435_18451 = G__18458;
-      chunk__18436_18452 = G__18459;
-      count__18437_18453 = G__18460;
-      i__18438_18454 = G__18461;
+    if (i__87010_87026 < count__87009_87025) {
+      var map__87011_87027 = cljs.core._nth.call(null, chunk__87008_87024, i__87010_87026);
+      var map__87011_87028__$1 = cljs.core.seq_QMARK_.call(null, map__87011_87027) ? cljs.core.apply.call(null, cljs.core.hash_map, map__87011_87027) : map__87011_87027;
+      var idx_87029 = cljs.core.get.call(null, map__87011_87028__$1, new cljs.core.Keyword(null, "idx", "idx", 1014008367));
+      var card_el_87030 = cljs.core.get.call(null, map__87011_87028__$1, new cljs.core.Keyword(null, "card-el", "card-el", 1567790070));
+      card_el_87030.anim_idx = idx_87029;
+      gin.dom_helpers.append.call(null, gin.dom_helpers.get_element.call(null, "pile"), card_el_87030);
+      var G__87031 = seq__87007_87023;
+      var G__87032 = chunk__87008_87024;
+      var G__87033 = count__87009_87025;
+      var G__87034 = i__87010_87026 + 1;
+      seq__87007_87023 = G__87031;
+      chunk__87008_87024 = G__87032;
+      count__87009_87025 = G__87033;
+      i__87010_87026 = G__87034;
       continue;
     } else {
-      var temp__4092__auto___18462 = cljs.core.seq.call(null, seq__18435_18451);
-      if (temp__4092__auto___18462) {
-        var seq__18435_18463__$1 = temp__4092__auto___18462;
-        if (cljs.core.chunked_seq_QMARK_.call(null, seq__18435_18463__$1)) {
-          var c__17389__auto___18464 = cljs.core.chunk_first.call(null, seq__18435_18463__$1);
-          var G__18465 = cljs.core.chunk_rest.call(null, seq__18435_18463__$1);
-          var G__18466 = c__17389__auto___18464;
-          var G__18467 = cljs.core.count.call(null, c__17389__auto___18464);
-          var G__18468 = 0;
-          seq__18435_18451 = G__18465;
-          chunk__18436_18452 = G__18466;
-          count__18437_18453 = G__18467;
-          i__18438_18454 = G__18468;
+      var temp__4092__auto___87035 = cljs.core.seq.call(null, seq__87007_87023);
+      if (temp__4092__auto___87035) {
+        var seq__87007_87036__$1 = temp__4092__auto___87035;
+        if (cljs.core.chunked_seq_QMARK_.call(null, seq__87007_87036__$1)) {
+          var c__17389__auto___87037 = cljs.core.chunk_first.call(null, seq__87007_87036__$1);
+          var G__87038 = cljs.core.chunk_rest.call(null, seq__87007_87036__$1);
+          var G__87039 = c__17389__auto___87037;
+          var G__87040 = cljs.core.count.call(null, c__17389__auto___87037);
+          var G__87041 = 0;
+          seq__87007_87023 = G__87038;
+          chunk__87008_87024 = G__87039;
+          count__87009_87025 = G__87040;
+          i__87010_87026 = G__87041;
           continue;
         } else {
-          var map__18440_18469 = cljs.core.first.call(null, seq__18435_18463__$1);
-          var map__18440_18470__$1 = cljs.core.seq_QMARK_.call(null, map__18440_18469) ? cljs.core.apply.call(null, cljs.core.hash_map, map__18440_18469) : map__18440_18469;
-          var card_el_18471 = cljs.core.get.call(null, map__18440_18470__$1, new cljs.core.Keyword(null, "card-el", "card-el", 1567790070));
-          gin.dom_helpers.append.call(null, gin.dom_helpers.get_element.call(null, "pile"), card_el_18471);
-          var G__18472 = cljs.core.next.call(null, seq__18435_18463__$1);
-          var G__18473 = null;
-          var G__18474 = 0;
-          var G__18475 = 0;
-          seq__18435_18451 = G__18472;
-          chunk__18436_18452 = G__18473;
-          count__18437_18453 = G__18474;
-          i__18438_18454 = G__18475;
+          var map__87012_87042 = cljs.core.first.call(null, seq__87007_87036__$1);
+          var map__87012_87043__$1 = cljs.core.seq_QMARK_.call(null, map__87012_87042) ? cljs.core.apply.call(null, cljs.core.hash_map, map__87012_87042) : map__87012_87042;
+          var idx_87044 = cljs.core.get.call(null, map__87012_87043__$1, new cljs.core.Keyword(null, "idx", "idx", 1014008367));
+          var card_el_87045 = cljs.core.get.call(null, map__87012_87043__$1, new cljs.core.Keyword(null, "card-el", "card-el", 1567790070));
+          card_el_87045.anim_idx = idx_87044;
+          gin.dom_helpers.append.call(null, gin.dom_helpers.get_element.call(null, "pile"), card_el_87045);
+          var G__87046 = cljs.core.next.call(null, seq__87007_87036__$1);
+          var G__87047 = null;
+          var G__87048 = 0;
+          var G__87049 = 0;
+          seq__87007_87023 = G__87046;
+          chunk__87008_87024 = G__87047;
+          count__87009_87025 = G__87048;
+          i__87010_87026 = G__87049;
           continue;
         }
       } else {
@@ -37803,29 +37874,30 @@ gin.game_panel.draw_table = function draw_table(conn) {
     break;
   }
   return datascript.transact_BANG_.call(null, conn, function() {
-    var iter__17358__auto__ = function iter__18441(s__18442) {
+    var iter__17358__auto__ = function iter__87013(s__87014) {
       return new cljs.core.LazySeq(null, function() {
-        var s__18442__$1 = s__18442;
+        var s__87014__$1 = s__87014;
         while (true) {
-          var temp__4092__auto__ = cljs.core.seq.call(null, s__18442__$1);
+          var temp__4092__auto__ = cljs.core.seq.call(null, s__87014__$1);
           if (temp__4092__auto__) {
-            var s__18442__$2 = temp__4092__auto__;
-            if (cljs.core.chunked_seq_QMARK_.call(null, s__18442__$2)) {
-              var c__17356__auto__ = cljs.core.chunk_first.call(null, s__18442__$2);
+            var s__87014__$2 = temp__4092__auto__;
+            if (cljs.core.chunked_seq_QMARK_.call(null, s__87014__$2)) {
+              var c__17356__auto__ = cljs.core.chunk_first.call(null, s__87014__$2);
               var size__17357__auto__ = cljs.core.count.call(null, c__17356__auto__);
-              var b__18444 = cljs.core.chunk_buffer.call(null, size__17357__auto__);
+              var b__87016 = cljs.core.chunk_buffer.call(null, size__17357__auto__);
               if (function() {
-                var i__18443 = 0;
+                var i__87015 = 0;
                 while (true) {
-                  if (i__18443 < size__17357__auto__) {
-                    var map__18447 = cljs.core._nth.call(null, c__17356__auto__, i__18443);
-                    var map__18447__$1 = cljs.core.seq_QMARK_.call(null, map__18447) ? cljs.core.apply.call(null, cljs.core.hash_map, map__18447) : map__18447;
-                    var card_el = cljs.core.get.call(null, map__18447__$1, new cljs.core.Keyword(null, "card-el", "card-el", 1567790070));
-                    var idx = cljs.core.get.call(null, map__18447__$1, new cljs.core.Keyword(null, "idx", "idx", 1014008367));
-                    var id = cljs.core.get.call(null, map__18447__$1, new cljs.core.Keyword(null, "id", "id", 1013907597));
-                    cljs.core.chunk_append.call(null, b__18444, new cljs.core.PersistentArrayMap(null, 4, [new cljs.core.Keyword("db", "id", "db/id", 1014111942), -1 * idx, new cljs.core.Keyword("dom", "id", "dom/id", 1020278687), id, new cljs.core.Keyword("card", "suit", "card/suit", 1215370835), new cljs.core.Keyword(null, "hidden", "hidden", 4091384092), new cljs.core.Keyword("card", "rank", "card/rank", 1215352178), new cljs.core.Keyword(null, "hidden", "hidden", 4091384092)], null));
-                    var G__18476 = i__18443 + 1;
-                    i__18443 = G__18476;
+                  if (i__87015 < size__17357__auto__) {
+                    var map__87019 = cljs.core._nth.call(null, c__17356__auto__, i__87015);
+                    var map__87019__$1 = cljs.core.seq_QMARK_.call(null, map__87019) ? cljs.core.apply.call(null, cljs.core.hash_map, map__87019) : map__87019;
+                    var card_el = cljs.core.get.call(null, map__87019__$1, new cljs.core.Keyword(null, "card-el", "card-el", 1567790070));
+                    var idx = cljs.core.get.call(null, map__87019__$1, new cljs.core.Keyword(null, "idx", "idx", 1014008367));
+                    var id = cljs.core.get.call(null, map__87019__$1, new cljs.core.Keyword(null, "id", "id", 1013907597));
+                    cljs.core.chunk_append.call(null, b__87016, new cljs.core.PersistentArrayMap(null, 5, [new cljs.core.Keyword("db", "id", "db/id", 1014111942), -1 * idx, new cljs.core.Keyword("dom", "id", "dom/id", 1020278687), id, new cljs.core.Keyword("anim", "idx", "anim/idx", 1204830436), idx, new cljs.core.Keyword("card", "suit", "card/suit", 1215370835), new cljs.core.Keyword(null, "hidden", "hidden", 4091384092), new cljs.core.Keyword("card", "rank", "card/rank", 1215352178), new cljs.core.Keyword(null, 
+                    "hidden", "hidden", 4091384092)], null));
+                    var G__87050 = i__87015 + 1;
+                    i__87015 = G__87050;
                     continue;
                   } else {
                     return true;
@@ -37833,18 +37905,18 @@ gin.game_panel.draw_table = function draw_table(conn) {
                   break;
                 }
               }()) {
-                return cljs.core.chunk_cons.call(null, cljs.core.chunk.call(null, b__18444), iter__18441.call(null, cljs.core.chunk_rest.call(null, s__18442__$2)));
+                return cljs.core.chunk_cons.call(null, cljs.core.chunk.call(null, b__87016), iter__87013.call(null, cljs.core.chunk_rest.call(null, s__87014__$2)));
               } else {
-                return cljs.core.chunk_cons.call(null, cljs.core.chunk.call(null, b__18444), null);
+                return cljs.core.chunk_cons.call(null, cljs.core.chunk.call(null, b__87016), null);
               }
             } else {
-              var map__18448 = cljs.core.first.call(null, s__18442__$2);
-              var map__18448__$1 = cljs.core.seq_QMARK_.call(null, map__18448) ? cljs.core.apply.call(null, cljs.core.hash_map, map__18448) : map__18448;
-              var card_el = cljs.core.get.call(null, map__18448__$1, new cljs.core.Keyword(null, "card-el", "card-el", 1567790070));
-              var idx = cljs.core.get.call(null, map__18448__$1, new cljs.core.Keyword(null, "idx", "idx", 1014008367));
-              var id = cljs.core.get.call(null, map__18448__$1, new cljs.core.Keyword(null, "id", "id", 1013907597));
-              return cljs.core.cons.call(null, new cljs.core.PersistentArrayMap(null, 4, [new cljs.core.Keyword("db", "id", "db/id", 1014111942), -1 * idx, new cljs.core.Keyword("dom", "id", "dom/id", 1020278687), id, new cljs.core.Keyword("card", "suit", "card/suit", 1215370835), new cljs.core.Keyword(null, "hidden", "hidden", 4091384092), new cljs.core.Keyword("card", "rank", "card/rank", 1215352178), new cljs.core.Keyword(null, "hidden", "hidden", 4091384092)], null), iter__18441.call(null, cljs.core.rest.call(null, 
-              s__18442__$2)));
+              var map__87020 = cljs.core.first.call(null, s__87014__$2);
+              var map__87020__$1 = cljs.core.seq_QMARK_.call(null, map__87020) ? cljs.core.apply.call(null, cljs.core.hash_map, map__87020) : map__87020;
+              var card_el = cljs.core.get.call(null, map__87020__$1, new cljs.core.Keyword(null, "card-el", "card-el", 1567790070));
+              var idx = cljs.core.get.call(null, map__87020__$1, new cljs.core.Keyword(null, "idx", "idx", 1014008367));
+              var id = cljs.core.get.call(null, map__87020__$1, new cljs.core.Keyword(null, "id", "id", 1013907597));
+              return cljs.core.cons.call(null, new cljs.core.PersistentArrayMap(null, 5, [new cljs.core.Keyword("db", "id", "db/id", 1014111942), -1 * idx, new cljs.core.Keyword("dom", "id", "dom/id", 1020278687), id, new cljs.core.Keyword("anim", "idx", "anim/idx", 1204830436), idx, new cljs.core.Keyword("card", "suit", "card/suit", 1215370835), new cljs.core.Keyword(null, "hidden", "hidden", 4091384092), new cljs.core.Keyword("card", "rank", "card/rank", 1215352178), new cljs.core.Keyword(null, 
+              "hidden", "hidden", 4091384092)], null), iter__87013.call(null, cljs.core.rest.call(null, s__87014__$2)));
             }
           } else {
             return null;
@@ -37861,50 +37933,50 @@ gin.game_panel.anim_deal = function anim_deal(db, game_id, conn) {
   var _ = console.log("game: ", game, game_id);
   var opp_cards_el = cljs.core.map.call(null, gin.dom_helpers.get_element, (new cljs.core.Keyword(null, "their-cards", "their-cards", 3979507874)).cljs$core$IFn$_invoke$arity$1(game));
   var our_cards_es = cljs.core.map.call(null, function(game, _, opp_cards_el) {
-    return function(p1__18477_SHARP_) {
-      return gin.datascript_helpers.entity_lookup.call(null, db, new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword("dom", "id", "dom/id", 1020278687), p1__18477_SHARP_], null));
+    return function(p1__87051_SHARP_) {
+      return gin.datascript_helpers.entity_lookup.call(null, db, new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword("dom", "id", "dom/id", 1020278687), p1__87051_SHARP_], null));
     };
   }(game, _, opp_cards_el), (new cljs.core.Keyword(null, "our-cards", "our-cards", 3774215444)).cljs$core$IFn$_invoke$arity$1(game));
   var discard = gin.datascript_helpers.entity_lookup.call(null, db, new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword("dom", "id", "dom/id", 1020278687), cljs.core.first.call(null, (new cljs.core.Keyword(null, "discards", "discards", 1286668039)).cljs$core$IFn$_invoke$arity$1(game))], null));
-  var vec__18485 = gin.game_panel.their_region_position.call(null);
-  var their_region_offset_x = cljs.core.nth.call(null, vec__18485, 0, null);
-  var their_region_offset_y = cljs.core.nth.call(null, vec__18485, 1, null);
-  var vec__18486 = gin.game_panel.our_region_position.call(null);
-  var our_region_offset_x = cljs.core.nth.call(null, vec__18486, 0, null);
-  var our_region_offset_y = cljs.core.nth.call(null, vec__18486, 1, null);
-  var their_deal = cljs.core.mapcat.call(null, function(game, _, opp_cards_el, our_cards_es, discard, vec__18485, their_region_offset_x, their_region_offset_y, vec__18486, our_region_offset_x, our_region_offset_y) {
-    return function(p1__18479_SHARP_, p2__18478_SHARP_) {
-      return cljs.core.concat.call(null, new cljs.core.PersistentVector(null, 1, 5, cljs.core.PersistentVector.EMPTY_NODE, [function(game, _, opp_cards_el, our_cards_es, discard, vec__18485, their_region_offset_x, their_region_offset_y, vec__18486, our_region_offset_x, our_region_offset_y) {
+  var vec__87059 = gin.game_panel.their_region_position.call(null);
+  var their_region_offset_x = cljs.core.nth.call(null, vec__87059, 0, null);
+  var their_region_offset_y = cljs.core.nth.call(null, vec__87059, 1, null);
+  var vec__87060 = gin.game_panel.our_region_position.call(null);
+  var our_region_offset_x = cljs.core.nth.call(null, vec__87060, 0, null);
+  var our_region_offset_y = cljs.core.nth.call(null, vec__87060, 1, null);
+  var their_deal = cljs.core.mapcat.call(null, function(game, _, opp_cards_el, our_cards_es, discard, vec__87059, their_region_offset_x, their_region_offset_y, vec__87060, our_region_offset_x, our_region_offset_y) {
+    return function(p1__87053_SHARP_, p2__87052_SHARP_) {
+      return cljs.core.concat.call(null, new cljs.core.PersistentVector(null, 1, 5, cljs.core.PersistentVector.EMPTY_NODE, [function(game, _, opp_cards_el, our_cards_es, discard, vec__87059, their_region_offset_x, their_region_offset_y, vec__87060, our_region_offset_x, our_region_offset_y) {
         return function() {
-          return gin.dom_helpers.show_on_top.call(null, p2__18478_SHARP_);
+          return gin.dom_helpers.show_on_top.call(null, p2__87052_SHARP_);
         };
-      }(game, _, opp_cards_el, our_cards_es, discard, vec__18485, their_region_offset_x, their_region_offset_y, vec__18486, our_region_offset_x, our_region_offset_y)], null), gin.dom_helpers.slide_from.call(null, p2__18478_SHARP_, new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [their_region_offset_x + p1__18479_SHARP_ * 53, their_region_offset_y + p1__18479_SHARP_ * 4], null)));
+      }(game, _, opp_cards_el, our_cards_es, discard, vec__87059, their_region_offset_x, their_region_offset_y, vec__87060, our_region_offset_x, our_region_offset_y)], null), gin.dom_helpers.slide_from.call(null, p2__87052_SHARP_, new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [their_region_offset_x + p1__87053_SHARP_ * 53, their_region_offset_y + p1__87053_SHARP_ * 4], null)));
     };
-  }(game, _, opp_cards_el, our_cards_es, discard, vec__18485, their_region_offset_x, their_region_offset_y, vec__18486, our_region_offset_x, our_region_offset_y), cljs.core.range.call(null), opp_cards_el);
-  var our_deal = cljs.core.mapcat.call(null, function(game, _, opp_cards_el, our_cards_es, discard, vec__18485, their_region_offset_x, their_region_offset_y, vec__18486, our_region_offset_x, our_region_offset_y, their_deal) {
-    return function(idx, p__18488) {
-      var map__18489 = p__18488;
-      var map__18489__$1 = cljs.core.seq_QMARK_.call(null, map__18489) ? cljs.core.apply.call(null, cljs.core.hash_map, map__18489) : map__18489;
-      var id = cljs.core.get.call(null, map__18489__$1, new cljs.core.Keyword("dom", "id", "dom/id", 1020278687));
-      var suit = cljs.core.get.call(null, map__18489__$1, new cljs.core.Keyword("card", "suit", "card/suit", 1215370835));
-      var rank = cljs.core.get.call(null, map__18489__$1, new cljs.core.Keyword("card", "rank", "card/rank", 1215352178));
+  }(game, _, opp_cards_el, our_cards_es, discard, vec__87059, their_region_offset_x, their_region_offset_y, vec__87060, our_region_offset_x, our_region_offset_y), cljs.core.range.call(null), opp_cards_el);
+  var our_deal = cljs.core.mapcat.call(null, function(game, _, opp_cards_el, our_cards_es, discard, vec__87059, their_region_offset_x, their_region_offset_y, vec__87060, our_region_offset_x, our_region_offset_y, their_deal) {
+    return function(idx, p__87062) {
+      var map__87063 = p__87062;
+      var map__87063__$1 = cljs.core.seq_QMARK_.call(null, map__87063) ? cljs.core.apply.call(null, cljs.core.hash_map, map__87063) : map__87063;
+      var id = cljs.core.get.call(null, map__87063__$1, new cljs.core.Keyword("dom", "id", "dom/id", 1020278687));
+      var suit = cljs.core.get.call(null, map__87063__$1, new cljs.core.Keyword("card", "suit", "card/suit", 1215370835));
+      var rank = cljs.core.get.call(null, map__87063__$1, new cljs.core.Keyword("card", "rank", "card/rank", 1215352178));
       var el = gin.dom_helpers.get_element.call(null, id);
-      return cljs.core.concat.call(null, new cljs.core.PersistentVector(null, 1, 5, cljs.core.PersistentVector.EMPTY_NODE, [function(el, map__18489, map__18489__$1, id, suit, rank, game, _, opp_cards_el, our_cards_es, discard, vec__18485, their_region_offset_x, their_region_offset_y, vec__18486, our_region_offset_x, our_region_offset_y, their_deal) {
+      return cljs.core.concat.call(null, new cljs.core.PersistentVector(null, 1, 5, cljs.core.PersistentVector.EMPTY_NODE, [function(el, map__87063, map__87063__$1, id, suit, rank, game, _, opp_cards_el, our_cards_es, discard, vec__87059, their_region_offset_x, their_region_offset_y, vec__87060, our_region_offset_x, our_region_offset_y, their_deal) {
         return function() {
           return gin.dom_helpers.show_on_top.call(null, el);
         };
-      }(el, map__18489, map__18489__$1, id, suit, rank, game, _, opp_cards_el, our_cards_es, discard, vec__18485, their_region_offset_x, their_region_offset_y, vec__18486, our_region_offset_x, our_region_offset_y, their_deal)], null), gin.dom_helpers.slide_from.call(null, el, new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [our_region_offset_x + idx * 53, our_region_offset_y + idx * 4], null)), new cljs.core.PersistentVector(null, 1, 5, cljs.core.PersistentVector.EMPTY_NODE, 
-      [function(el, map__18489, map__18489__$1, id, suit, rank, game, _, opp_cards_el, our_cards_es, discard, vec__18485, their_region_offset_x, their_region_offset_y, vec__18486, our_region_offset_x, our_region_offset_y, their_deal) {
+      }(el, map__87063, map__87063__$1, id, suit, rank, game, _, opp_cards_el, our_cards_es, discard, vec__87059, their_region_offset_x, their_region_offset_y, vec__87060, our_region_offset_x, our_region_offset_y, their_deal)], null), gin.dom_helpers.slide_from.call(null, el, new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [our_region_offset_x + idx * 53, our_region_offset_y + idx * 4], null)), new cljs.core.PersistentVector(null, 1, 5, cljs.core.PersistentVector.EMPTY_NODE, 
+      [function(el, map__87063, map__87063__$1, id, suit, rank, game, _, opp_cards_el, our_cards_es, discard, vec__87059, their_region_offset_x, their_region_offset_y, vec__87060, our_region_offset_x, our_region_offset_y, their_deal) {
         return function() {
           gin.dom_helpers.set_card_class.call(null, el, [cljs.core.str(cljs.core.name.call(null, suit)), cljs.core.str("_"), cljs.core.str(cljs.core.name.call(null, rank))].join(""));
           return gin.game_panel.set_drag_handler.call(null, el, gin.game_panel.home_region_handler.call(null, conn));
         };
-      }(el, map__18489, map__18489__$1, id, suit, rank, game, _, opp_cards_el, our_cards_es, discard, vec__18485, their_region_offset_x, their_region_offset_y, vec__18486, our_region_offset_x, our_region_offset_y, their_deal)], null));
+      }(el, map__87063, map__87063__$1, id, suit, rank, game, _, opp_cards_el, our_cards_es, discard, vec__87059, their_region_offset_x, their_region_offset_y, vec__87060, our_region_offset_x, our_region_offset_y, their_deal)], null));
     };
-  }(game, _, opp_cards_el, our_cards_es, discard, vec__18485, their_region_offset_x, their_region_offset_y, vec__18486, our_region_offset_x, our_region_offset_y, their_deal), cljs.core.range.call(null), our_cards_es);
-  var vec__18487 = cljs.core._EQ_.call(null, (new cljs.core.Keyword(null, "starting", "starting", 2330710962)).cljs$core$IFn$_invoke$arity$1(game), (new cljs.core.Keyword(null, "us", "us", 1013907984)).cljs$core$IFn$_invoke$arity$1(game)) ? new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [our_deal, their_deal], null) : new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [their_deal, our_deal], null);
-  var first_deal = cljs.core.nth.call(null, vec__18487, 0, null);
-  var second_deal = cljs.core.nth.call(null, vec__18487, 1, null);
+  }(game, _, opp_cards_el, our_cards_es, discard, vec__87059, their_region_offset_x, their_region_offset_y, vec__87060, our_region_offset_x, our_region_offset_y, their_deal), cljs.core.range.call(null), our_cards_es);
+  var vec__87061 = cljs.core._EQ_.call(null, (new cljs.core.Keyword(null, "starting", "starting", 2330710962)).cljs$core$IFn$_invoke$arity$1(game), (new cljs.core.Keyword(null, "us", "us", 1013907984)).cljs$core$IFn$_invoke$arity$1(game)) ? new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [our_deal, their_deal], null) : new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [their_deal, our_deal], null);
+  var first_deal = cljs.core.nth.call(null, vec__87061, 0, null);
+  var second_deal = cljs.core.nth.call(null, vec__87061, 1, null);
   return gin.dom_helpers.schedule.call(null, cljs.core.concat.call(null, first_deal, second_deal, function() {
     var discard_el = gin.dom_helpers.get_element.call(null, (new cljs.core.Keyword("dom", "id", "dom/id", 1020278687)).cljs$core$IFn$_invoke$arity$1(discard));
     return cljs.core.concat.call(null, new cljs.core.PersistentVector(null, 1, 5, cljs.core.PersistentVector.EMPTY_NODE, [function() {
@@ -37934,416 +38006,347 @@ gin.game_panel.draw = function draw(db, game_id, conn) {
           var us_pick_card = cljs.core._EQ_.call(null, (new cljs.core.Keyword(null, "us", "us", 1013907984)).cljs$core$IFn$_invoke$arity$1(game), (new cljs.core.Keyword(null, "turn", "turn", 1017476079)).cljs$core$IFn$_invoke$arity$1(game)) && (cljs.core._EQ_.call(null, 10, cljs.core.count.call(null, (new cljs.core.Keyword(null, "our-cards", "our-cards", 3774215444)).cljs$core$IFn$_invoke$arity$1(game))) && cljs.core._EQ_.call(null, (new cljs.core.Keyword(null, "move", "move", 1017261891)).cljs$core$IFn$_invoke$arity$1(game), 
           new cljs.core.Keyword(null, "assigned", "assigned", 644022592)));
           var our_cards_es = cljs.core.map.call(null, function(_, us_pick_card) {
-            return function(p1__18490_SHARP_) {
-              return gin.datascript_helpers.entity_lookup.call(null, db, new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword("dom", "id", "dom/id", 1020278687), p1__18490_SHARP_], null));
+            return function(p1__87064_SHARP_) {
+              return gin.datascript_helpers.entity_lookup.call(null, db, new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword("dom", "id", "dom/id", 1020278687), p1__87064_SHARP_], null));
             };
           }(_, us_pick_card), (new cljs.core.Keyword(null, "our-cards", "our-cards", 3774215444)).cljs$core$IFn$_invoke$arity$1(game));
           var opp_cards_es = cljs.core.map.call(null, function(_, us_pick_card, our_cards_es) {
-            return function(p1__18491_SHARP_) {
-              return gin.datascript_helpers.entity_lookup.call(null, db, new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword("dom", "id", "dom/id", 1020278687), p1__18491_SHARP_], null));
+            return function(p1__87065_SHARP_) {
+              return gin.datascript_helpers.entity_lookup.call(null, db, new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword("dom", "id", "dom/id", 1020278687), p1__87065_SHARP_], null));
             };
           }(_, us_pick_card, our_cards_es), (new cljs.core.Keyword(null, "their-cards", "their-cards", 3979507874)).cljs$core$IFn$_invoke$arity$1(game));
-          var pile_cards_el = cljs.core.mapv.call(null, gin.dom_helpers.get_element, (new cljs.core.Keyword(null, "pile", "pile", 1017345188)).cljs$core$IFn$_invoke$arity$1(game));
-          var discard_cards_el = cljs.core.mapv.call(null, gin.dom_helpers.get_element, (new cljs.core.Keyword(null, "discards", "discards", 1286668039)).cljs$core$IFn$_invoke$arity$1(game));
-          var vec__18537 = gin.game_panel.their_region_position.call(null);
-          var their_region_offset_x = cljs.core.nth.call(null, vec__18537, 0, null);
-          var their_region_offset_y = cljs.core.nth.call(null, vec__18537, 1, null);
-          var seq__18538_18574 = cljs.core.seq.call(null, pile_cards_el);
-          var chunk__18540_18575 = null;
-          var count__18541_18576 = 0;
-          var i__18542_18577 = 0;
+          var pile_cards_es = cljs.core.map.call(null, function(_, us_pick_card, our_cards_es, opp_cards_es) {
+            return function(p1__87066_SHARP_) {
+              return gin.datascript_helpers.entity_lookup.call(null, db, new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword("dom", "id", "dom/id", 1020278687), p1__87066_SHARP_], null));
+            };
+          }(_, us_pick_card, our_cards_es, opp_cards_es), (new cljs.core.Keyword(null, "pile", "pile", 1017345188)).cljs$core$IFn$_invoke$arity$1(game));
+          var discard_cards_es = cljs.core.map.call(null, function(_, us_pick_card, our_cards_es, opp_cards_es, pile_cards_es) {
+            return function(p1__87067_SHARP_) {
+              return gin.datascript_helpers.entity_lookup.call(null, db, new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword("dom", "id", "dom/id", 1020278687), p1__87067_SHARP_], null));
+            };
+          }(_, us_pick_card, our_cards_es, opp_cards_es, pile_cards_es), (new cljs.core.Keyword(null, "discards", "discards", 1286668039)).cljs$core$IFn$_invoke$arity$1(game));
+          var vec__87110 = gin.game_panel.their_region_position.call(null);
+          var their_region_offset_x = cljs.core.nth.call(null, vec__87110, 0, null);
+          var their_region_offset_y = cljs.core.nth.call(null, vec__87110, 1, null);
+          var seq__87111_87151 = cljs.core.seq.call(null, pile_cards_es);
+          var chunk__87113_87152 = null;
+          var count__87114_87153 = 0;
+          var i__87115_87154 = 0;
           while (true) {
-            if (i__18542_18577 < count__18541_18576) {
-              var pile_card_el_18578 = cljs.core._nth.call(null, chunk__18540_18575, i__18542_18577);
-              if (cljs.core.not_EQ_.call(null, gin.game_panel.pile_position.call(null), gin.dom_helpers.get_current_position.call(null, pile_card_el_18578))) {
-                gin.dom_helpers.schedule.call(null, cljs.core.into.call(null, new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [function(seq__18538_18574, chunk__18540_18575, count__18541_18576, i__18542_18577, pile_card_el_18578) {
-                  return function() {
-                    return gin.dom_helpers.set_card_class.call(null, pile_card_el_18578, "card_back");
-                  };
-                }(seq__18538_18574, chunk__18540_18575, count__18541_18576, i__18542_18577, pile_card_el_18578), function(seq__18538_18574, chunk__18540_18575, count__18541_18576, i__18542_18577, pile_card_el_18578) {
-                  return function() {
-                    return gin.dom_helpers.show_on_top.call(null, pile_card_el_18578);
-                  };
-                }(seq__18538_18574, chunk__18540_18575, count__18541_18576, i__18542_18577, pile_card_el_18578)], null), gin.dom_helpers.slide_from.call(null, pile_card_el_18578, gin.game_panel.pile_position.call(null))));
-                var G__18579 = seq__18538_18574;
-                var G__18580 = chunk__18540_18575;
-                var G__18581 = count__18541_18576;
-                var G__18582 = i__18542_18577 + 1;
-                seq__18538_18574 = G__18579;
-                chunk__18540_18575 = G__18580;
-                count__18541_18576 = G__18581;
-                i__18542_18577 = G__18582;
-                continue;
-              } else {
-                var G__18583 = seq__18538_18574;
-                var G__18584 = chunk__18540_18575;
-                var G__18585 = count__18541_18576;
-                var G__18586 = i__18542_18577 + 1;
-                seq__18538_18574 = G__18583;
-                chunk__18540_18575 = G__18584;
-                count__18541_18576 = G__18585;
-                i__18542_18577 = G__18586;
-                continue;
-              }
+            if (i__87115_87154 < count__87114_87153) {
+              var pile_card_es_87155 = cljs.core._nth.call(null, chunk__87113_87152, i__87115_87154);
+              var pile_card_el_87156 = gin.dom_helpers.get_element.call(null, (new cljs.core.Keyword("dom", "id", "dom/id", 1020278687)).cljs$core$IFn$_invoke$arity$1(pile_card_es_87155));
+              gin.dom_helpers.set_card_class.call(null, pile_card_el_87156, "card_back");
+              gin.dom_helpers.show_on_top.call(null, pile_card_el_87156);
+              gin.game_panel.slide.call(null, (new cljs.core.Keyword("anim", "idx", "anim/idx", 1204830436)).cljs$core$IFn$_invoke$arity$1(pile_card_es_87155), pile_card_el_87156, gin.game_panel.pile_position.call(null));
+              var G__87157 = seq__87111_87151;
+              var G__87158 = chunk__87113_87152;
+              var G__87159 = count__87114_87153;
+              var G__87160 = i__87115_87154 + 1;
+              seq__87111_87151 = G__87157;
+              chunk__87113_87152 = G__87158;
+              count__87114_87153 = G__87159;
+              i__87115_87154 = G__87160;
+              continue;
             } else {
-              var temp__4092__auto___18587 = cljs.core.seq.call(null, seq__18538_18574);
-              if (temp__4092__auto___18587) {
-                var seq__18538_18588__$1 = temp__4092__auto___18587;
-                if (cljs.core.chunked_seq_QMARK_.call(null, seq__18538_18588__$1)) {
-                  var c__17389__auto___18589 = cljs.core.chunk_first.call(null, seq__18538_18588__$1);
-                  var G__18590 = cljs.core.chunk_rest.call(null, seq__18538_18588__$1);
-                  var G__18591 = c__17389__auto___18589;
-                  var G__18592 = cljs.core.count.call(null, c__17389__auto___18589);
-                  var G__18593 = 0;
-                  seq__18538_18574 = G__18590;
-                  chunk__18540_18575 = G__18591;
-                  count__18541_18576 = G__18592;
-                  i__18542_18577 = G__18593;
+              var temp__4092__auto___87161 = cljs.core.seq.call(null, seq__87111_87151);
+              if (temp__4092__auto___87161) {
+                var seq__87111_87162__$1 = temp__4092__auto___87161;
+                if (cljs.core.chunked_seq_QMARK_.call(null, seq__87111_87162__$1)) {
+                  var c__17389__auto___87163 = cljs.core.chunk_first.call(null, seq__87111_87162__$1);
+                  var G__87164 = cljs.core.chunk_rest.call(null, seq__87111_87162__$1);
+                  var G__87165 = c__17389__auto___87163;
+                  var G__87166 = cljs.core.count.call(null, c__17389__auto___87163);
+                  var G__87167 = 0;
+                  seq__87111_87151 = G__87164;
+                  chunk__87113_87152 = G__87165;
+                  count__87114_87153 = G__87166;
+                  i__87115_87154 = G__87167;
                   continue;
                 } else {
-                  var pile_card_el_18594 = cljs.core.first.call(null, seq__18538_18588__$1);
-                  if (cljs.core.not_EQ_.call(null, gin.game_panel.pile_position.call(null), gin.dom_helpers.get_current_position.call(null, pile_card_el_18594))) {
-                    gin.dom_helpers.schedule.call(null, cljs.core.into.call(null, new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [function(seq__18538_18574, chunk__18540_18575, count__18541_18576, i__18542_18577, pile_card_el_18594, seq__18538_18588__$1, temp__4092__auto___18587) {
-                      return function() {
-                        return gin.dom_helpers.set_card_class.call(null, pile_card_el_18594, "card_back");
-                      };
-                    }(seq__18538_18574, chunk__18540_18575, count__18541_18576, i__18542_18577, pile_card_el_18594, seq__18538_18588__$1, temp__4092__auto___18587), function(seq__18538_18574, chunk__18540_18575, count__18541_18576, i__18542_18577, pile_card_el_18594, seq__18538_18588__$1, temp__4092__auto___18587) {
-                      return function() {
-                        return gin.dom_helpers.show_on_top.call(null, pile_card_el_18594);
-                      };
-                    }(seq__18538_18574, chunk__18540_18575, count__18541_18576, i__18542_18577, pile_card_el_18594, seq__18538_18588__$1, temp__4092__auto___18587)], null), gin.dom_helpers.slide_from.call(null, pile_card_el_18594, gin.game_panel.pile_position.call(null))));
-                    var G__18595 = cljs.core.next.call(null, seq__18538_18588__$1);
-                    var G__18596 = null;
-                    var G__18597 = 0;
-                    var G__18598 = 0;
-                    seq__18538_18574 = G__18595;
-                    chunk__18540_18575 = G__18596;
-                    count__18541_18576 = G__18597;
-                    i__18542_18577 = G__18598;
-                    continue;
-                  } else {
-                    var G__18599 = cljs.core.next.call(null, seq__18538_18588__$1);
-                    var G__18600 = null;
-                    var G__18601 = 0;
-                    var G__18602 = 0;
-                    seq__18538_18574 = G__18599;
-                    chunk__18540_18575 = G__18600;
-                    count__18541_18576 = G__18601;
-                    i__18542_18577 = G__18602;
-                    continue;
-                  }
+                  var pile_card_es_87168 = cljs.core.first.call(null, seq__87111_87162__$1);
+                  var pile_card_el_87169 = gin.dom_helpers.get_element.call(null, (new cljs.core.Keyword("dom", "id", "dom/id", 1020278687)).cljs$core$IFn$_invoke$arity$1(pile_card_es_87168));
+                  gin.dom_helpers.set_card_class.call(null, pile_card_el_87169, "card_back");
+                  gin.dom_helpers.show_on_top.call(null, pile_card_el_87169);
+                  gin.game_panel.slide.call(null, (new cljs.core.Keyword("anim", "idx", "anim/idx", 1204830436)).cljs$core$IFn$_invoke$arity$1(pile_card_es_87168), pile_card_el_87169, gin.game_panel.pile_position.call(null));
+                  var G__87170 = cljs.core.next.call(null, seq__87111_87162__$1);
+                  var G__87171 = null;
+                  var G__87172 = 0;
+                  var G__87173 = 0;
+                  seq__87111_87151 = G__87170;
+                  chunk__87113_87152 = G__87171;
+                  count__87114_87153 = G__87172;
+                  i__87115_87154 = G__87173;
+                  continue;
                 }
               } else {
               }
             }
             break;
           }
-          var temp__4092__auto___18603 = cljs.core.peek.call(null, pile_cards_el);
-          if (cljs.core.truth_(temp__4092__auto___18603)) {
-            var pile_card_el_18604 = temp__4092__auto___18603;
+          var temp__4092__auto___87174 = cljs.core.last.call(null, pile_cards_es);
+          if (cljs.core.truth_(temp__4092__auto___87174)) {
+            var pile_card_es_87175 = temp__4092__auto___87174;
+            var pile_card_el_87176 = gin.dom_helpers.get_element.call(null, (new cljs.core.Keyword("dom", "id", "dom/id", 1020278687)).cljs$core$IFn$_invoke$arity$1(pile_card_es_87175));
             if (us_pick_card) {
-              gin.game_panel.set_drag_handler.call(null, pile_card_el_18604, gin.game_panel.pile_drag_handler.call(null, conn));
+              gin.game_panel.set_drag_handler.call(null, pile_card_el_87176, gin.game_panel.pile_drag_handler.call(null, conn));
             } else {
-              gin.game_panel.set_drag_handler.call(null, pile_card_el_18604, gin.game_panel.undraggable_handler.call(null, conn));
+              gin.game_panel.set_drag_handler.call(null, pile_card_el_87176, gin.game_panel.undraggable_handler.call(null, conn));
             }
           } else {
           }
-          var seq__18544_18605 = cljs.core.seq.call(null, cljs.core.map.call(null, function(p1__18492_SHARP_) {
-            return gin.datascript_helpers.entity_lookup.call(null, db, new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword("dom", "id", "dom/id", 1020278687), p1__18492_SHARP_], null));
-          }, (new cljs.core.Keyword(null, "discards", "discards", 1286668039)).cljs$core$IFn$_invoke$arity$1(game)));
-          var chunk__18547_18606 = null;
-          var count__18548_18607 = 0;
-          var i__18549_18608 = 0;
-          while (true) {
-            if (i__18549_18608 < count__18548_18607) {
-              var discard_card_es_18609 = cljs.core._nth.call(null, chunk__18547_18606, i__18549_18608);
-              var discard_card_el_18610 = gin.dom_helpers.get_element.call(null, (new cljs.core.Keyword("dom", "id", "dom/id", 1020278687)).cljs$core$IFn$_invoke$arity$1(discard_card_es_18609));
-              if (cljs.core.not_EQ_.call(null, gin.game_panel.discard_position.call(null), gin.dom_helpers.get_current_position.call(null, discard_card_el_18610))) {
-                var suit_18611 = (new cljs.core.Keyword("card", "suit", "card/suit", 1215370835)).cljs$core$IFn$_invoke$arity$1(discard_card_es_18609);
-                var rank_18612 = (new cljs.core.Keyword("card", "rank", "card/rank", 1215352178)).cljs$core$IFn$_invoke$arity$1(discard_card_es_18609);
-                gin.dom_helpers.schedule.call(null, cljs.core.into.call(null, new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [function(seq__18544_18605, chunk__18547_18606, count__18548_18607, i__18549_18608, suit_18611, rank_18612, discard_card_el_18610, discard_card_es_18609) {
-                  return function() {
-                    return gin.dom_helpers.set_card_class.call(null, discard_card_el_18610, [cljs.core.str(cljs.core.name.call(null, suit_18611)), cljs.core.str("_"), cljs.core.str(cljs.core.name.call(null, rank_18612))].join(""));
-                  };
-                }(seq__18544_18605, chunk__18547_18606, count__18548_18607, i__18549_18608, suit_18611, rank_18612, discard_card_el_18610, discard_card_es_18609), function(seq__18544_18605, chunk__18547_18606, count__18548_18607, i__18549_18608, suit_18611, rank_18612, discard_card_el_18610, discard_card_es_18609) {
-                  return function() {
-                    return gin.dom_helpers.show_on_top.call(null, discard_card_el_18610);
-                  };
-                }(seq__18544_18605, chunk__18547_18606, count__18548_18607, i__18549_18608, suit_18611, rank_18612, discard_card_el_18610, discard_card_es_18609)], null), gin.dom_helpers.slide_from.call(null, discard_card_el_18610, gin.game_panel.discard_position.call(null))));
-                var G__18613 = seq__18544_18605;
-                var G__18614 = chunk__18547_18606;
-                var G__18615 = count__18548_18607;
-                var G__18616 = i__18549_18608 + 1;
-                seq__18544_18605 = G__18613;
-                chunk__18547_18606 = G__18614;
-                count__18548_18607 = G__18615;
-                i__18549_18608 = G__18616;
-                continue;
-              } else {
-                var G__18617 = seq__18544_18605;
-                var G__18618 = chunk__18547_18606;
-                var G__18619 = count__18548_18607;
-                var G__18620 = i__18549_18608 + 1;
-                seq__18544_18605 = G__18617;
-                chunk__18547_18606 = G__18618;
-                count__18548_18607 = G__18619;
-                i__18549_18608 = G__18620;
-                continue;
-              }
-            } else {
-              var temp__4092__auto___18621 = cljs.core.seq.call(null, seq__18544_18605);
-              if (temp__4092__auto___18621) {
-                var seq__18544_18622__$1 = temp__4092__auto___18621;
-                if (cljs.core.chunked_seq_QMARK_.call(null, seq__18544_18622__$1)) {
-                  var c__17389__auto___18623 = cljs.core.chunk_first.call(null, seq__18544_18622__$1);
-                  var G__18624 = cljs.core.chunk_rest.call(null, seq__18544_18622__$1);
-                  var G__18625 = c__17389__auto___18623;
-                  var G__18626 = cljs.core.count.call(null, c__17389__auto___18623);
-                  var G__18627 = 0;
-                  seq__18544_18605 = G__18624;
-                  chunk__18547_18606 = G__18625;
-                  count__18548_18607 = G__18626;
-                  i__18549_18608 = G__18627;
-                  continue;
-                } else {
-                  var discard_card_es_18628 = cljs.core.first.call(null, seq__18544_18622__$1);
-                  var discard_card_el_18629 = gin.dom_helpers.get_element.call(null, (new cljs.core.Keyword("dom", "id", "dom/id", 1020278687)).cljs$core$IFn$_invoke$arity$1(discard_card_es_18628));
-                  if (cljs.core.not_EQ_.call(null, gin.game_panel.discard_position.call(null), gin.dom_helpers.get_current_position.call(null, discard_card_el_18629))) {
-                    var suit_18630 = (new cljs.core.Keyword("card", "suit", "card/suit", 1215370835)).cljs$core$IFn$_invoke$arity$1(discard_card_es_18628);
-                    var rank_18631 = (new cljs.core.Keyword("card", "rank", "card/rank", 1215352178)).cljs$core$IFn$_invoke$arity$1(discard_card_es_18628);
-                    gin.dom_helpers.schedule.call(null, cljs.core.into.call(null, new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [function(seq__18544_18605, chunk__18547_18606, count__18548_18607, i__18549_18608, suit_18630, rank_18631, discard_card_el_18629, discard_card_es_18628, seq__18544_18622__$1, temp__4092__auto___18621) {
-                      return function() {
-                        return gin.dom_helpers.set_card_class.call(null, discard_card_el_18629, [cljs.core.str(cljs.core.name.call(null, suit_18630)), cljs.core.str("_"), cljs.core.str(cljs.core.name.call(null, rank_18631))].join(""));
-                      };
-                    }(seq__18544_18605, chunk__18547_18606, count__18548_18607, i__18549_18608, suit_18630, rank_18631, discard_card_el_18629, discard_card_es_18628, seq__18544_18622__$1, temp__4092__auto___18621), function(seq__18544_18605, chunk__18547_18606, count__18548_18607, i__18549_18608, suit_18630, rank_18631, discard_card_el_18629, discard_card_es_18628, seq__18544_18622__$1, temp__4092__auto___18621) {
-                      return function() {
-                        return gin.dom_helpers.show_on_top.call(null, discard_card_el_18629);
-                      };
-                    }(seq__18544_18605, chunk__18547_18606, count__18548_18607, i__18549_18608, suit_18630, rank_18631, discard_card_el_18629, discard_card_es_18628, seq__18544_18622__$1, temp__4092__auto___18621)], null), gin.dom_helpers.slide_from.call(null, discard_card_el_18629, gin.game_panel.discard_position.call(null))));
-                    var G__18632 = cljs.core.next.call(null, seq__18544_18622__$1);
-                    var G__18633 = null;
-                    var G__18634 = 0;
-                    var G__18635 = 0;
-                    seq__18544_18605 = G__18632;
-                    chunk__18547_18606 = G__18633;
-                    count__18548_18607 = G__18634;
-                    i__18549_18608 = G__18635;
-                    continue;
-                  } else {
-                    var G__18636 = cljs.core.next.call(null, seq__18544_18622__$1);
-                    var G__18637 = null;
-                    var G__18638 = 0;
-                    var G__18639 = 0;
-                    seq__18544_18605 = G__18636;
-                    chunk__18547_18606 = G__18637;
-                    count__18548_18607 = G__18638;
-                    i__18549_18608 = G__18639;
-                    continue;
-                  }
-                }
-              } else {
-              }
-            }
-            break;
-          }
-          var temp__4092__auto___18640 = cljs.core.peek.call(null, discard_cards_el);
-          if (cljs.core.truth_(temp__4092__auto___18640)) {
-            var discard_card_el_18641 = temp__4092__auto___18640;
-            if (us_pick_card) {
-              gin.game_panel.set_drag_handler.call(null, discard_card_el_18641, gin.game_panel.discard_drag_handler.call(null, conn));
-            } else {
-              gin.game_panel.set_drag_handler.call(null, discard_card_el_18641, gin.game_panel.undraggable_handler.call(null, conn));
-            }
-          } else {
-          }
-          var opp_cards_el_18642 = cljs.core.map.call(null, function(p1__18493_SHARP_) {
-            return gin.dom_helpers.get_element.call(null, (new cljs.core.Keyword("dom", "id", "dom/id", 1020278687)).cljs$core$IFn$_invoke$arity$1(p1__18493_SHARP_));
+          var opp_cards_el_87177 = cljs.core.map.call(null, function(p1__87068_SHARP_) {
+            return gin.dom_helpers.get_element.call(null, (new cljs.core.Keyword("dom", "id", "dom/id", 1020278687)).cljs$core$IFn$_invoke$arity$1(p1__87068_SHARP_));
           }, opp_cards_es);
-          if (cljs.core._EQ_.call(null, gin.game_panel.pile_position.call(null), gin.dom_helpers.get_current_position.call(null, cljs.core.first.call(null, opp_cards_el_18642)), gin.dom_helpers.get_current_position.call(null, cljs.core.second.call(null, opp_cards_el_18642)))) {
-            gin.dom_helpers.schedule.call(null, cljs.core.map.call(null, function(idx, el) {
-              return function() {
-                gin.dom_helpers.show_on_top.call(null, el);
-                return gin.dom_helpers.set_position.call(null, el, their_region_offset_x + idx * 53, their_region_offset_y + idx * 4);
-              };
-            }, cljs.core.range.call(null), opp_cards_el_18642));
-          } else {
-            var temp__4090__auto___18643 = function() {
-              var and__16629__auto__ = cljs.core._EQ_.call(null, 11, cljs.core.count.call(null, opp_cards_el_18642));
-              if (and__16629__auto__) {
-                return cljs.core.some.call(null, function(and__16629__auto__) {
-                  return function(el) {
-                    if (cljs.core._EQ_.call(null, gin.game_panel.pile_position.call(null), gin.dom_helpers.get_current_position.call(null, el))) {
-                      return el;
-                    } else {
-                      return null;
-                    }
-                  };
-                }(and__16629__auto__), opp_cards_el_18642);
-              } else {
-                return and__16629__auto__;
-              }
-            }();
-            if (cljs.core.truth_(temp__4090__auto___18643)) {
-              var from_pile_18644 = temp__4090__auto___18643;
-              console.log("opp from pile");
-              gin.dom_helpers.schedule.call(null, cljs.core.concat.call(null, gin.dom_helpers.simultanious.call(null, cljs.core.map.call(null, function(p1__18495_SHARP_, p2__18494_SHARP_) {
-                return cljs.core.conj.call(null, gin.dom_helpers.slide_from.call(null, p2__18494_SHARP_, new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [their_region_offset_x + p1__18495_SHARP_ * 48.18, their_region_offset_y + p1__18495_SHARP_ * 3.63], null)), function() {
-                  return gin.dom_helpers.show_on_top.call(null, p2__18494_SHARP_);
-                });
-              }, cljs.core.range.call(null), opp_cards_el_18642))));
+          var vec__87117_87178 = cljs.core._EQ_.call(null, 10, cljs.core.count.call(null, opp_cards_el_87177)) ? new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [53, 4], null) : new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [48.18, 3.63], null);
+          var x_step_87179 = cljs.core.nth.call(null, vec__87117_87178, 0, null);
+          var y_step_87180 = cljs.core.nth.call(null, vec__87117_87178, 1, null);
+          console.log("opp reg");
+          var seq__87118_87181 = cljs.core.seq.call(null, cljs.core.map.call(null, cljs.core.list, cljs.core.range.call(null), opp_cards_es));
+          var chunk__87119_87182 = null;
+          var count__87120_87183 = 0;
+          var i__87121_87184 = 0;
+          while (true) {
+            if (i__87121_87184 < count__87120_87183) {
+              var vec__87122_87185 = cljs.core._nth.call(null, chunk__87119_87182, i__87121_87184);
+              var i_87186 = cljs.core.nth.call(null, vec__87122_87185, 0, null);
+              var e_87187 = cljs.core.nth.call(null, vec__87122_87185, 1, null);
+              var idx_87188 = (new cljs.core.Keyword("anim", "idx", "anim/idx", 1204830436)).cljs$core$IFn$_invoke$arity$1(e_87187);
+              var el_87189 = gin.dom_helpers.get_element.call(null, (new cljs.core.Keyword("dom", "id", "dom/id", 1020278687)).cljs$core$IFn$_invoke$arity$1(e_87187));
+              gin.game_panel.slide.call(null, idx_87188, el_87189, new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [cljs.core.long$.call(null, their_region_offset_x + i_87186 * x_step_87179), cljs.core.long$.call(null, their_region_offset_y + i_87186 * y_step_87180)], null));
+              var G__87190 = seq__87118_87181;
+              var G__87191 = chunk__87119_87182;
+              var G__87192 = count__87120_87183;
+              var G__87193 = i__87121_87184 + 1;
+              seq__87118_87181 = G__87190;
+              chunk__87119_87182 = G__87191;
+              count__87120_87183 = G__87192;
+              i__87121_87184 = G__87193;
+              continue;
             } else {
-              var temp__4090__auto___18645__$1 = function() {
-                var and__16629__auto__ = cljs.core._EQ_.call(null, 11, cljs.core.count.call(null, opp_cards_el_18642));
-                if (and__16629__auto__) {
-                  return cljs.core.some.call(null, function(and__16629__auto__) {
-                    return function(el) {
-                      if (cljs.core._EQ_.call(null, gin.game_panel.discard_position.call(null), gin.dom_helpers.get_current_position.call(null, el))) {
-                        return el;
-                      } else {
-                        return null;
-                      }
-                    };
-                  }(and__16629__auto__), opp_cards_el_18642);
+              var temp__4092__auto___87194 = cljs.core.seq.call(null, seq__87118_87181);
+              if (temp__4092__auto___87194) {
+                var seq__87118_87195__$1 = temp__4092__auto___87194;
+                if (cljs.core.chunked_seq_QMARK_.call(null, seq__87118_87195__$1)) {
+                  var c__17389__auto___87196 = cljs.core.chunk_first.call(null, seq__87118_87195__$1);
+                  var G__87197 = cljs.core.chunk_rest.call(null, seq__87118_87195__$1);
+                  var G__87198 = c__17389__auto___87196;
+                  var G__87199 = cljs.core.count.call(null, c__17389__auto___87196);
+                  var G__87200 = 0;
+                  seq__87118_87181 = G__87197;
+                  chunk__87119_87182 = G__87198;
+                  count__87120_87183 = G__87199;
+                  i__87121_87184 = G__87200;
+                  continue;
                 } else {
-                  return and__16629__auto__;
+                  var vec__87123_87201 = cljs.core.first.call(null, seq__87118_87195__$1);
+                  var i_87202 = cljs.core.nth.call(null, vec__87123_87201, 0, null);
+                  var e_87203 = cljs.core.nth.call(null, vec__87123_87201, 1, null);
+                  var idx_87204 = (new cljs.core.Keyword("anim", "idx", "anim/idx", 1204830436)).cljs$core$IFn$_invoke$arity$1(e_87203);
+                  var el_87205 = gin.dom_helpers.get_element.call(null, (new cljs.core.Keyword("dom", "id", "dom/id", 1020278687)).cljs$core$IFn$_invoke$arity$1(e_87203));
+                  gin.game_panel.slide.call(null, idx_87204, el_87205, new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [cljs.core.long$.call(null, their_region_offset_x + i_87202 * x_step_87179), cljs.core.long$.call(null, their_region_offset_y + i_87202 * y_step_87180)], null));
+                  var G__87206 = cljs.core.next.call(null, seq__87118_87195__$1);
+                  var G__87207 = null;
+                  var G__87208 = 0;
+                  var G__87209 = 0;
+                  seq__87118_87181 = G__87206;
+                  chunk__87119_87182 = G__87207;
+                  count__87120_87183 = G__87208;
+                  i__87121_87184 = G__87209;
+                  continue;
                 }
-              }();
-              if (cljs.core.truth_(temp__4090__auto___18645__$1)) {
-                var from_discard_18646 = temp__4090__auto___18645__$1;
-                console.log("opp-from-discard");
-                gin.dom_helpers.schedule.call(null, cljs.core.concat.call(null, new cljs.core.PersistentVector(null, 1, 5, cljs.core.PersistentVector.EMPTY_NODE, [function() {
-                  return gin.dom_helpers.set_card_class.call(null, from_discard_18646, "card_back");
-                }], null), gin.dom_helpers.simultanious.call(null, cljs.core.map.call(null, function(p1__18497_SHARP_, p2__18496_SHARP_) {
-                  return cljs.core.conj.call(null, gin.dom_helpers.slide_from.call(null, p2__18496_SHARP_, new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [their_region_offset_x + p1__18497_SHARP_ * 48.18, their_region_offset_y + p1__18497_SHARP_ * 3.63], null)), function() {
-                    return gin.dom_helpers.show_on_top.call(null, p2__18496_SHARP_);
-                  });
-                }, cljs.core.range.call(null), opp_cards_el_18642))));
               } else {
-                var vec__18552_18647 = cljs.core._EQ_.call(null, 10, cljs.core.count.call(null, opp_cards_el_18642)) ? new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [53, 4], null) : new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [48.18, 3.63], null);
-                var x_step_18648 = cljs.core.nth.call(null, vec__18552_18647, 0, null);
-                var y_step_18649 = cljs.core.nth.call(null, vec__18552_18647, 1, null);
-                console.log("opp reg");
-                gin.dom_helpers.schedule.call(null, gin.dom_helpers.simultanious.call(null, cljs.core.map.call(null, function(p1__18499_SHARP_, p2__18498_SHARP_) {
-                  return gin.dom_helpers.slide_from.call(null, p2__18498_SHARP_, new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [their_region_offset_x + p1__18499_SHARP_ * x_step_18648, their_region_offset_y + p1__18499_SHARP_ * y_step_18649], null));
-                }, cljs.core.range.call(null), opp_cards_el_18642)));
               }
             }
+            break;
           }
-          if (cljs.core.not_EQ_.call(null, new cljs.core.Keyword(null, "hidden", "hidden", 4091384092), (new cljs.core.Keyword("card", "suit", "card/suit", 1215370835)).cljs$core$IFn$_invoke$arity$1(cljs.core.first.call(null, opp_cards_es)))) {
-            var seq__18553_18650 = cljs.core.seq.call(null, cljs.core.map.call(null, cljs.core.list, opp_cards_el_18642, opp_cards_es));
-            var chunk__18554_18651 = null;
-            var count__18555_18652 = 0;
-            var i__18556_18653 = 0;
-            while (true) {
-              if (i__18556_18653 < count__18555_18652) {
-                var vec__18557_18654 = cljs.core._nth.call(null, chunk__18554_18651, i__18556_18653);
-                var el_18655 = cljs.core.nth.call(null, vec__18557_18654, 0, null);
-                var es_18656 = cljs.core.nth.call(null, vec__18557_18654, 1, null);
-                var suit_18657 = (new cljs.core.Keyword("card", "suit", "card/suit", 1215370835)).cljs$core$IFn$_invoke$arity$1(es_18656);
-                var rank_18658 = (new cljs.core.Keyword("card", "rank", "card/rank", 1215352178)).cljs$core$IFn$_invoke$arity$1(es_18656);
-                gin.dom_helpers.set_card_class.call(null, el_18655, [cljs.core.str(cljs.core.name.call(null, suit_18657)), cljs.core.str("_"), cljs.core.str(cljs.core.name.call(null, rank_18658))].join(""));
-                var G__18659 = seq__18553_18650;
-                var G__18660 = chunk__18554_18651;
-                var G__18661 = count__18555_18652;
-                var G__18662 = i__18556_18653 + 1;
-                seq__18553_18650 = G__18659;
-                chunk__18554_18651 = G__18660;
-                count__18555_18652 = G__18661;
-                i__18556_18653 = G__18662;
-                continue;
-              } else {
-                var temp__4092__auto___18663 = cljs.core.seq.call(null, seq__18553_18650);
-                if (temp__4092__auto___18663) {
-                  var seq__18553_18664__$1 = temp__4092__auto___18663;
-                  if (cljs.core.chunked_seq_QMARK_.call(null, seq__18553_18664__$1)) {
-                    var c__17389__auto___18665 = cljs.core.chunk_first.call(null, seq__18553_18664__$1);
-                    var G__18666 = cljs.core.chunk_rest.call(null, seq__18553_18664__$1);
-                    var G__18667 = c__17389__auto___18665;
-                    var G__18668 = cljs.core.count.call(null, c__17389__auto___18665);
-                    var G__18669 = 0;
-                    seq__18553_18650 = G__18666;
-                    chunk__18554_18651 = G__18667;
-                    count__18555_18652 = G__18668;
-                    i__18556_18653 = G__18669;
-                    continue;
-                  } else {
-                    var vec__18558_18670 = cljs.core.first.call(null, seq__18553_18664__$1);
-                    var el_18671 = cljs.core.nth.call(null, vec__18558_18670, 0, null);
-                    var es_18672 = cljs.core.nth.call(null, vec__18558_18670, 1, null);
-                    var suit_18673 = (new cljs.core.Keyword("card", "suit", "card/suit", 1215370835)).cljs$core$IFn$_invoke$arity$1(es_18672);
-                    var rank_18674 = (new cljs.core.Keyword("card", "rank", "card/rank", 1215352178)).cljs$core$IFn$_invoke$arity$1(es_18672);
-                    gin.dom_helpers.set_card_class.call(null, el_18671, [cljs.core.str(cljs.core.name.call(null, suit_18673)), cljs.core.str("_"), cljs.core.str(cljs.core.name.call(null, rank_18674))].join(""));
-                    var G__18675 = cljs.core.next.call(null, seq__18553_18664__$1);
-                    var G__18676 = null;
-                    var G__18677 = 0;
-                    var G__18678 = 0;
-                    seq__18553_18650 = G__18675;
-                    chunk__18554_18651 = G__18676;
-                    count__18555_18652 = G__18677;
-                    i__18556_18653 = G__18678;
-                    continue;
-                  }
+          var seq__87124_87210 = cljs.core.seq.call(null, cljs.core.map.call(null, cljs.core.list, opp_cards_el_87177, opp_cards_es));
+          var chunk__87125_87211 = null;
+          var count__87126_87212 = 0;
+          var i__87127_87213 = 0;
+          while (true) {
+            if (i__87127_87213 < count__87126_87212) {
+              var vec__87128_87214 = cljs.core._nth.call(null, chunk__87125_87211, i__87127_87213);
+              var el_87215 = cljs.core.nth.call(null, vec__87128_87214, 0, null);
+              var es_87216 = cljs.core.nth.call(null, vec__87128_87214, 1, null);
+              var suit_87217 = (new cljs.core.Keyword("card", "suit", "card/suit", 1215370835)).cljs$core$IFn$_invoke$arity$1(es_87216);
+              var rank_87218 = (new cljs.core.Keyword("card", "rank", "card/rank", 1215352178)).cljs$core$IFn$_invoke$arity$1(es_87216);
+              gin.dom_helpers.show_on_top.call(null, el_87215);
+              gin.dom_helpers.set_card_class.call(null, el_87215, cljs.core._EQ_.call(null, new cljs.core.Keyword(null, "hidden", "hidden", 4091384092), suit_87217) ? "card_back" : [cljs.core.str(cljs.core.name.call(null, suit_87217)), cljs.core.str("_"), cljs.core.str(cljs.core.name.call(null, rank_87218))].join(""));
+              var G__87219 = seq__87124_87210;
+              var G__87220 = chunk__87125_87211;
+              var G__87221 = count__87126_87212;
+              var G__87222 = i__87127_87213 + 1;
+              seq__87124_87210 = G__87219;
+              chunk__87125_87211 = G__87220;
+              count__87126_87212 = G__87221;
+              i__87127_87213 = G__87222;
+              continue;
+            } else {
+              var temp__4092__auto___87223 = cljs.core.seq.call(null, seq__87124_87210);
+              if (temp__4092__auto___87223) {
+                var seq__87124_87224__$1 = temp__4092__auto___87223;
+                if (cljs.core.chunked_seq_QMARK_.call(null, seq__87124_87224__$1)) {
+                  var c__17389__auto___87225 = cljs.core.chunk_first.call(null, seq__87124_87224__$1);
+                  var G__87226 = cljs.core.chunk_rest.call(null, seq__87124_87224__$1);
+                  var G__87227 = c__17389__auto___87225;
+                  var G__87228 = cljs.core.count.call(null, c__17389__auto___87225);
+                  var G__87229 = 0;
+                  seq__87124_87210 = G__87226;
+                  chunk__87125_87211 = G__87227;
+                  count__87126_87212 = G__87228;
+                  i__87127_87213 = G__87229;
+                  continue;
                 } else {
+                  var vec__87129_87230 = cljs.core.first.call(null, seq__87124_87224__$1);
+                  var el_87231 = cljs.core.nth.call(null, vec__87129_87230, 0, null);
+                  var es_87232 = cljs.core.nth.call(null, vec__87129_87230, 1, null);
+                  var suit_87233 = (new cljs.core.Keyword("card", "suit", "card/suit", 1215370835)).cljs$core$IFn$_invoke$arity$1(es_87232);
+                  var rank_87234 = (new cljs.core.Keyword("card", "rank", "card/rank", 1215352178)).cljs$core$IFn$_invoke$arity$1(es_87232);
+                  gin.dom_helpers.show_on_top.call(null, el_87231);
+                  gin.dom_helpers.set_card_class.call(null, el_87231, cljs.core._EQ_.call(null, new cljs.core.Keyword(null, "hidden", "hidden", 4091384092), suit_87233) ? "card_back" : [cljs.core.str(cljs.core.name.call(null, suit_87233)), cljs.core.str("_"), cljs.core.str(cljs.core.name.call(null, rank_87234))].join(""));
+                  var G__87235 = cljs.core.next.call(null, seq__87124_87224__$1);
+                  var G__87236 = null;
+                  var G__87237 = 0;
+                  var G__87238 = 0;
+                  seq__87124_87210 = G__87235;
+                  chunk__87125_87211 = G__87236;
+                  count__87126_87212 = G__87237;
+                  i__87127_87213 = G__87238;
+                  continue;
                 }
+              } else {
               }
-              break;
+            }
+            break;
+          }
+          console.log("discards");
+          var seq__87130_87239 = cljs.core.seq.call(null, discard_cards_es);
+          var chunk__87132_87240 = null;
+          var count__87133_87241 = 0;
+          var i__87134_87242 = 0;
+          while (true) {
+            if (i__87134_87242 < count__87133_87241) {
+              var discard_card_es_87243 = cljs.core._nth.call(null, chunk__87132_87240, i__87134_87242);
+              var discard_card_el_87244 = gin.dom_helpers.get_element.call(null, (new cljs.core.Keyword("dom", "id", "dom/id", 1020278687)).cljs$core$IFn$_invoke$arity$1(discard_card_es_87243));
+              var suit_87245 = (new cljs.core.Keyword("card", "suit", "card/suit", 1215370835)).cljs$core$IFn$_invoke$arity$1(discard_card_es_87243);
+              var rank_87246 = (new cljs.core.Keyword("card", "rank", "card/rank", 1215352178)).cljs$core$IFn$_invoke$arity$1(discard_card_es_87243);
+              gin.dom_helpers.set_card_class.call(null, discard_card_el_87244, [cljs.core.str(cljs.core.name.call(null, suit_87245)), cljs.core.str("_"), cljs.core.str(cljs.core.name.call(null, rank_87246))].join(""));
+              gin.dom_helpers.show_on_top.call(null, discard_card_el_87244);
+              gin.game_panel.slide.call(null, (new cljs.core.Keyword("anim", "idx", "anim/idx", 1204830436)).cljs$core$IFn$_invoke$arity$1(discard_card_es_87243), discard_card_el_87244, gin.game_panel.discard_position.call(null));
+              var G__87247 = seq__87130_87239;
+              var G__87248 = chunk__87132_87240;
+              var G__87249 = count__87133_87241;
+              var G__87250 = i__87134_87242 + 1;
+              seq__87130_87239 = G__87247;
+              chunk__87132_87240 = G__87248;
+              count__87133_87241 = G__87249;
+              i__87134_87242 = G__87250;
+              continue;
+            } else {
+              var temp__4092__auto___87251 = cljs.core.seq.call(null, seq__87130_87239);
+              if (temp__4092__auto___87251) {
+                var seq__87130_87252__$1 = temp__4092__auto___87251;
+                if (cljs.core.chunked_seq_QMARK_.call(null, seq__87130_87252__$1)) {
+                  var c__17389__auto___87253 = cljs.core.chunk_first.call(null, seq__87130_87252__$1);
+                  var G__87254 = cljs.core.chunk_rest.call(null, seq__87130_87252__$1);
+                  var G__87255 = c__17389__auto___87253;
+                  var G__87256 = cljs.core.count.call(null, c__17389__auto___87253);
+                  var G__87257 = 0;
+                  seq__87130_87239 = G__87254;
+                  chunk__87132_87240 = G__87255;
+                  count__87133_87241 = G__87256;
+                  i__87134_87242 = G__87257;
+                  continue;
+                } else {
+                  var discard_card_es_87258 = cljs.core.first.call(null, seq__87130_87252__$1);
+                  var discard_card_el_87259 = gin.dom_helpers.get_element.call(null, (new cljs.core.Keyword("dom", "id", "dom/id", 1020278687)).cljs$core$IFn$_invoke$arity$1(discard_card_es_87258));
+                  var suit_87260 = (new cljs.core.Keyword("card", "suit", "card/suit", 1215370835)).cljs$core$IFn$_invoke$arity$1(discard_card_es_87258);
+                  var rank_87261 = (new cljs.core.Keyword("card", "rank", "card/rank", 1215352178)).cljs$core$IFn$_invoke$arity$1(discard_card_es_87258);
+                  gin.dom_helpers.set_card_class.call(null, discard_card_el_87259, [cljs.core.str(cljs.core.name.call(null, suit_87260)), cljs.core.str("_"), cljs.core.str(cljs.core.name.call(null, rank_87261))].join(""));
+                  gin.dom_helpers.show_on_top.call(null, discard_card_el_87259);
+                  gin.game_panel.slide.call(null, (new cljs.core.Keyword("anim", "idx", "anim/idx", 1204830436)).cljs$core$IFn$_invoke$arity$1(discard_card_es_87258), discard_card_el_87259, gin.game_panel.discard_position.call(null));
+                  var G__87262 = cljs.core.next.call(null, seq__87130_87252__$1);
+                  var G__87263 = null;
+                  var G__87264 = 0;
+                  var G__87265 = 0;
+                  seq__87130_87239 = G__87262;
+                  chunk__87132_87240 = G__87263;
+                  count__87133_87241 = G__87264;
+                  i__87134_87242 = G__87265;
+                  continue;
+                }
+              } else {
+              }
+            }
+            break;
+          }
+          console.log("drag discards");
+          var temp__4092__auto___87266 = cljs.core.last.call(null, discard_cards_es);
+          if (cljs.core.truth_(temp__4092__auto___87266)) {
+            var discard_card_es_87267 = temp__4092__auto___87266;
+            var discard_card_el_87268 = gin.dom_helpers.get_element.call(null, (new cljs.core.Keyword("dom", "id", "dom/id", 1020278687)).cljs$core$IFn$_invoke$arity$1(discard_card_es_87267));
+            if (us_pick_card) {
+              gin.game_panel.set_drag_handler.call(null, discard_card_el_87268, gin.game_panel.discard_drag_handler.call(null, conn));
+            } else {
+              gin.game_panel.set_drag_handler.call(null, discard_card_el_87268, gin.game_panel.undraggable_handler.call(null, conn));
             }
           } else {
           }
           if (cljs.core._EQ_.call(null, (new cljs.core.Keyword(null, "turn", "turn", 1017476079)).cljs$core$IFn$_invoke$arity$1(game), (new cljs.core.Keyword(null, "us", "us", 1013907984)).cljs$core$IFn$_invoke$arity$1(game)) && cljs.core._EQ_.call(null, (new cljs.core.Keyword(null, "move", "move", 1017261891)).cljs$core$IFn$_invoke$arity$1(game), new cljs.core.Keyword(null, "assigned", "assigned", 644022592))) {
             if (cljs.core._EQ_.call(null, 11, cljs.core.count.call(null, our_cards_es))) {
               gin.game_panel.set_msg.call(null, "Your turn. Drag a card from your hand to discard.");
-              var seq__18559 = cljs.core.seq.call(null, our_cards_es);
-              var chunk__18560 = null;
-              var count__18561 = 0;
-              var i__18562 = 0;
+              var seq__87136 = cljs.core.seq.call(null, our_cards_es);
+              var chunk__87137 = null;
+              var count__87138 = 0;
+              var i__87139 = 0;
               while (true) {
-                if (i__18562 < count__18561) {
-                  var our_card_es = cljs.core._nth.call(null, chunk__18560, i__18562);
-                  var our_card_el_18679 = gin.dom_helpers.get_element.call(null, (new cljs.core.Keyword("dom", "id", "dom/id", 1020278687)).cljs$core$IFn$_invoke$arity$1(our_card_es));
-                  var suit_18680 = (new cljs.core.Keyword("card", "suit", "card/suit", 1215370835)).cljs$core$IFn$_invoke$arity$1(our_card_es);
-                  var rank_18681 = (new cljs.core.Keyword("card", "rank", "card/rank", 1215352178)).cljs$core$IFn$_invoke$arity$1(our_card_es);
-                  gin.dom_helpers.set_card_class.call(null, our_card_el_18679, cljs.core._EQ_.call(null, suit_18680, new cljs.core.Keyword(null, "hidden", "hidden", 4091384092)) ? "card_back" : [cljs.core.str(cljs.core.name.call(null, suit_18680)), cljs.core.str("_"), cljs.core.str(cljs.core.name.call(null, rank_18681))].join(""));
-                  gin.game_panel.set_drag_handler.call(null, our_card_el_18679, gin.game_panel.home_discard_handler.call(null, conn));
-                  var G__18682 = seq__18559;
-                  var G__18683 = chunk__18560;
-                  var G__18684 = count__18561;
-                  var G__18685 = i__18562 + 1;
-                  seq__18559 = G__18682;
-                  chunk__18560 = G__18683;
-                  count__18561 = G__18684;
-                  i__18562 = G__18685;
+                if (i__87139 < count__87138) {
+                  var our_card_es = cljs.core._nth.call(null, chunk__87137, i__87139);
+                  var our_card_el_87269 = gin.dom_helpers.get_element.call(null, (new cljs.core.Keyword("dom", "id", "dom/id", 1020278687)).cljs$core$IFn$_invoke$arity$1(our_card_es));
+                  var suit_87270 = (new cljs.core.Keyword("card", "suit", "card/suit", 1215370835)).cljs$core$IFn$_invoke$arity$1(our_card_es);
+                  var rank_87271 = (new cljs.core.Keyword("card", "rank", "card/rank", 1215352178)).cljs$core$IFn$_invoke$arity$1(our_card_es);
+                  gin.dom_helpers.set_card_class.call(null, our_card_el_87269, cljs.core._EQ_.call(null, suit_87270, new cljs.core.Keyword(null, "hidden", "hidden", 4091384092)) ? "card_back" : [cljs.core.str(cljs.core.name.call(null, suit_87270)), cljs.core.str("_"), cljs.core.str(cljs.core.name.call(null, rank_87271))].join(""));
+                  gin.game_panel.set_drag_handler.call(null, our_card_el_87269, gin.game_panel.home_discard_handler.call(null, conn));
+                  var G__87272 = seq__87136;
+                  var G__87273 = chunk__87137;
+                  var G__87274 = count__87138;
+                  var G__87275 = i__87139 + 1;
+                  seq__87136 = G__87272;
+                  chunk__87137 = G__87273;
+                  count__87138 = G__87274;
+                  i__87139 = G__87275;
                   continue;
                 } else {
-                  var temp__4092__auto__ = cljs.core.seq.call(null, seq__18559);
+                  var temp__4092__auto__ = cljs.core.seq.call(null, seq__87136);
                   if (temp__4092__auto__) {
-                    var seq__18559__$1 = temp__4092__auto__;
-                    if (cljs.core.chunked_seq_QMARK_.call(null, seq__18559__$1)) {
-                      var c__17389__auto__ = cljs.core.chunk_first.call(null, seq__18559__$1);
-                      var G__18686 = cljs.core.chunk_rest.call(null, seq__18559__$1);
-                      var G__18687 = c__17389__auto__;
-                      var G__18688 = cljs.core.count.call(null, c__17389__auto__);
-                      var G__18689 = 0;
-                      seq__18559 = G__18686;
-                      chunk__18560 = G__18687;
-                      count__18561 = G__18688;
-                      i__18562 = G__18689;
+                    var seq__87136__$1 = temp__4092__auto__;
+                    if (cljs.core.chunked_seq_QMARK_.call(null, seq__87136__$1)) {
+                      var c__17389__auto__ = cljs.core.chunk_first.call(null, seq__87136__$1);
+                      var G__87276 = cljs.core.chunk_rest.call(null, seq__87136__$1);
+                      var G__87277 = c__17389__auto__;
+                      var G__87278 = cljs.core.count.call(null, c__17389__auto__);
+                      var G__87279 = 0;
+                      seq__87136 = G__87276;
+                      chunk__87137 = G__87277;
+                      count__87138 = G__87278;
+                      i__87139 = G__87279;
                       continue;
                     } else {
-                      var our_card_es = cljs.core.first.call(null, seq__18559__$1);
-                      var our_card_el_18690 = gin.dom_helpers.get_element.call(null, (new cljs.core.Keyword("dom", "id", "dom/id", 1020278687)).cljs$core$IFn$_invoke$arity$1(our_card_es));
-                      var suit_18691 = (new cljs.core.Keyword("card", "suit", "card/suit", 1215370835)).cljs$core$IFn$_invoke$arity$1(our_card_es);
-                      var rank_18692 = (new cljs.core.Keyword("card", "rank", "card/rank", 1215352178)).cljs$core$IFn$_invoke$arity$1(our_card_es);
-                      gin.dom_helpers.set_card_class.call(null, our_card_el_18690, cljs.core._EQ_.call(null, suit_18691, new cljs.core.Keyword(null, "hidden", "hidden", 4091384092)) ? "card_back" : [cljs.core.str(cljs.core.name.call(null, suit_18691)), cljs.core.str("_"), cljs.core.str(cljs.core.name.call(null, rank_18692))].join(""));
-                      gin.game_panel.set_drag_handler.call(null, our_card_el_18690, gin.game_panel.home_discard_handler.call(null, conn));
-                      var G__18693 = cljs.core.next.call(null, seq__18559__$1);
-                      var G__18694 = null;
-                      var G__18695 = 0;
-                      var G__18696 = 0;
-                      seq__18559 = G__18693;
-                      chunk__18560 = G__18694;
-                      count__18561 = G__18695;
-                      i__18562 = G__18696;
+                      var our_card_es = cljs.core.first.call(null, seq__87136__$1);
+                      var our_card_el_87280 = gin.dom_helpers.get_element.call(null, (new cljs.core.Keyword("dom", "id", "dom/id", 1020278687)).cljs$core$IFn$_invoke$arity$1(our_card_es));
+                      var suit_87281 = (new cljs.core.Keyword("card", "suit", "card/suit", 1215370835)).cljs$core$IFn$_invoke$arity$1(our_card_es);
+                      var rank_87282 = (new cljs.core.Keyword("card", "rank", "card/rank", 1215352178)).cljs$core$IFn$_invoke$arity$1(our_card_es);
+                      gin.dom_helpers.set_card_class.call(null, our_card_el_87280, cljs.core._EQ_.call(null, suit_87281, new cljs.core.Keyword(null, "hidden", "hidden", 4091384092)) ? "card_back" : [cljs.core.str(cljs.core.name.call(null, suit_87281)), cljs.core.str("_"), cljs.core.str(cljs.core.name.call(null, rank_87282))].join(""));
+                      gin.game_panel.set_drag_handler.call(null, our_card_el_87280, gin.game_panel.home_discard_handler.call(null, conn));
+                      var G__87283 = cljs.core.next.call(null, seq__87136__$1);
+                      var G__87284 = null;
+                      var G__87285 = 0;
+                      var G__87286 = 0;
+                      seq__87136 = G__87283;
+                      chunk__87137 = G__87284;
+                      count__87138 = G__87285;
+                      i__87139 = G__87286;
                       continue;
                     }
                   } else {
@@ -38354,49 +38357,49 @@ gin.game_panel.draw = function draw(db, game_id, conn) {
               }
             } else {
               gin.game_panel.set_msg.call(null, "Your turn. Draw a card or pickup a discard.");
-              var seq__18563 = cljs.core.seq.call(null, our_cards_es);
-              var chunk__18564 = null;
-              var count__18565 = 0;
-              var i__18566 = 0;
+              var seq__87140 = cljs.core.seq.call(null, our_cards_es);
+              var chunk__87141 = null;
+              var count__87142 = 0;
+              var i__87143 = 0;
               while (true) {
-                if (i__18566 < count__18565) {
-                  var our_card_es = cljs.core._nth.call(null, chunk__18564, i__18566);
+                if (i__87143 < count__87142) {
+                  var our_card_es = cljs.core._nth.call(null, chunk__87141, i__87143);
                   gin.game_panel.set_drag_handler.call(null, gin.dom_helpers.get_element.call(null, (new cljs.core.Keyword("dom", "id", "dom/id", 1020278687)).cljs$core$IFn$_invoke$arity$1(our_card_es)), gin.game_panel.home_region_handler.call(null, conn));
-                  var G__18697 = seq__18563;
-                  var G__18698 = chunk__18564;
-                  var G__18699 = count__18565;
-                  var G__18700 = i__18566 + 1;
-                  seq__18563 = G__18697;
-                  chunk__18564 = G__18698;
-                  count__18565 = G__18699;
-                  i__18566 = G__18700;
+                  var G__87287 = seq__87140;
+                  var G__87288 = chunk__87141;
+                  var G__87289 = count__87142;
+                  var G__87290 = i__87143 + 1;
+                  seq__87140 = G__87287;
+                  chunk__87141 = G__87288;
+                  count__87142 = G__87289;
+                  i__87143 = G__87290;
                   continue;
                 } else {
-                  var temp__4092__auto__ = cljs.core.seq.call(null, seq__18563);
+                  var temp__4092__auto__ = cljs.core.seq.call(null, seq__87140);
                   if (temp__4092__auto__) {
-                    var seq__18563__$1 = temp__4092__auto__;
-                    if (cljs.core.chunked_seq_QMARK_.call(null, seq__18563__$1)) {
-                      var c__17389__auto__ = cljs.core.chunk_first.call(null, seq__18563__$1);
-                      var G__18701 = cljs.core.chunk_rest.call(null, seq__18563__$1);
-                      var G__18702 = c__17389__auto__;
-                      var G__18703 = cljs.core.count.call(null, c__17389__auto__);
-                      var G__18704 = 0;
-                      seq__18563 = G__18701;
-                      chunk__18564 = G__18702;
-                      count__18565 = G__18703;
-                      i__18566 = G__18704;
+                    var seq__87140__$1 = temp__4092__auto__;
+                    if (cljs.core.chunked_seq_QMARK_.call(null, seq__87140__$1)) {
+                      var c__17389__auto__ = cljs.core.chunk_first.call(null, seq__87140__$1);
+                      var G__87291 = cljs.core.chunk_rest.call(null, seq__87140__$1);
+                      var G__87292 = c__17389__auto__;
+                      var G__87293 = cljs.core.count.call(null, c__17389__auto__);
+                      var G__87294 = 0;
+                      seq__87140 = G__87291;
+                      chunk__87141 = G__87292;
+                      count__87142 = G__87293;
+                      i__87143 = G__87294;
                       continue;
                     } else {
-                      var our_card_es = cljs.core.first.call(null, seq__18563__$1);
+                      var our_card_es = cljs.core.first.call(null, seq__87140__$1);
                       gin.game_panel.set_drag_handler.call(null, gin.dom_helpers.get_element.call(null, (new cljs.core.Keyword("dom", "id", "dom/id", 1020278687)).cljs$core$IFn$_invoke$arity$1(our_card_es)), gin.game_panel.home_region_handler.call(null, conn));
-                      var G__18705 = cljs.core.next.call(null, seq__18563__$1);
-                      var G__18706 = null;
-                      var G__18707 = 0;
-                      var G__18708 = 0;
-                      seq__18563 = G__18705;
-                      chunk__18564 = G__18706;
-                      count__18565 = G__18707;
-                      i__18566 = G__18708;
+                      var G__87295 = cljs.core.next.call(null, seq__87140__$1);
+                      var G__87296 = null;
+                      var G__87297 = 0;
+                      var G__87298 = 0;
+                      seq__87140 = G__87295;
+                      chunk__87141 = G__87296;
+                      count__87142 = G__87297;
+                      i__87143 = G__87298;
                       continue;
                     }
                   } else {
@@ -38411,24 +38414,24 @@ gin.game_panel.draw = function draw(db, game_id, conn) {
             if (cljs.core.truth_(temp__4090__auto__)) {
               var result = temp__4090__auto__;
               return gin.game_panel.set_msg.call(null, function() {
-                var pred__18567 = cljs.core._EQ_;
-                var expr__18568 = result;
-                if (cljs.core.truth_(pred__18567.call(null, new cljs.core.Keyword(null, "pat-tie", "pat-tie", 4515680216), expr__18568))) {
+                var pred__87144 = cljs.core._EQ_;
+                var expr__87145 = result;
+                if (cljs.core.truth_(pred__87144.call(null, new cljs.core.Keyword(null, "pat-tie", "pat-tie", 4515680216), expr__87145))) {
                   return "Game over: Both dealt gin for a tie.";
                 } else {
-                  if (cljs.core.truth_(pred__18567.call(null, new cljs.core.Keyword(null, "pat-our-win", "pat-our-win", 532651555), expr__18568))) {
+                  if (cljs.core.truth_(pred__87144.call(null, new cljs.core.Keyword(null, "pat-our-win", "pat-our-win", 532651555), expr__87145))) {
                     return "Game over: You win, dealt gin.";
                   } else {
-                    if (cljs.core.truth_(pred__18567.call(null, new cljs.core.Keyword(null, "pat-opp-win", "pat-opp-win", 4682626054), expr__18568))) {
+                    if (cljs.core.truth_(pred__87144.call(null, new cljs.core.Keyword(null, "pat-opp-win", "pat-opp-win", 4682626054), expr__87145))) {
                       return "Game over: Opponent wins, dealt gin.";
                     } else {
-                      if (cljs.core.truth_(pred__18567.call(null, new cljs.core.Keyword(null, "our-win", "our-win", 4198915405), expr__18568))) {
+                      if (cljs.core.truth_(pred__87144.call(null, new cljs.core.Keyword(null, "our-win", "our-win", 4198915405), expr__87145))) {
                         return "Game over: You win!";
                       } else {
-                        if (cljs.core.truth_(pred__18567.call(null, new cljs.core.Keyword(null, "opp-win", "opp-win", 4053922608), expr__18568))) {
+                        if (cljs.core.truth_(pred__87144.call(null, new cljs.core.Keyword(null, "opp-win", "opp-win", 4053922608), expr__87145))) {
                           return "Game over: Opponent wins.";
                         } else {
-                          throw new Error([cljs.core.str("No matching clause: "), cljs.core.str(expr__18568)].join(""));
+                          throw new Error([cljs.core.str("No matching clause: "), cljs.core.str(expr__87145)].join(""));
                         }
                       }
                     }
@@ -38441,49 +38444,49 @@ gin.game_panel.draw = function draw(db, game_id, conn) {
               } else {
                 gin.game_panel.set_msg.call(null, "Your turn is done.");
               }
-              var seq__18570 = cljs.core.seq.call(null, our_cards_es);
-              var chunk__18571 = null;
-              var count__18572 = 0;
-              var i__18573 = 0;
+              var seq__87147 = cljs.core.seq.call(null, our_cards_es);
+              var chunk__87148 = null;
+              var count__87149 = 0;
+              var i__87150 = 0;
               while (true) {
-                if (i__18573 < count__18572) {
-                  var our_card_es = cljs.core._nth.call(null, chunk__18571, i__18573);
+                if (i__87150 < count__87149) {
+                  var our_card_es = cljs.core._nth.call(null, chunk__87148, i__87150);
                   gin.game_panel.set_drag_handler.call(null, gin.dom_helpers.get_element.call(null, (new cljs.core.Keyword("dom", "id", "dom/id", 1020278687)).cljs$core$IFn$_invoke$arity$1(our_card_es)), gin.game_panel.home_region_handler.call(null, conn));
-                  var G__18709 = seq__18570;
-                  var G__18710 = chunk__18571;
-                  var G__18711 = count__18572;
-                  var G__18712 = i__18573 + 1;
-                  seq__18570 = G__18709;
-                  chunk__18571 = G__18710;
-                  count__18572 = G__18711;
-                  i__18573 = G__18712;
+                  var G__87299 = seq__87147;
+                  var G__87300 = chunk__87148;
+                  var G__87301 = count__87149;
+                  var G__87302 = i__87150 + 1;
+                  seq__87147 = G__87299;
+                  chunk__87148 = G__87300;
+                  count__87149 = G__87301;
+                  i__87150 = G__87302;
                   continue;
                 } else {
-                  var temp__4092__auto__ = cljs.core.seq.call(null, seq__18570);
+                  var temp__4092__auto__ = cljs.core.seq.call(null, seq__87147);
                   if (temp__4092__auto__) {
-                    var seq__18570__$1 = temp__4092__auto__;
-                    if (cljs.core.chunked_seq_QMARK_.call(null, seq__18570__$1)) {
-                      var c__17389__auto__ = cljs.core.chunk_first.call(null, seq__18570__$1);
-                      var G__18713 = cljs.core.chunk_rest.call(null, seq__18570__$1);
-                      var G__18714 = c__17389__auto__;
-                      var G__18715 = cljs.core.count.call(null, c__17389__auto__);
-                      var G__18716 = 0;
-                      seq__18570 = G__18713;
-                      chunk__18571 = G__18714;
-                      count__18572 = G__18715;
-                      i__18573 = G__18716;
+                    var seq__87147__$1 = temp__4092__auto__;
+                    if (cljs.core.chunked_seq_QMARK_.call(null, seq__87147__$1)) {
+                      var c__17389__auto__ = cljs.core.chunk_first.call(null, seq__87147__$1);
+                      var G__87303 = cljs.core.chunk_rest.call(null, seq__87147__$1);
+                      var G__87304 = c__17389__auto__;
+                      var G__87305 = cljs.core.count.call(null, c__17389__auto__);
+                      var G__87306 = 0;
+                      seq__87147 = G__87303;
+                      chunk__87148 = G__87304;
+                      count__87149 = G__87305;
+                      i__87150 = G__87306;
                       continue;
                     } else {
-                      var our_card_es = cljs.core.first.call(null, seq__18570__$1);
+                      var our_card_es = cljs.core.first.call(null, seq__87147__$1);
                       gin.game_panel.set_drag_handler.call(null, gin.dom_helpers.get_element.call(null, (new cljs.core.Keyword("dom", "id", "dom/id", 1020278687)).cljs$core$IFn$_invoke$arity$1(our_card_es)), gin.game_panel.home_region_handler.call(null, conn));
-                      var G__18717 = cljs.core.next.call(null, seq__18570__$1);
-                      var G__18718 = null;
-                      var G__18719 = 0;
-                      var G__18720 = 0;
-                      seq__18570 = G__18717;
-                      chunk__18571 = G__18718;
-                      count__18572 = G__18719;
-                      i__18573 = G__18720;
+                      var G__87307 = cljs.core.next.call(null, seq__87147__$1);
+                      var G__87308 = null;
+                      var G__87309 = 0;
+                      var G__87310 = 0;
+                      seq__87147 = G__87307;
+                      chunk__87148 = G__87308;
+                      count__87149 = G__87309;
+                      i__87150 = G__87310;
                       continue;
                     }
                   } else {
@@ -38502,18 +38505,18 @@ gin.game_panel.draw = function draw(db, game_id, conn) {
   }
 };
 gin.game_panel.draw_game = function draw_game(report, conn) {
-  var map__18724 = report;
-  var map__18724__$1 = cljs.core.seq_QMARK_.call(null, map__18724) ? cljs.core.apply.call(null, cljs.core.hash_map, map__18724) : map__18724;
-  var db_after = cljs.core.get.call(null, map__18724__$1, new cljs.core.Keyword(null, "db-after", "db-after", 1658340159));
+  var map__87314 = report;
+  var map__87314__$1 = cljs.core.seq_QMARK_.call(null, map__87314) ? cljs.core.apply.call(null, cljs.core.hash_map, map__87314) : map__87314;
+  var db_after = cljs.core.get.call(null, map__87314__$1, new cljs.core.Keyword(null, "db-after", "db-after", 1658340159));
   var temp__4092__auto__ = cljs.core.first.call(null, datascript.q.call(null, new cljs.core.PersistentArrayMap(null, 3, [new cljs.core.Keyword(null, "find", "find", 1017047339), new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Symbol(null, "?event", "?event", 259996532, null), new cljs.core.Symbol(null, "?args", "?args", -1579347115, null)], null), new cljs.core.Keyword(null, "in", "in", 1013907607), new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, 
   [new cljs.core.Symbol(null, "$", "$", -1640531491, null), new cljs.core.Symbol(null, "?tx", "?tx", -1640467268, null)], null), new cljs.core.Keyword(null, "where", "where", 1127002201), new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.PersistentVector(null, 4, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Symbol(null, "?e", "?e", -1640529473, null), new cljs.core.Keyword(null, "event", "event", 1110795788), new cljs.core.Symbol(null, "?event", 
   "?event", 259996532, null), new cljs.core.Symbol(null, "?tx", "?tx", -1640467268, null)], null), new cljs.core.PersistentVector(null, 3, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Symbol(null, "?e", "?e", -1640529473, null), new cljs.core.Keyword(null, "args", "args", 1016906831), new cljs.core.Symbol(null, "?args", "?args", -1579347115, null)], null)], null)], null), db_after, (new cljs.core.Keyword(null, "max-tx", "max-tx", 4227685119)).cljs$core$IFn$_invoke$arity$1(db_after)));
   if (cljs.core.truth_(temp__4092__auto__)) {
-    var vec__18725 = temp__4092__auto__;
-    var event = cljs.core.nth.call(null, vec__18725, 0, null);
-    var vec__18726 = cljs.core.nth.call(null, vec__18725, 1, null);
-    var game_id = cljs.core.nth.call(null, vec__18726, 0, null);
-    var args = cljs.core.nthnext.call(null, vec__18726, 1);
+    var vec__87315 = temp__4092__auto__;
+    var event = cljs.core.nth.call(null, vec__87315, 0, null);
+    var vec__87316 = cljs.core.nth.call(null, vec__87315, 1, null);
+    var game_id = cljs.core.nth.call(null, vec__87316, 0, null);
+    var args = cljs.core.nthnext.call(null, vec__87316, 1);
     console.log("event: ", cljs.core.pr_str.call(null, cljs.core.into.call(null, new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [event, game_id], null), args)));
     return gin.game_panel.draw.call(null, db_after, game_id, conn);
   } else {
