@@ -241,30 +241,42 @@
 
         [their-region-offset-x their-region-offset-y] (their-region-position)
         [our-region-offset-x our-region-offset-y] (our-region-position)
-        their-deal (mapcat #(concat
-                             [(fn [] (dom/show-on-top %2))]
-                             (dom/slide-from %2 [(+ their-region-offset-x (* %1 53)) (+ their-region-offset-y (* %1 4))]))
-                           (range)
-                           opp-cards-el)
-        our-deal (mapcat (fn [idx {id :dom/id el :dom/el suit :card/suit rank :card/rank}]                           (concat
-                                                                                                                      [(fn [] (dom/show-on-top el))]
-                                                                                                                      (dom/slide-from el [(+ our-region-offset-x (* idx 53)) (+ our-region-offset-y (* idx 4))])
-                                                                                                                      [(fn []
-                                                                                                                         (dom/set-card-class el (str (name suit) "_" (name rank)))
-                                                                                                                         (set-drag-handler el (home-region-handler conn)))]))
-                         (range)
-                         our-cards-es)
+        their-deal (map (fn [idx el]
+                          [el
+                           [(+ their-region-offset-x (* idx 53)) (+ their-region-offset-y (* idx 4))]])
+                        (range)
+                        opp-cards-el)
+        our-deal (map (fn [idx {id :dom/id el :dom/el suit :card/suit rank :card/rank}]
+                        [el
+                         [(+ our-region-offset-x (* idx 53)) (+ our-region-offset-y (* idx 4))]
+                         (fn []
+                           (dom/set-card-class el (str (name suit) "_" (name rank)))
+                           (set-drag-handler el (home-region-handler conn)))])
+                      (range)
+                      our-cards-es)
         [first-deal second-deal] (if (= (:starting game) (:us game))
                                    [our-deal their-deal]
-                                   [their-deal our-deal])]
-    (dom/schedule (concat first-deal
-                          second-deal
-                          (let [discard-el (:dom/el discard)]
-                            (concat [(fn [] (dom/show-on-top discard-el))]
-                                    (dom/slide-from discard-el (discard-position))
-                                    [(fn [] (dom/set-card-class discard-el (str (name (:card/suit discard)) "_" (name (:card/rank discard)))))]
-                                    [300 (fn []
-                                          (d/transact! conn [[:db.fn/call t/player-ready (:game-id game) (:us game)]]))]))))))
+                                   [their-deal our-deal])
+        discard-deal (let [discard-el (:dom/el discard)]
+                       [discard-el
+                        (discard-position)
+                        (fn []
+                          (dom/set-card-class discard-el (str (name (:card/suit discard)) "_" (name (:card/rank discard))))
+                          (dom/set-timeout
+                           #(d/transact! conn [[:db.fn/call t/player-ready (:game-id game) (:us game)]])
+                           300))])
+        actions (concat first-deal
+                        second-deal
+                        [discard-deal])
+        step (fn step [[action & actions]]
+               (when action
+                 (let [[el to f] action]
+                   (dom/show-on-top el)
+                   (animator/slide el to
+                                   (fn []
+                                     (when f (f))
+                                     (step actions))))))]
+    (step actions)))
 
 (defn draw [db game-id conn]
   (let [game (dh/entity-lookup db [:game-id game-id])]
@@ -327,7 +339,6 @@
          (let [suit (:card/suit discard-card-es)
                rank (:card/rank discard-card-es)]
            (dom/set-card-class discard-card-el (str (name suit) "_" (name rank)))
-
            (animator/slide discard-card-el (discard-position))))
        (.log js/console "drag discards")
        (when-let [discard-card-el (:dom/el (last discard-cards-es))]
