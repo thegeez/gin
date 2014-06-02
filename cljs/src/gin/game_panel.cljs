@@ -2,94 +2,12 @@
   (:require [gin.transact :as t]
             [datascript :as d]
             [gin.datascript-helpers :as dh]
-            [goog.dom :as gdom]
             [gin.dom-helpers :as dom]
-            [goog.async.AnimationDelay]
+            [gin.animator :as animator]
             [goog.events :as events]
             [goog.fx.Dragger :as fxdrag]))
 
-(def EL 0)
-(def START 1)
-(def DRAW 2)
-(def TO 3)
-(def STEP 4)
-(def STEPS 5)
-(def DX 6)
-(def DY 7)
-(def FINISH 8)
-
-(def FIELD_COUNT (count [EL START DRAW TO STEP STEPS DX DY FINISH]))
-
-(def a (make-array (+ (* 52 FIELD_COUNT)
-                      1 ;; DID_DRAW
-                      )))
-(def DO_DRAW (dec (alength a)))
-
-(def running (atom false))
-
-(defn anim-loop []
-  (aset a DO_DRAW 0)
-  (dotimes [card-idx 52]
-    (let [i (* card-idx FIELD_COUNT)]
-      (when (aget a (+ i DRAW)) ;; draw
-        (aset a DO_DRAW 1)
-        (let [el (aget a (+ i EL))
-              [start-x start-y] (aget a (+ i START))
-              [x y :as to] (aget a (+ i TO))
-              step (dec (aget a (+ i STEP)))
-              dx (aget a (+ i DX))
-              dy (aget a (+ i DY))
-              steps (aget a (+ i STEPS))
-              nx (long (+ start-x (* (- steps step) dx)))
-              ny (long (+ start-y (* (- steps step) dy)))]
-          (dom/set-position el nx ny)
-          (aset a (+ i STEP) step)
-          (when (or (and (= x nx)
-                         (= y ny))
-                    (zero? step)
-                    (and (zero? dx)
-                         (zero? dy)))
-            (aset a (+ i STEP) 0)
-            (aset a (+ i DRAW) false)
-            (let [finish (aget a (+ i FINISH))]
-              (when (fn? finish)
-                (dom/set-timeout finish 0))))))))
-  ;; only schedule more drawing if we drew something this loop
-  (if (= 1 (aget a DO_DRAW))
-    (dom/set-timeout anim-loop 10)
-    (reset! running false)))
-
-(defn animate []
-  (when (compare-and-set! running false true)
-    (anim-loop)))
-
-(defn slide [el to & [finish]]
-  (let [idx (.-anim-idx el)
-        #_ (.log js/console "slide" (pr-str [idx el to]))
-        i (* idx FIELD_COUNT)
-        [from-x from-y :as from]
-        (let [p (dom/get-position el)] 
-          [(.-x p) (.-y p)])
-        [to-x to-y] to
-        step (aget a (+ i STEP))
-        steps (if (pos? step) step 30)
-        dx (/ (- to-x from-x) steps)
-        dy (/ (- to-y from-y) steps)]
-    #_(.log js/console "set dx dy" (pr-str [dx dy]) "from " (pr-str from) " to" (pr-str [to-x to-y]))
-    (aset a i el)
-    (aset a (+ i START) from)
-    (aset a (+ i DRAW) true)
-    (aset a (+ i TO) to)
-    (aset a (+ i STEP) steps)
-    (aset a (+ i STEPS) steps)
-    (aset a (+ i DX) dx)
-    (aset a (+ i DY) dy)
-    (aset a (+ i FINISH) finish)
-    (aset a DO_DRAW 1)
-    (animate)))
-
 (defn set-msg [msg]
-  (.log js/console "set-msg" msg)
   (dom/set-text (dom/get-element "msg") msg))
 
 (defn in-rect [rect [x y]]
@@ -99,11 +17,11 @@
        (<= y (+ (. rect -top) (. rect -height)))))
 
 (defn in-our-region [x y]
-  (let [our-region-bounds (goog.style.getBounds (dom/get-element "our_region"))]
+  (let [our-region-bounds (goog.style/getBounds (dom/get-element "our_region"))]
     (in-rect our-region-bounds [x y])))
 
 (defn in-discard-pile [x y]
-  (let [discard-bounds (goog.style.getBounds (dom/get-element "discard_pile"))]
+  (let [discard-bounds (goog.style/getBounds (dom/get-element "discard_pile"))]
     (in-rect discard-bounds [x y])))
 
 (defn pile-position []
@@ -224,7 +142,7 @@
    :drag-end (fn [card-id event]
                (let [card-el (dom/get-element card-id)]
                  (dom/add-remove-class card-el "cursor_hand" "cursor_drag")
-                 (slide card-el (discard-position))))})
+                 (animator/slide card-el (discard-position))))})
 
 (declare home-discard-handler)
 (defn snap-to-discard-handler [conn]
@@ -242,7 +160,7 @@
                  (dom/add-remove-class card-el "cursor_hand" "cursor_drag")
                  (dom/remove-class (dom/get-element "discard_pile") "region_hover")
                  (.log js/console "snap to discard slide" (.-anim-idx card-el) (.-id card-el))
-                 (slide card-el (discard-position)
+                 (animator/slide card-el (discard-position)
                         #(d/transact! conn [[:db.fn/call t/our-discard-chosen card-id]]))))})
 
 (defn home-discard-handler [conn]
@@ -262,7 +180,7 @@
                      pos (dom/get-position card-el)]
                  (dom/add-remove-class card-el "cursor_hand" "cursor_drag")
                  (when-not (in-our-region (. pos -x) (. pos -y))
-                   (slide card-el (let [p (. card-el -drag-origin)]
+                   (animator/slide card-el (let [p (. card-el -drag-origin)]
                                     [(.-x p) (.-y p)])))))})
 
 (defn draw-table [conn]
@@ -381,7 +299,7 @@
                :let [pile-card-el (dom/get-element (:dom/id pile-card-es))]]
          (dom/set-card-class pile-card-el "card_back")
          (dom/show-on-top pile-card-el)
-         (slide pile-card-el (pile-position)))
+         (animator/slide pile-card-el (pile-position)))
        (when-let [pile-card-es (last pile-cards-es)]
          (let [pile-card-el (dom/get-element (:dom/id pile-card-es))]
            (if us-pick-card
@@ -398,7 +316,7 @@
            (doseq [[i e] (map list (range) opp-cards-es)]
              (let [idx (:anim/idx e)
                    el (dom/get-element (:dom/id e))]
-               (slide el [(long (+ their-region-offset-x (* i x-step)))
+               (animator/slide el [(long (+ their-region-offset-x (* i x-step)))
                           (long (+ their-region-offset-y (* i y-step)))]))))
          ;; show what opp card were when game is finished
          (doseq [[el es] (map list opp-cards-el opp-cards-es)]
@@ -417,7 +335,7 @@
                rank (:card/rank discard-card-es)]
            (dom/set-card-class discard-card-el (str (name suit) "_" (name rank)))
 
-           (slide discard-card-el (discard-position))))
+           (animator/slide discard-card-el (discard-position))))
        (.log js/console "drag discards")
        (when-let [discard-card-es (last discard-cards-es)]
          (let [discard-card-el (dom/get-element (:dom/id discard-card-es))]
