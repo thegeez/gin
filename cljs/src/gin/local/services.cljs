@@ -3,7 +3,8 @@
             [datascript :as d]
             [gin.datascript-helpers :as dh]
             [gin.local.game :as game]
-            [gin.local.table :as table]))
+            [gin.local.table :as table]
+            [goog.Timer :as gtimer]))
 
 (defmulti handle
   (fn [event args report conn] event))
@@ -75,7 +76,9 @@
       (let [turn (get {:player1 :player2
                        :player2 :player1}
                       (:turn (dh/entity-lookup db-after [:game-id game-id])))]
-        (d/transact! conn [[:db.fn/call t/turn-assigned game-id turn]])))))
+        ;; pretend we had to consider the move for a while
+        (goog.Timer/callOnce #(d/transact! conn [[:db.fn/call t/turn-assigned game-id turn]])
+                             300)))))
 
 (defmethod handle :default
   [_ _] nil)
