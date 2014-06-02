@@ -176,7 +176,8 @@
                        (into before)
                        (conj card-id)
                        (into after))
-      :pile (pop (:pile game))}
+      :pile (pop (:pile game))
+      :their-taken card-id}
      {:db/id (:db/id card)
       :card/suit :hidden
       :card/rank :hidden}]))
@@ -197,27 +198,15 @@
       :their-cards (-> []
                        (into before)
                        (conj card-id)
-                       (into after))}
+                       (into after))
+      :their-taken card-id}
      {:db/id (:db/id card)
       :card/suit :hidden
       :card/rank :hidden}]))
 
 (defn their-discard-chosen [db game-id suit rank]
   (let [game (dh/entity-lookup db [:game-id game-id])
-        ;; roundabout way to prevent using the last discard picked in
-        ;; their hand as the next discard which could create an odd face
-        ;; up-face down-different face up animation
-        card-id (->> (d/q '{:find [?t ?tx]
-                            :in [$ ?game ?each]
-                            :where [[?g :their-cards ?tc]
-                                    [(?each ?tc) [?t ...]]
-                                    [?e :dom/id ?t]
-                                    [?e :card/suit _ ?tx]]}
-                          db (:db/id game) (partial map identity))
-                     (sort-by second >)
-                     rest
-                     (map first)
-                     rand-nth)
+        card-id (rand-nth (remove #{(:their-taken game)} (:their-cards game)))
         card (dh/entity-lookup db  [:dom/id card-id])]
     [[:db.fn/call log-event :their-discard-chosen game-id card-id suit rank]
      {:db/id (:db/id game)
