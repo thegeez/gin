@@ -294,6 +294,17 @@
                                                             :turn (if (= (:game/turn game) (:game/player1 game))
                                                                     :player1
                                                                     :player2)
+                                                            :result
+                                                            (when-let [result (:game/result game)]
+                                                              (if-let [winner (:game/winner game)]
+                                                                (if (or (and (= player :player1)
+                                                                             (= (:game/winner game) (:game/player1 game)))
+                                                                        (and (= player :player2)
+                                                                             (= (:game/winner game) (:game/player2 game))))
+                                                                  :our-win
+                                                                  :opp-win)
+                                                                :pat-tie)
+                                                              )
                                                             :discards
                                                             (->> (iterate :card.discard/next (:game/discard game))
                                                                  (take-while identity)
@@ -307,9 +318,15 @@
                                                                              (get game (if (= player :player1)
                                                                                          :game/player1-cards
                                                                                          :game/player2-cards)))
-                                                            :their-cards-count (count (get game (if (= player :player1)
-                                                                                         :game/player2-cards
-                                                                                         :game/player1-cards)))}
+                                                            :their-cards
+                                                            (for [card  (get game (if (= player :player1)
+                                                                                    :game/player2-cards
+                                                                                    :game/player1-cards))]
+                                                              (if (:game/result game)
+                                                                {:suit (:card/suit card)
+                                                                 :rank (:card/rank card)}
+                                                                {:suit :hidden
+                                                                 :rank :hidden}))}
                                                            "\r\n\r\n"))
                                               from-t)
                                             0 ;; game hasn't started

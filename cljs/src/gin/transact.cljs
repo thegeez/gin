@@ -67,21 +67,29 @@
                      :card/suit suit
                      :card/rank rank})))))
 
-(defn join-game [db game-id discard-cards our-cards their-cards-count to-start turn]
-  (into [[:db.fn/call log-event :join-game game-id discard-cards our-cards their-cards-count to-start turn]]
+(defn join-game [db game-id discard-cards our-cards their-cards to-start turn result]
+  (into [[:db.fn/call log-event :join-game game-id discard-cards our-cards their-cards to-start turn result]]
         (let [{game-e :db/id :as game} (dh/entity-lookup db [:game-id game-id])
               cards (for [cid (:pile game)]
                       (dh/entity-lookup db [:dom/id cid]))
               [discards other] (split-at (count discard-cards) cards)
               [ours other] (split-at (count our-cards) other)
-              [theirs pile] (split-at their-cards-count other)]
+              [theirs pile] (split-at (count their-cards) other)]
           (concat [{:db/id game-e
                     :starting to-start
                     :pile (mapv :dom/id pile)
                     :discards (mapv :dom/id discards)
                     :their-cards (mapv :dom/id theirs)
                     :our-cards (mapv :dom/id ours)
-                    :turn turn}]
+                    :turn turn
+                    :move :assigned}]
+                  (when result
+                    [[:db/add game-e :result result]])
+                  (for [[e did suit rank] (map (fn [e {:keys [suit rank]}]
+                                                 [(:db/id e) (:dom/id e) suit rank]) theirs their-cards)]
+                    {:db/id e
+                     :card/suit suit
+                     :card/rank rank})
                   (for [[e did suit rank] (map (fn [e {:keys [suit rank]}]
                                                  [(:db/id e) (:dom/id e) suit rank]) discards discard-cards)]
                     {:db/id e

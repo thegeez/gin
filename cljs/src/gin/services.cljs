@@ -76,9 +76,9 @@
   [event conn]
   (let [{:keys [game-id player1 player2 us]} event]
     (d/transact! conn [[:db.fn/call t/game-created game-id player1 player2 us]]))
-  (let [{:keys [game-id discards our-cards their-cards-count to-start turn]} event]
+  (let [{:keys [game-id discards our-cards their-cards to-start turn result]} event]
     (.log js/console "discards before tx" (pr-str discards) game-id (pr-str (keys event)) their-cards-count (pr-str ["turn " turn]))
-    (d/transact! conn [[:db.fn/call t/join-game game-id discards our-cards their-cards-count to-start turn]])))
+    (d/transact! conn [[:db.fn/call t/join-game game-id discards our-cards their-cards to-start turn result]])))
 
 (defmethod handle-server :turn-assigned
   [event conn]
