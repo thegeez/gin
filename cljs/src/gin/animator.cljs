@@ -59,9 +59,7 @@
 (defn slide [el to & [finish]]
   (let [idx (.-anim-idx el)
         i (* idx FIELD_COUNT)
-        [from-x from-y :as from]
-        (let [p (dom/get-position el)]
-          [(.-x p) (.-y p)])
+        [from-x from-y :as from] (dom/get-position el)
         [to-x to-y] to
         step (aget a (+ i STEP))
         steps (if (pos? step) step 30)

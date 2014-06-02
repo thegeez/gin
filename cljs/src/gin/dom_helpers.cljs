@@ -121,7 +121,8 @@
   (style/setPosition e x y))
 
 (defn get-position [e]
-  (style/getPosition e))
+  (let [p (style/getPosition e)]
+    [(.-x p) (.-y p)]))
 
 (defn get-bounds [e]
   (goog.style/getBounds e))

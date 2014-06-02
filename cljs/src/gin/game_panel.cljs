@@ -26,20 +26,20 @@
     (in-rect discard-bounds [x y])))
 
 (defn pile-position []
-  (let [pos (dom/get-position (dom/get-element "pile"))]
-    [(+ (. pos -x) 4) (+ (. pos -y) 4)]))
+  (let [[x y] (dom/get-position (dom/get-element "pile"))]
+    [(+ x 4) (+ y 4)]))
 
 (defn discard-position []
-  (let [p (dom/get-position (dom/get-element "discard_pile"))]
-    [(+ 12 (.-x p)) (+ 12 (.-y p))]))
+  (let [[x y] (dom/get-position (dom/get-element "discard_pile"))]
+    [(+ 12 x) (+ 12 y)]))
 
 (defn their-region-position []
-  (let [p (dom/get-position (dom/get-element "their_region"))]
-    [(+ 10 (.-x p)) (+ 10 (.-y p))]))
+  (let [[x y] (dom/get-position (dom/get-element "their_region"))]
+    [(+ 10 x) (+ 10 y)]))
 
 (defn our-region-position []
-  (let [p (dom/get-position (dom/get-element "our_region"))]
-    [(+ 10 (.-x p)) (+ 10 (.-y p))]))
+  (let [[x y] (dom/get-position (dom/get-element "our_region"))]
+    [(+ 10 x) (+ 10 y)]))
 
 (defn set-drag-handler [card-el handler]
   (let [cursor (:cursor handler)]
@@ -62,8 +62,8 @@
                  (. event (preventDefault)))
    :drag (fn [card-id event]
            (let [card-el (dom/get-element card-id)
-                 pos (dom/get-position card-el)]
-             (when-not (in-our-region (. pos -x) (. pos -y))
+                 [x y] (dom/get-position card-el)]
+             (when-not (in-our-region x y)
                (set-drag-handler card-el (pile-drag-handler conn))
                (dom/remove-class (dom/get-element "our_region") "region_hover")
                )))
@@ -82,8 +82,8 @@
                    (dom/show-on-top card-el)))
    :drag (fn [card-id event]
            (let [card-el (dom/get-element card-id)
-                 pos (dom/get-position card-el)]
-             (when (in-our-region (. pos -x) (. pos -y))
+                 [x y] (dom/get-position card-el)]
+             (when (in-our-region x y)
                (set-drag-handler card-el (pile-pick-handler conn))
                (dom/add-class (dom/get-element "our_region") "region_hover")
               )))
@@ -102,11 +102,10 @@
    :drag (fn [card-id event])
    :drag-end (fn [card-id event]
                (let [card-el (dom/get-element card-id)
-                     pos (dom/get-position card-el)]
+                     [x y] (dom/get-position card-el)]
                  (dom/add-remove-class card-el "cursor_hand" "cursor_drag")
-                 (when-not (in-our-region (. pos -x) (. pos -y))
-                   (animator/slide card-el (let [p (. card-el -drag-origin)]
-                                             [(.-x p) (.-y p)])))))})
+                 (when-not (in-our-region x y)
+                   (animator/slide card-el (. card-el -drag-origin)))))})
 
 (declare discard-drag-handler)
 (defn discard-pick-handler [conn]
@@ -115,8 +114,8 @@
                  (. event (preventDefault)))
    :drag (fn [card-id event]
            (let [card-el (dom/get-element card-id)
-                 pos (dom/get-position card-el)]
-             (when-not (in-our-region (. pos -x) (. pos -y))
+                 [x y] (dom/get-position card-el)]
+             (when-not (in-our-region x y)
                (set-drag-handler card-el (discard-drag-handler conn))
                (dom/remove-class (dom/get-element "our_region") "region_hover")
                )))
@@ -135,8 +134,8 @@
                    (dom/show-on-top (dom/get-element card-id)))
    :drag (fn [card-id event]
            (let [card-el (dom/get-element card-id)
-                 pos (dom/get-position card-el)]
-             (when (in-our-region (. pos -x) (. pos -y))
+                 [x y] (dom/get-position card-el)]
+             (when (in-our-region x y)
                (set-drag-handler card-el (discard-pick-handler conn))
                (dom/add-class (dom/get-element "our_region") "region_hover")
                )))
@@ -178,11 +177,10 @@
                (set-drag-handler card-el (snap-to-discard-handler conn)))))
    :drag-end (fn [card-id event]
                (let [card-el (dom/get-element card-id)
-                     pos (dom/get-position card-el)]
+                     [x y] (dom/get-position card-el)]
                  (dom/add-remove-class card-el "cursor_hand" "cursor_drag")
-                 (when-not (in-our-region (. pos -x) (. pos -y))
-                   (animator/slide card-el (let [p (. card-el -drag-origin)]
-                                    [(.-x p) (.-y p)])))))})
+                 (when-not (in-our-region x y)
+                   (animator/slide card-el (. card-el -drag-origin)))))})
 
 (defn draw-table [conn]
   (doto (dom/get-element "game-panel")
@@ -295,18 +293,22 @@
      (let [_ (.log js/console "Regular draw case")
            us-pick-card (and (= (:us game) (:turn game))
                              (= 10 (count (:our-cards game)))
-                             (= (:move game) :assigned))
+                             (= (:move game) :assigned)
+                             (not (:result game)))
            our-cards-es (map #(dh/entity-lookup db [:dom/id %]) (:our-cards game))
            opp-cards-es (map #(dh/entity-lookup db [:dom/id %]) (:their-cards game))
            pile-cards-es (map #(dh/entity-lookup db [:dom/id %]) (:pile game))
            discard-cards-es (map #(dh/entity-lookup db [:dom/id %]) (:discards game))
-           [their-region-offset-x their-region-offset-y] (their-region-position)]
+           [their-region-offset-x their-region-offset-y] (their-region-position)
+           [our-region-offset-x our-region-offset-y] (our-region-position)
+           pile-position (pile-position)
+           discard-position (discard-position)]
        ;; pile-cards, anim to pile when needed, including reshuffle
        (doseq [pile-card-es pile-cards-es
                :let [pile-card-el (:dom/el pile-card-es)]]
          (dom/set-card-class pile-card-el "card_back")
          (dom/show-on-top pile-card-el)
-         (animator/slide pile-card-el (pile-position)))
+         (animator/slide pile-card-el pile-position))
        (when-let [pile-card-el (:dom/el (last pile-cards-es))]
          (if us-pick-card
            (set-drag-handler pile-card-el (pile-drag-handler conn))
@@ -339,7 +341,7 @@
          (let [suit (:card/suit discard-card-es)
                rank (:card/rank discard-card-es)]
            (dom/set-card-class discard-card-el (str (name suit) "_" (name rank)))
-           (animator/slide discard-card-el (discard-position))))
+           (animator/slide discard-card-el discard-position)))
        (.log js/console "drag discards")
        (when-let [discard-card-el (:dom/el (last discard-cards-es))]
          (dom/show-on-top discard-card-el)
@@ -348,6 +350,22 @@
            (set-drag-handler discard-card-el (undraggable-handler conn))))
 
        ;; our-cards
+       (when (= pile-position
+                (dom/get-position (:dom/el (first our-cards-es)))
+                (dom/get-position (:dom/el (second our-cards-es))))
+         ;; only when rejoining game
+         (let [[x-step y-step] (if (= 10 (count our-cards-es))
+                                 [53 4]
+                                 [48.18 3.63])]
+           (doseq [[i e] (map list (range) our-cards-es)]
+             (let [el (:dom/el e)
+                   suit (:card/suit e)
+                   rank (:card/rank e)]
+               (dom/set-card-class el (str (name suit) "_" (name rank)))
+               (animator/slide el [(long (+ our-region-offset-x (* i x-step)))
+                                   (long (+ our-region-offset-y (* i y-step)))])))))
+
+       ;; set proper drag handlers based on what we're allowed to do
        (if (and (= (:turn game) (:us game))
                 (= (:move game) :assigned))
          (if (= 11 (count our-cards-es))
@@ -367,21 +385,22 @@
              (set-msg "Your turn. Draw a card or pickup a discard.")
              (doseq [our-card-es our-cards-es]
                (set-drag-handler (:dom/el our-card-es) (home-region-handler conn)))))
-         (if-let [result (:result game)]
-           (set-msg
-            (condp = result
-              :pat-tie "Game over: Both dealt gin for a tie."
-              :pat-our-win "Game over: You win, dealt gin."
-              :pat-opp-win "Game over: Opponent wins, dealt gin."
-              :our-win "Game over: You win!"
-              :opp-win "Game over: Opponent wins."))
+         (when-not (:result game)
            ;; not our turn, home-region only
            (do
              (if (not= (:turn game) (:us game))
                (set-msg "Opponent's turn.")
                (set-msg "Your turn is done."))
              (doseq [our-card-es our-cards-es]
-               (set-drag-handler (:dom/el our-card-es) (home-region-handler conn))))))))))
+               (set-drag-handler (:dom/el our-card-es) (home-region-handler conn))))))
+       (when-let [result (:result game)]
+         (set-msg
+          (condp = result
+            :pat-tie "Game over: Both dealt gin for a tie."
+            :pat-our-win "Game over: You win, dealt gin."
+            :pat-opp-win "Game over: Opponent wins, dealt gin."
+            :our-win "Game over: You win!"
+            :opp-win "Game over: Opponent wins.")))))))
 
 (defn draw-game [report conn]
   (let [{:keys [db-after]} report]
