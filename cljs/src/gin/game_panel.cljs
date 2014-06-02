@@ -8,57 +8,72 @@
             [goog.events :as events]
             [goog.fx.Dragger :as fxdrag]))
 
+(def EL 0)
+(def START 1)
+(def DRAW 2)
+(def TO 3)
+(def STEP 4)
+(def DX 5)
+(def DY 6)
 
-(def a (make-array (* 52 (count [:el :start :at :draw :to :step :dx :dy]))))
+(def a (make-array (+ (* 52 (count [EL START DRAW TO STEP DX DY]))
+                      1 ;; DID_DRAW
+                      )))
+(def DO_DRAW (dec (alength a)))
+
+(def running (atom false))
+
+(defn anim-loop []
+  (aset a DO_DRAW 0)
+  (dotimes [card-idx 52]
+    (let [i (* card-idx 8)]
+      (when (aget a (+ i DRAW)) ;; draw
+        (aset a DO_DRAW 1)
+        (let [el (aget a (+ i EL))
+              [start-x start-y] (aget a (+ i START))
+              [x y :as to] (aget a (+ i TO))
+              step (dec (aget a (+ i STEP)))
+              dx (aget a (+ i DX))
+              dy (aget a (+ i DY))
+              nx (long (+ start-x (* (- 30 step) dx)))
+              ny (long (+ start-y (* (- 30 step) dy)))]
+          (dom/set-position el nx ny)
+          (aset a (+ i STEP) step)
+          (when (or (and (= x nx)
+                         (= y ny))
+                    (zero? step)
+                    (and (zero? dx)
+                         (zero? dy)))
+            (aset a (+ i DRAW) false))))))
+  ;; only schedule more drawing if we drew something this loop
+  (if (= 1 (aget a DO_DRAW))
+    (dom/set-timeout anim-loop 10)
+    (reset! running false)))
+
+(defn animate []
+  (when (compare-and-set! running false true)
+    (anim-loop)))
 
 (defn slide [idx el to]
   #_(.log js/console "slide" (pr-str [idx el to]))
   (let [i (* idx 8)
         [from-x from-y :as from]
-        (or #_(aget a (+ i 2))
-            (let [p (dom/get-position el)
-                  from [(.-x p) (.-y p)]]
-              (aset a (+ i 2) from)
-              from))
+        (let [p (dom/get-position el)] 
+          [(.-x p) (.-y p)])
         [to-x to-y] to
         steps 30
         dx (/ (- to-x from-x) steps)
         dy (/ (- to-y from-y) steps)]
     #_(.log js/console "set dx dy" (pr-str [dx dy]) "from " (pr-str from) " to" (pr-str [to-x to-y]))
     (aset a i el)
-    (aset a (+ i 1) from)
-    (aset a (+ i 3) true)
-    (aset a (+ i 4) to)
-    (aset a (+ i 5) steps)
-    (aset a (+ i 6) dx)
-    (aset a (+ i 7) dy)))
-
-(defn anim-loop []
-  (dotimes [card-idx 52]
-    (let [i (* card-idx 8)]
-      (when (aget a (+ i 3)) ;; draw
-        (let [el (aget a i)
-              [start-x start-y] (aget a (+ i 1))
-              at (aget a (+ i 2))
-              [x y :as to] (aget a (+ i 4))
-              step (dec (aget a (+ i 5)))
-              dx (aget a (+ i 6))
-              dy (aget a (+ i 7))
-              nx (long (+ start-x (* (- 30 step) dx)))
-              ny (long (+ start-y (* (- 30 step) dy)))]
-          (aset a (+ i 2) [nx ny])
-          (dom/set-position el nx ny)
-          (aset a (+ i 5) step)
-          (when (or (and (= x nx)
-                         (= y ny))
-                    (zero? step)
-                    (and (zero? dx)
-                         (zero? dy)))
-            (aset a (+ i 3) false))))))
-  (dom/set-timeout anim-loop 10))
-
-(anim-loop)
-
+    (aset a (+ i START) from)
+    (aset a (+ i DRAW) true)
+    (aset a (+ i TO) to)
+    (aset a (+ i STEP) steps)
+    (aset a (+ i DX) dx)
+    (aset a (+ i DY) dy)
+    (aset a DO_DRAW 1)
+    (animate)))
 
 (defn set-msg [msg]
   (.log js/console "set-msg" msg)
@@ -391,11 +406,11 @@
          (let [suit (:card/suit discard-card-es)
                rank (:card/rank discard-card-es)]
            (dom/set-card-class discard-card-el (str (name suit) "_" (name rank)))
-           (dom/show-on-top discard-card-el)
            (slide (:anim/idx discard-card-es) discard-card-el (discard-position))))
        (.log js/console "drag discards")
        (when-let [discard-card-es (last discard-cards-es)]
          (let [discard-card-el (dom/get-element (:dom/id discard-card-es))]
+           (dom/show-on-top discard-card-el)
            (if us-pick-card
              (set-drag-handler discard-card-el (discard-drag-handler conn))
              (set-drag-handler discard-card-el (undraggable-handler conn)))))
