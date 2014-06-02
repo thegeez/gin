@@ -5,7 +5,8 @@
             [gin.dom-helpers :as dom]
             [gin.animator :as animator]
             [goog.events :as events]
-            [goog.fx.Dragger :as fxdrag]))
+            [goog.fx.Dragger :as fxdrag]
+            [goog.math :as gmath]))
 
 (defn set-msg [msg]
   (dom/set-text (dom/get-element "msg") msg))
@@ -17,11 +18,11 @@
        (<= y (+ (. rect -top) (. rect -height)))))
 
 (defn in-our-region [x y]
-  (let [our-region-bounds (goog.style/getBounds (dom/get-element "our_region"))]
+  (let [our-region-bounds (dom/get-bounds (dom/get-element "our_region"))]
     (in-rect our-region-bounds [x y])))
 
 (defn in-discard-pile [x y]
-  (let [discard-bounds (goog.style/getBounds (dom/get-element "discard_pile"))]
+  (let [discard-bounds (dom/get-bounds (dom/get-element "discard_pile"))]
     (in-rect discard-bounds [x y])))
 
 (defn pile-position []
@@ -89,7 +90,7 @@
    :drag-end (fn [card-id event]
                (let [card-el (dom/get-element card-id)]
                  (dom/add-remove-class card-el "cursor_hand" "cursor_drag")
-                 (slide card-el (pile-position))))})
+                 (animator/slide card-el (pile-position))))})
 
 (defn home-region-handler [conn]
   {:cursor :hand
@@ -104,8 +105,8 @@
                      pos (dom/get-position card-el)]
                  (dom/add-remove-class card-el "cursor_hand" "cursor_drag")
                  (when-not (in-our-region (. pos -x) (. pos -y))
-                   (slide card-el (let [p (. card-el -drag-origin)]
-                                    [(.-x p) (.-y p)])))))})
+                   (animator/slide card-el (let [p (. card-el -drag-origin)]
+                                             [(.-x p) (.-y p)])))))})
 
 (declare discard-drag-handler)
 (defn discard-pick-handler [conn]
@@ -195,7 +196,7 @@
                                    :class "region our_region"}]]))
     (dom/append (dom/build [:div.msg {:id "msg"}]))
     (dom/append (dom/build [:div {:class (str "offscreen_loading card card_back")}])))
-  (let [container-wrap (let [r (goog.style.getBounds (dom/get-element "game-panel"))]
+  (let [container-wrap (let [r (dom/get-bounds (dom/get-element "game-panel"))]
                          (goog.math.Rect. (. r -left) (. r -top) (- (. r -width) 81) (- (. r -height) 96 37)))
         [pile-x pile-y] (pile-position)
         cards (for [i (range 52)]
@@ -222,24 +223,19 @@
                    :idx i
                    :card-el card-el}))]
     (doseq [{:keys [card-el idx]} cards]
-      ;; TODO pass this to draghandlers explicitly or use something
-      ;; else for a
-      
-      
-      
-
       (set! (.-anim-idx card-el) idx)
       (dom/append (dom/get-element "pile") card-el))
     (d/transact! conn (for [{:keys [id idx card-el]} cards]
                         {:db/id (* -1 idx)
                          :dom/id id
+                         :dom/el card-el
                          :card/suit :hidden
                          :card/rank :hidden}))))
 
 (defn anim-deal [db game-id conn]
   (let [game (dh/entity-lookup db [:game-id game-id])
         _ (.log js/console "game: " game game-id)
-        opp-cards-el (map dom/get-element (:their-cards game))
+        opp-cards-el (map (comp :dom/el #(dh/entity-lookup db [:dom/id %])) (:their-cards game))
         our-cards-es (map #(dh/entity-lookup db [:dom/id %]) (:our-cards game))
         discard (dh/entity-lookup db [:dom/id (first (:discards game))])
 
@@ -250,14 +246,12 @@
                              (dom/slide-from %2 [(+ their-region-offset-x (* %1 53)) (+ their-region-offset-y (* %1 4))]))
                            (range)
                            opp-cards-el)
-        our-deal (mapcat (fn [idx {id :dom/id suit :card/suit rank :card/rank}]
-                           (let [el (dom/get-element id)]
-                             (concat
-                              [(fn [] (dom/show-on-top el))]
-                              (dom/slide-from el [(+ our-region-offset-x (* idx 53)) (+ our-region-offset-y (* idx 4))])
-                              [(fn []
-                                 (dom/set-card-class el (str (name suit) "_" (name rank)))
-                                 (set-drag-handler el (home-region-handler conn)))])))
+        our-deal (mapcat (fn [idx {id :dom/id el :dom/el suit :card/suit rank :card/rank}]                           (concat
+                                                                                                                      [(fn [] (dom/show-on-top el))]
+                                                                                                                      (dom/slide-from el [(+ our-region-offset-x (* idx 53)) (+ our-region-offset-y (* idx 4))])
+                                                                                                                      [(fn []
+                                                                                                                         (dom/set-card-class el (str (name suit) "_" (name rank)))
+                                                                                                                         (set-drag-handler el (home-region-handler conn)))]))
                          (range)
                          our-cards-es)
         [first-deal second-deal] (if (= (:starting game) (:us game))
@@ -265,12 +259,13 @@
                                    [their-deal our-deal])]
     (dom/schedule (concat first-deal
                           second-deal
-                          (let [discard-el (dom/get-element (:dom/id discard))]
+                          (let [discard-el (:dom/el discard)]
                             (concat [(fn [] (dom/show-on-top discard-el))]
                                     (dom/slide-from discard-el (discard-position))
                                     [(fn [] (dom/set-card-class discard-el (str (name (:card/suit discard)) "_" (name (:card/rank discard)))))]
                                     [300 (fn []
                                           (d/transact! conn [[:db.fn/call t/player-ready (:game-id game) (:us game)]]))]))))))
+
 (defn draw [db game-id conn]
   (let [game (dh/entity-lookup db [:game-id game-id])]
     (cond
@@ -296,28 +291,26 @@
            [their-region-offset-x their-region-offset-y] (their-region-position)]
        ;; pile-cards, anim to pile when needed, including reshuffle
        (doseq [pile-card-es pile-cards-es
-               :let [pile-card-el (dom/get-element (:dom/id pile-card-es))]]
+               :let [pile-card-el (:dom/el pile-card-es)]]
          (dom/set-card-class pile-card-el "card_back")
          (dom/show-on-top pile-card-el)
          (animator/slide pile-card-el (pile-position)))
-       (when-let [pile-card-es (last pile-cards-es)]
-         (let [pile-card-el (dom/get-element (:dom/id pile-card-es))]
-           (if us-pick-card
-             (set-drag-handler pile-card-el (pile-drag-handler conn))
-             (set-drag-handler pile-card-el (undraggable-handler conn)))))
+       (when-let [pile-card-el (:dom/el (last pile-cards-es))]
+         (if us-pick-card
+           (set-drag-handler pile-card-el (pile-drag-handler conn))
+           (set-drag-handler pile-card-el (undraggable-handler conn))))
 
        ;; opp-cards positions
-       (let [opp-cards-el (map #(dom/get-element (:dom/id %)) opp-cards-es)]
+       (let [opp-cards-el (map :dom/el opp-cards-es)]
          ;; put 10 or 11 of opp cards in usual place
          (let [[x-step y-step] (if (= 10 (count opp-cards-el))
                                  [53 4]
                                  [48.18 3.63])]
            (.log js/console "opp reg")
            (doseq [[i e] (map list (range) opp-cards-es)]
-             (let [idx (:anim/idx e)
-                   el (dom/get-element (:dom/id e))]
+             (let [el (:dom/el e)]
                (animator/slide el [(long (+ their-region-offset-x (* i x-step)))
-                          (long (+ their-region-offset-y (* i y-step)))]))))
+                                   (long (+ their-region-offset-y (* i y-step)))]))))
          ;; show what opp card were when game is finished
          (doseq [[el es] (map list opp-cards-el opp-cards-es)]
            (let [suit (:card/suit es)
@@ -330,20 +323,18 @@
        ;; discards
        (.log js/console "discards")
        (doseq [discard-card-es discard-cards-es
-               :let [discard-card-el (dom/get-element (:dom/id discard-card-es))]]
+               :let [discard-card-el (:dom/el discard-card-es)]]
          (let [suit (:card/suit discard-card-es)
                rank (:card/rank discard-card-es)]
            (dom/set-card-class discard-card-el (str (name suit) "_" (name rank)))
 
            (animator/slide discard-card-el (discard-position))))
        (.log js/console "drag discards")
-       (when-let [discard-card-es (last discard-cards-es)]
-         (let [discard-card-el (dom/get-element (:dom/id discard-card-es))]
-           (dom/show-on-top discard-card-el)
-           (if us-pick-card
-             (set-drag-handler discard-card-el (discard-drag-handler conn))
-             (set-drag-handler discard-card-el (undraggable-handler conn)))))
-
+       (when-let [discard-card-el (:dom/el (last discard-cards-es))]
+         (dom/show-on-top discard-card-el)
+         (if us-pick-card
+           (set-drag-handler discard-card-el (discard-drag-handler conn))
+           (set-drag-handler discard-card-el (undraggable-handler conn))))
 
        ;; our-cards
        (if (and (= (:turn game) (:us game))
@@ -353,7 +344,7 @@
            (do
              (set-msg "Your turn. Drag a card from your hand to discard.")
              (doseq [our-card-es our-cards-es]
-               (let [our-card-el (dom/get-element (:dom/id our-card-es))
+               (let [our-card-el (:dom/el our-card-es)
                      suit (:card/suit our-card-es)
                      rank (:card/rank our-card-es)]
                  (dom/set-card-class our-card-el (if (= suit :hidden)
@@ -364,7 +355,7 @@
            (do
              (set-msg "Your turn. Draw a card or pickup a discard.")
              (doseq [our-card-es our-cards-es]
-               (set-drag-handler (dom/get-element (:dom/id our-card-es)) (home-region-handler conn)))))
+               (set-drag-handler (:dom/el our-card-es) (home-region-handler conn)))))
          (if-let [result (:result game)]
            (set-msg
             (condp = result
@@ -379,7 +370,7 @@
                (set-msg "Opponent's turn.")
                (set-msg "Your turn is done."))
              (doseq [our-card-es our-cards-es]
-               (set-drag-handler (dom/get-element (:dom/id our-card-es)) (home-region-handler conn))))))))))
+               (set-drag-handler (:dom/el our-card-es) (home-region-handler conn))))))))))
 
 (defn draw-game [report conn]
   (let [{:keys [db-after]} report]

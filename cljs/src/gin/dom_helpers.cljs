@@ -123,8 +123,8 @@
 (defn get-position [e]
   (style/getPosition e))
 
-(defn get-current-position [e]
-  (.-currentPosition e))
+(defn get-bounds [e]
+  (goog.style/getBounds e))
 
 (def z-level (atom 100))
 

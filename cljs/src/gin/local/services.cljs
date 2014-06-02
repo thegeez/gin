@@ -57,7 +57,7 @@
 (defmethod handle :their-discard-picked
   [event [game-id] {:keys [db-after] :as report} conn]
   (let [[{:keys [suit rank]} from] (:last @table/table)]
-    (d/transact! conn [[:db.fn/call t/their-discard-chosen game-id suit rank]]) 500))
+    (d/transact! conn [[:db.fn/call t/their-discard-chosen game-id suit rank]])))
 
 (defmethod handle :their-pile-picked
   [event [game-id] {:keys [db-after] :as report} conn]
