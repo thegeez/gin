@@ -21,6 +21,12 @@
                 :handler (fn [res])
                 :error-handler (fn [res]
                                  (error-handler conn))
+                :format (merge (ajax-core/edn-request-format)
+                               {:read (fn [res]
+                                        (let [res-text (.getResponseText res)]
+                                          (when (pos? (count res-text))
+                                            (throw (js/Error. (str  "Assumed no content response has content: " res-text))))))
+                                :description "EDN (CUSTOM)"})
                 :headers {"X-CSRF-Token" (csrf-token)}}
                options)))
 
