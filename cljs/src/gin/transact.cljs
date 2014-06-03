@@ -235,4 +235,7 @@
              :card/suit (:suit card)
              :card/rank (:rank card)}))))
 
+(defn error [db msg]
+  [[:db.fn/call log-event :error msg]])
+
 (def schema {:ready :cardinality/many})

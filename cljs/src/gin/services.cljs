@@ -15,7 +15,7 @@
 (defn error-handler [conn]
   (d/transact! conn [[:db.fn/call t/error "fail"]]))
 
-(defn POST-ACTION [url options]
+(defn POST-ACTION [url conn options]
   (.log js/console "Post-action" url)
   (POST url
         (merge {:params {}
@@ -32,18 +32,18 @@
 
 (defmethod handle-client :player-ready
   [_ [game-id player] db conn]
-  (POST-ACTION (str (game-url) "/player-ready")
+  (POST-ACTION (str (game-url) "/player-ready") conn
         {:params {:game-id game-id
                   :player player}}))
 
 (defmethod handle-client :our-discard-picked
   [_ [game-id card-id] db conn]
-  (POST-ACTION (str (game-url) "/discard-picked")
+  (POST-ACTION (str (game-url) "/discard-picked") conn
         {:params {:game-id game-id}}))
 
 (defmethod handle-client :our-discard-chosen
   [_ [game-id card-id suit rank] db conn]
-  (POST-ACTION (str (game-url) "/discard-chosen")
+  (POST-ACTION (str (game-url) "/discard-chosen") conn
                {:params {:game-id game-id
                          :suit suit
                          :rank rank}}))
@@ -51,7 +51,7 @@
 (defmethod handle-client :our-pile-picked
   [_ [game-id card-id] db conn]
   (.log js/console "OUR_PILE_PICKED POST" (pr-str suit) (pr-str rank))
-  (POST-ACTION (str (game-url) "/pile-picked")
+  (POST-ACTION (str (game-url) "/pile-picked") conn
                {:params {:game-id game-id}}))
 
 (defmethod handle-client :default
@@ -145,6 +145,10 @@
                                                    db-after (:max-tx db-after)))]
                       (handle-client event args report conn))))
   (let [source (js/EventSource. (str (game-url) "/events"))]
+    (set! (.-onerror source)
+          (fn [e]
+            (.log js/console "Error from services:" e)
+            (error-handler conn)))
     (set! (.-onmessage source)
           (fn [e]
             (.log js/console "from services:" e)

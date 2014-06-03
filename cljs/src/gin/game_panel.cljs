@@ -410,7 +410,9 @@
                                                      [?e :args ?args]]}
                                            db-after (:max-tx db-after)))]
       (.log js/console "event: " (pr-str (into [event game-id] args)))
-      (draw db-after game-id conn))))
+      (if (= event :error)
+        (set-msg "An error occured, refresh the page.")
+        (draw db-after game-id conn)))))
 
 (defn start-game-panel [conn]
   (d/listen! conn (fn [report]
