@@ -232,6 +232,52 @@
   [event player]
   (str (:event/type event)))
 
+(defn event-join-game [game player]
+  {:event :join-game
+   :game-id (:game/id game)
+   :player1 (get-in game [:game/player1 :account/name])
+   :player2 (get-in game [:game/player2 :account/name])
+   :us player
+   :to-start (if (= (:game/to-start game) (:game/player1 game))
+               :player1
+               :player2)
+   :turn (if (= (:game/turn game) (:game/player1 game))
+           :player1
+           :player2)
+   :result
+   (when-let [result (:game/result game)]
+     (if-let [winner (:game/winner game)]
+       (if (or (and (= player :player1)
+                    (= (:game/winner game) (:game/player1 game)))
+               (and (= player :player2)
+                    (= (:game/winner game) (:game/player2 game))))
+         :our-win
+         :opp-win)
+       :pat-tie)
+     )
+   :discards
+   (->> (iterate :card.discard/next (:game/discard game))
+        (take-while identity)
+        reverse
+        (mapv (fn [card]
+                {:suit (:card/suit card)
+                 :rank (:card/rank card)})))
+   :our-cards (mapv (fn [card]
+                      {:suit (:card/suit card)
+                       :rank (:card/rank card)})
+                    (get game (if (= player :player1)
+                                :game/player1-cards
+                                :game/player2-cards)))
+   :their-cards
+   (for [card  (get game (if (= player :player1)
+                           :game/player2-cards
+                           :game/player1-cards))]
+     (if (:game/result game)
+       {:suit (:card/suit card)
+        :rank (:card/rank card)}
+       {:suit :hidden
+        :rank :hidden}))})
+
 (defresource game-events
   :available-media-types ["text/event-stream"]
   :allowed? (fn [ctx]
@@ -279,54 +325,10 @@
                                                   latest-tx (get-in ctx [:game :game/last-event :event/tx :db/id])
                                                   from-t (d/tx->t latest-tx)
                                                   game (get-in ctx [:game])]
-                                              
                                               (debug "latest-tx: " latest-tx (d/touch (get-in ctx [:game :game/last-event])))
                                               (async/put! c (str "id: " from-t "\r\n"
                                                            "data: "
-                                                           {:event :join-game
-                                                            :game-id (:game/id game)
-                                                            :player1 (get-in game [:game/player1 :account/name])
-                                                            :player2 (get-in game [:game/player2 :account/name])
-                                                            :us player
-                                                            :to-start (if (= (:game/to-start game) (:game/player1 game))
-                                                                        :player1
-                                                                        :player2)
-                                                            :turn (if (= (:game/turn game) (:game/player1 game))
-                                                                    :player1
-                                                                    :player2)
-                                                            :result
-                                                            (when-let [result (:game/result game)]
-                                                              (if-let [winner (:game/winner game)]
-                                                                (if (or (and (= player :player1)
-                                                                             (= (:game/winner game) (:game/player1 game)))
-                                                                        (and (= player :player2)
-                                                                             (= (:game/winner game) (:game/player2 game))))
-                                                                  :our-win
-                                                                  :opp-win)
-                                                                :pat-tie)
-                                                              )
-                                                            :discards
-                                                            (->> (iterate :card.discard/next (:game/discard game))
-                                                                 (take-while identity)
-                                                                 reverse
-                                                                 (mapv (fn [card]
-                                                                         {:suit (:card/suit card)
-                                                                          :rank (:card/rank card)})))
-                                                            :our-cards (mapv (fn [card]
-                                                                               {:suit (:card/suit card)
-                                                                                :rank (:card/rank card)})
-                                                                             (get game (if (= player :player1)
-                                                                                         :game/player1-cards
-                                                                                         :game/player2-cards)))
-                                                            :their-cards
-                                                            (for [card  (get game (if (= player :player1)
-                                                                                    :game/player2-cards
-                                                                                    :game/player1-cards))]
-                                                              (if (:game/result game)
-                                                                {:suit (:card/suit card)
-                                                                 :rank (:card/rank card)}
-                                                                {:suit :hidden
-                                                                 :rank :hidden}))}
+                                                           (event-join-game game player)
                                                            "\r\n\r\n"))
                                               from-t)
                                             0 ;; game hasn't started
