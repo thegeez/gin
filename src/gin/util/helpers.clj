@@ -69,3 +69,22 @@
                                (str home-uri old)))
          n))
      d)))
+
+(def slug-characters
+  (let [ab "abcdefghijklmnopqrstuvwxyz"
+        nums "0123456789"
+        syms "-_"]
+    (-> #{}
+        (into ab)
+        (into (string/capitalize ab))
+        (into nums)
+        (into syms))))
+
+(defn slugify [name]
+  (let [name (str name)]
+    (-> name
+        str
+        string/lower-case
+        (->>
+         (filter slug-characters)
+         (apply str)))))

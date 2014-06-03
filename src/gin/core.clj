@@ -7,7 +7,7 @@
             [gin.system.database-datomic :as database-datomic]
             [gin.system.email :as email]
             [gin.dealer :as dealer]
-            [gin.home :as home]
+            [gin.lobby :as lobby]
             [gin.games :as games]
             [compojure.core :as compojure]
             [cemerick.friend :as friend]
@@ -16,7 +16,7 @@
             [datomic.api :as d]))
 
 (compojure/defroutes main-routes
-  home/home-routes
+  lobby/lobby-routes
   games/games-routes
   (compojure/ANY "*" _ "Not found")
   )
@@ -33,19 +33,11 @@
                  res)
                )))))
       (friend/authenticate {:login-uri "/login"
-                            ;; TODO
-                            ;; rather than redirect to /login try to
-                            ;; throw an exception, this should
-                            ;; redirect properly after login
-                            :default-landing-uri "/login"
+                            :default-landing-uri "/"
                             :workflows [(fn [req]
                                           ((workflows/interactive-form
-                                            :credential-fn (fn form-credential-fn [creds]
-                                                             (credentials/bcrypt-credential-fn
-                                                              ;; todo
-                                                              ;; temp
-                                                              (constantly nil)
-                                                              #_(accounts-data/lookup-friend-identity (:database req)) creds)))
+                                            :credential-fn (fn friend-credential-fn [creds]
+                                                             (lobby/lookup-friend-identity (:conn req) creds)))
                                            req))]})
 
       ring/wrap-common))
@@ -78,10 +70,10 @@
                             :game/last-event event-id}
                            {:db/id p1-id
                             :account/slug "user1"
-                            :account/name "User One"}
+                            :account/username "User One"}
                            {:db/id p2-id
                             :account/slug "user2"
-                            :account/name "Player Two"}])))
+                            :account/username "Player Two"}])))
     component)
   (stop [component]
     (info "Not bothering to remove test fixtures")

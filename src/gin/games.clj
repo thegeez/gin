@@ -13,65 +13,65 @@
             [clojure.core.async :refer [go <! >! chan timeout close!] :as async]
             [datomic.api :refer [db q] :as d]))
 
+(def game-resource
+  {:authorized? (fn [ctx]
+                  (friend/identity (get ctx :request)))
+   :handle-unauthorized (fn [ctx]
+                          (friend/throw-unauthorized
+                           (friend/identity (get ctx :request))
+                           {}))
+   :allowed? (fn [ctx]
+               (let [db (db (h/conn ctx))
+                     game-id (get-in ctx [:request :params :game-id])
+                     slug (:slug (friend/current-authentication (get ctx :request)))]
+                 (when-let [game-e (ffirst (q '{:find [?e]
+                                                :in [$ ?game-id]
+                                                :where [[?e :game/id ?game-id]]}
+                                              db game-id))]
+                   (let [game (d/entity db game-e)]
+                     (cond
+                      (= (get-in game [:game/player1 :account/slug]) slug)
+                      {:game game
+                       :player :player1}
+                      (= (get-in game [:game/player2 :account/slug]) slug)
+                      {:game game
+                       :player :player2}
+                      :else nil)))))
+   :handle-forbidden (fn [ctx]
+                       (friend/throw-unauthorized
+                        (friend/identity (get ctx :request))
+                        {}))
+   :exists? (fn [ctx]
+              (:game ctx))})
+
+(def game-action-resource
+  (merge
+   game-resource
+   {:allowed-methods [:post]
+    :available-media-types ["application/edn"]
+
+    :as-response (l/as-template-response nil)}))
+
 (def game-page-html (html/html-resource "templates/game.html"))
 
 (defn game-page-layout [ctx]
   (c/emit-application
    ctx
    [:#content] (html/content (html/select game-page-html [:#content]))
-   [:#info] (html/content (str (get-in ctx [:game :game/player1 :account/name])
+   [:#info] (html/content (str (get-in ctx [:game :game/player1 :account/username])
                                " vs. "
-                               (get-in ctx [:game :game/player2 :account/name])
+                               (get-in ctx [:game :game/player2 :account/username])
                                ". To start: "
-                               (get-in ctx [:game :game/to-start :account/name])))
+                               (get-in ctx [:game :game/to-start :account/username])))
    [:#csrf-token] (html/set-attr :value (get-in ctx [:request :session "__anti-forgery-token"]))))
 
 (defresource game-page
+  game-resource
   :available-media-types ["text/html"]
-  ;; :authorized :authenticated :todo
-  :exists? (fn [ctx]
-             (let [db (db (h/conn ctx))
-                   game-id (get-in ctx [:request :params :game-id])]
-               (when-let [game-e (ffirst (q '{:find [?e]
-                                              :in [$ ?game-id]
-                                              :where [[?e :game/id ?game-id]]}
-                                            db game-id))]
-                       {:game (d/entity db game-e)})))
-  :handle-ok {}
   :as-response (l/as-template-response game-page-layout))
 
-(def game-action
-  {:allowed-methods [:post]
-   :available-media-types ["application/edn"]
-   ;; :authorized :authenticated :todo
-   
-   ;; use a early decision point to temporarily create a game here
-   :allowed? (fn [ctx]
-               {:slug (if (.contains (get-in ctx [:request :headers "user-agent"]) "Chrome")
-                        "user2"
-                        "user1")})
-   :exists? (fn [ctx]
-              (let [db (db (h/conn ctx))
-                    game-id (get-in ctx [:request :params :game-id])
-                    slug (:slug ctx)]
-                (when-let [game-e (ffirst (q '{:find [?e]
-                                               :in [$ ?game-id]
-                                               :where [[?e :game/id ?game-id]]}
-                                             db game-id))]
-                  (let [game (d/entity db game-e)]
-                    (cond
-                     (= (get-in game [:game/player1 :account/slug]) slug)
-                     {:game game
-                      :player :player1}
-                     (= (get-in game [:game/player2 :account/slug]) slug)
-                     {:game game
-                      :player :player2}
-                     :else nil)))))
-   :handle-created {:is-there :a-message-here?}
-   :as-response (l/as-template-response nil)})
-
 (defresource game-player-ready
-  game-action
+  game-action-resource
   :post! (fn [ctx]
            (let [{:keys [game player]} ctx]
              @(d/transact (h/conn ctx)
@@ -79,7 +79,7 @@
                             [[:player-ready game-ref player]])))))
 
 (defresource game-discard-picked
-  game-action
+  game-action-resource
   :post! (fn [ctx]
            (let [{:keys [game player]} ctx]
              @(d/transact (h/conn ctx)
@@ -87,7 +87,7 @@
                             [[:discard-picked game-ref player]])))))
 
 (defresource game-pile-picked
-  game-action
+  game-action-resource
   :post! (fn [ctx]
            (let [{:keys [game player]} ctx]
              @(d/transact (h/conn ctx)
@@ -95,7 +95,7 @@
                             [[:pile-picked game-ref player]])))))
 
 (defresource game-discard-chosen
-  game-action
+  game-action-resource
   :processable? (fn [ctx]
                   (let [{:keys [suit rank]} (try (-> (get-in ctx [:request :body])
                                                      slurp
@@ -279,29 +279,8 @@
         :rank :hidden}))})
 
 (defresource game-events
+  game-resource
   :available-media-types ["text/event-stream"]
-  :allowed? (fn [ctx]
-              {:slug (if (.contains (get-in ctx [:request :headers "user-agent"]) "Chrome")
-                "user2"
-                "user1")})
-  :exists? (fn [ctx]
-             (let [db (db (h/conn ctx))
-                   game-id (get-in ctx [:request :params :game-id])
-                   slug (:slug ctx)]
-               (when-let [game-e (ffirst (q '{:find [?e]
-                                              :in [$ ?game-id]
-                                              :where [[?e :game/id ?game-id]]}
-                                            db game-id))]
-                 (let [game (d/entity db game-e)]
-                   (cond
-                    (= (get-in game [:game/player1 :account/slug]) slug)
-                    {:game game
-                     :player :player1}
-                    (= (get-in game [:game/player2 :account/slug]) slug)
-                    {:game game
-                     :player :player2}
-                    :else nil)))))
-
   :handle-ok (fn [ctx]
                (lib-rep/ring-response
                 {:status 200
@@ -315,7 +294,8 @@
                              listen (get-in ctx [:request :listen])
                              here-since (.getTime (java.util.Date.))
                              player (get-in ctx [:player])
-                             game-id (get-in ctx [:game :db/id])
+                             game (get-in ctx [:game])
+                             game-id (:db/id game)
                              ;; sent summary to join game in progress or
                              ;; start from the beginning
                              start-from (if start-from
@@ -325,7 +305,6 @@
                                                   latest-tx (get-in ctx [:game :game/last-event :event/tx :db/id])
                                                   from-t (d/tx->t latest-tx)
                                                   game (get-in ctx [:game])]
-                                              (debug "latest-tx: " latest-tx (d/touch (get-in ctx [:game :game/last-event])))
                                               (async/put! c (str "id: " from-t "\r\n"
                                                            "data: "
                                                            (event-join-game game player)
@@ -334,18 +313,7 @@
                                             0 ;; game hasn't started
                                             ;; yet, sent everything
                                             ;; from the beginning
-                                            ))
-
-]
-
-                         (debug "Start from: " start-from "for player: " (get-in ctx [:player]))
-
-                         #_(async/go (async/<! (async/timeout 3000))
-                                   (d/transact conn [{:db/id [:game/id "fix1"]
-                                                      :game/last-event (d/tempid :db.part/user -1)}
-                                                     {:db/id (d/tempid :db.part/user -1)
-                                                      :event/type :some-mock-event
-                                                      :event/tx (d/tempid :db.part/tx)}]))
+                                            ))]
                          (dd/stream-from conn listen start-from
                                          game-id
                                          :game/last-event
@@ -354,12 +322,8 @@
                                             (let [db (:db-after msg)
                                                   t (or (d/as-of-t db)
                                                         (d/basis-t db))
-                                                  event (:game/last-event (d/entity db [:game/id "fix1"]))]
-                                              (debug "MSG" (:event/type event)
-                                                     t
-                                                     here-since
-                                                     start-from
-                                                     (<= start-from t))
+                                                  event (:game/last-event (d/entity db (:db/id game)))]
+
                                               (str "id: " t "\r\n"
                                                    "data: "
                                                    (spy (event-to-msg event player))

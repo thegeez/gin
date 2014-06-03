@@ -13,9 +13,6 @@
      l/emit application-html
      [:#flash] (when-let [flash (get-in ctx [:request :flash])]
                  (html/content flash))
-     [:ul [:li html/first-of-type]] (when friend-auth
-                                      (html/transform-content
-                                       [:a] (html/set-attr :href (str "/todos/" (:slug friend-auth)))))
      [:ul.navbar-nav :li] (if (contains? (:roles friend-auth) :admin)
                  (html/after [{:tag :li
                                :attrs nil
@@ -25,12 +22,7 @@
                  identity)
      [:#logged-in] (when friend-auth
                      (html/transform-content
-                      [:a.rel-profile] (html/do->
-                                        (html/content (str "Welcome, " (:name friend-auth)))
-                                        (html/set-attr :href (str "/profile/" (:slug friend-auth))))
-                      [:a.rel-edit-profile] (html/set-attr :href (str "/profile/" (:slug friend-auth) "/edit"))))
-     [:#unlogged-in] (when-not friend-auth
-                       identity)
+                      [:.rel-profile] (html/content (str "Welcome, " (:username friend-auth)))))
      (concat clauses
              [[[:form (html/nth-child 1)]]
               (html/append [{:tag :input

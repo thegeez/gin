@@ -13,13 +13,6 @@
                                  :db.install/_attribute :db.part/db}]))
        :down identity}]
    [2 {:up (fn [conn]
-             @(d/transact conn [{:db/id (d/tempid :db.part/db)
-                                 :db/ident :dev/count
-                                 :db/valueType :db.type/long
-                                 :db/cardinality :db.cardinality/one
-                                 :db.install/_attribute :db.part/db}]))
-       :down identity}]
-   [3 {:up (fn [conn]
              @(d/transact conn [{:db/id (d/tempid :db.part/user)
                                  :db/ident :log-event
                                  :db/fn (d/function '{:lang :clojure
@@ -140,7 +133,7 @@
                                  :db/cardinality :db.cardinality/one
                                  :db.install/_attribute :db.part/db}
                                 {:db/id (d/tempid :db.part/db)
-                                 :db/ident :account/name
+                                 :db/ident :account/username
                                  :db/valueType :db.type/string
                                  :db/cardinality :db.cardinality/one
                                  :db.install/_attribute :db.part/db}
@@ -272,5 +265,45 @@
                                                     [:db/add game-ref :game/discard card-ref]]
                                                    (when-let [old-discard-ref (get-in game [:game/discard :db/id])]
                                                      [[:db/add card-ref :card.discard/next old-discard-ref]])))})}]))
+       :down identity}]
+   [3 {:up (fn [conn]
+             @(d/transact conn
+                          [{:db/id (d/tempid :db.part/user)
+                            :db/ident :register-username
+                            :db/fn (d/function
+                                    '{:lang :clojure
+                                      :requires [[datomic.api :as d]]
+                                      :params [db username slug]
+                                      :code
+                                      (if-let [existing (ffirst (d/q '{:find [?e]
+                                                                       :in [$ ?slug]
+                                                                       :where [[?e :account/slug ?slug]]}
+                                                                     db slug))]
+                                        (throw (Exception. "Slug already registered"))
+                                        [{:db/id (d/tempid :db.part/user)
+                                          :account/username username
+                                          :account/slug slug}])})}
+                           {:db/id (d/tempid :db.part/user)
+                            :db/ident :game-created
+                            :db/fn (d/function
+                                    '{:lang :clojure
+                                      :requires [[datomic.api :as d]]
+                                      :params [db slug1 slug2 by]
+                                      :code
+                                      (let [game-id (str (d/squuid) "-" slug1 "-" slug2)
+                                            game-ref (d/tempid :db.part/user)
+                                            p1-ref (:db/id (d/entity db [:account/slug slug1]))
+                                            p2-ref (:db/id (d/entity db [:account/slug slug2]))
+                                            to-start (rand-nth [p1-ref p2-ref])]
+                                        [[:log-event :game-created game-ref by]
+                                         {:db/id game-ref
+                                          :game/id game-id
+                                          :game/player1 [:account/slug slug1]
+                                          :game/player2 [:account/slug slug2]
+                                          :game/to-start to-start}])})}
+                           {:db/id (d/tempid :db.part/user)
+                            :account/slug "remote-ai"
+                            :account/username "Remote AI"}]
+                          ))
        :down identity}]
    ])

@@ -27,7 +27,7 @@
                  ;; templates
                  [enlive "1.1.5"]
                  ;; auth
-                 [com.cemerick/friend "0.2.0" :exclusions [org.clojure/core.cache]]
+                 [com.cemerick/friend "0.2.1" :exclusions [org.clojure/core.cache]]
 
                  [com.datomic/datomic-free "0.9.4766" :exclusions [org.slf4j/log4j-over-slf4j org.slf4j/slf4j-nop]]]
 

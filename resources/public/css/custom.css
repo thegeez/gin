@@ -3,6 +3,10 @@ body {
 	font-size: 10pt;
 }
 
+.navbar-spacer {
+    height: 60px;
+}
+
 #game-panel {
     width: 580px;
     margin: 70px 0 0 0px;
@@ -303,4 +307,11 @@ body {
     width: 560px;
     margin: 10px 0 0 30px;
     background-color: #F5F5DC;
+}
+.rel-profile {
+    margin: 5px 0 0 0;
+    color: #FFFFFF;
+}
+.btn-right {
+    float: right;
 }
