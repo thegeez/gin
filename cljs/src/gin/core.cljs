@@ -1,7 +1,7 @@
 (ns gin.core
-  (:require [gin.game-panel :as game-panel]
+  (:require [gin.ui.game-panel :as game-panel]
             [gin.transact :as transact]
-            [gin.services :as services]
+            [gin.remote.services :as remote-services]
             [gin.local.services :as local-services]
             [datascript :as d]))
 
@@ -10,7 +10,7 @@
   []
   {:conn (d/create-conn transact/schema)
    :render game-panel/start-game-panel
-   :service services/start-services})
+   :service remote-services/start-services})
 
 (defn start-app [app-config]
   (let [{:keys [conn render service] :as app} app-config]
@@ -21,7 +21,6 @@
                                     (= (:e d) nil)) (:tx-data report))
                         (js/alert (str "Something broken with: "
                                        (pr-str (filter (fn [d] (nil? (:e d))) (:tx-data report))))))))
-    (.log js/console "service" service)
     (render conn)
     (service conn)
     (def app app)))
@@ -39,11 +38,4 @@
 
 (defn ^:export client-local
   []
-  (start-app (load-local-app))
-  ;;sse dev
-  (let [source (js/EventSource. "/dev-sse/events")]
-    (set! (.-onmessage source)
-          (fn [e]
-            (.log js/console e))))
-
-  )
+  (start-app (load-local-app)))

@@ -28,19 +28,19 @@ gin.local.table.shuffle_set = (function shuffle_set(s,n){var ss = cljs.core.seq.
 {return s;
 }
 });
-gin.local.table.get_init_shuffle = (function get_init_shuffle(){var deck = gin.local.table.shuffle_set.call(null,cljs.core.set.call(null,(function (){var iter__17358__auto__ = (function iter__25279(s__25280){return (new cljs.core.LazySeq(null,(function (){var s__25280__$1 = s__25280;while(true){
-var temp__4092__auto__ = cljs.core.seq.call(null,s__25280__$1);if(temp__4092__auto__)
-{var xs__4579__auto__ = temp__4092__auto__;var suit = cljs.core.first.call(null,xs__4579__auto__);var iterys__17354__auto__ = ((function (s__25280__$1,suit,xs__4579__auto__,temp__4092__auto__){
-return (function iter__25281(s__25282){return (new cljs.core.LazySeq(null,((function (s__25280__$1,suit,xs__4579__auto__,temp__4092__auto__){
-return (function (){var s__25282__$1 = s__25282;while(true){
-var temp__4092__auto____$1 = cljs.core.seq.call(null,s__25282__$1);if(temp__4092__auto____$1)
-{var s__25282__$2 = temp__4092__auto____$1;if(cljs.core.chunked_seq_QMARK_.call(null,s__25282__$2))
-{var c__17356__auto__ = cljs.core.chunk_first.call(null,s__25282__$2);var size__17357__auto__ = cljs.core.count.call(null,c__17356__auto__);var b__25284 = cljs.core.chunk_buffer.call(null,size__17357__auto__);if((function (){var i__25283 = 0;while(true){
-if((i__25283 < size__17357__auto__))
-{var rank = cljs.core._nth.call(null,c__17356__auto__,i__25283);cljs.core.chunk_append.call(null,b__25284,new cljs.core.PersistentArrayMap(null, 2, [new cljs.core.Keyword(null,"suit","suit",1017446015),suit,new cljs.core.Keyword(null,"rank","rank",1017397150),rank], null));
+gin.local.table.get_init_shuffle = (function get_init_shuffle(){var deck = gin.local.table.shuffle_set.call(null,cljs.core.set.call(null,(function (){var iter__17378__auto__ = (function iter__18825(s__18826){return (new cljs.core.LazySeq(null,(function (){var s__18826__$1 = s__18826;while(true){
+var temp__4092__auto__ = cljs.core.seq.call(null,s__18826__$1);if(temp__4092__auto__)
+{var xs__4579__auto__ = temp__4092__auto__;var suit = cljs.core.first.call(null,xs__4579__auto__);var iterys__17374__auto__ = ((function (s__18826__$1,suit,xs__4579__auto__,temp__4092__auto__){
+return (function iter__18827(s__18828){return (new cljs.core.LazySeq(null,((function (s__18826__$1,suit,xs__4579__auto__,temp__4092__auto__){
+return (function (){var s__18828__$1 = s__18828;while(true){
+var temp__4092__auto____$1 = cljs.core.seq.call(null,s__18828__$1);if(temp__4092__auto____$1)
+{var s__18828__$2 = temp__4092__auto____$1;if(cljs.core.chunked_seq_QMARK_.call(null,s__18828__$2))
+{var c__17376__auto__ = cljs.core.chunk_first.call(null,s__18828__$2);var size__17377__auto__ = cljs.core.count.call(null,c__17376__auto__);var b__18830 = cljs.core.chunk_buffer.call(null,size__17377__auto__);if((function (){var i__18829 = 0;while(true){
+if((i__18829 < size__17377__auto__))
+{var rank = cljs.core._nth.call(null,c__17376__auto__,i__18829);cljs.core.chunk_append.call(null,b__18830,new cljs.core.PersistentArrayMap(null, 2, [new cljs.core.Keyword(null,"suit","suit",1017446015),suit,new cljs.core.Keyword(null,"rank","rank",1017397150),rank], null));
 {
-var G__25285 = (i__25283 + 1);
-i__25283 = G__25285;
+var G__18831 = (i__18829 + 1);
+i__18829 = G__18831;
 continue;
 }
 } else
@@ -49,27 +49,27 @@ continue;
 break;
 }
 })())
-{return cljs.core.chunk_cons.call(null,cljs.core.chunk.call(null,b__25284),iter__25281.call(null,cljs.core.chunk_rest.call(null,s__25282__$2)));
+{return cljs.core.chunk_cons.call(null,cljs.core.chunk.call(null,b__18830),iter__18827.call(null,cljs.core.chunk_rest.call(null,s__18828__$2)));
 } else
-{return cljs.core.chunk_cons.call(null,cljs.core.chunk.call(null,b__25284),null);
+{return cljs.core.chunk_cons.call(null,cljs.core.chunk.call(null,b__18830),null);
 }
 } else
-{var rank = cljs.core.first.call(null,s__25282__$2);return cljs.core.cons.call(null,new cljs.core.PersistentArrayMap(null, 2, [new cljs.core.Keyword(null,"suit","suit",1017446015),suit,new cljs.core.Keyword(null,"rank","rank",1017397150),rank], null),iter__25281.call(null,cljs.core.rest.call(null,s__25282__$2)));
+{var rank = cljs.core.first.call(null,s__18828__$2);return cljs.core.cons.call(null,new cljs.core.PersistentArrayMap(null, 2, [new cljs.core.Keyword(null,"suit","suit",1017446015),suit,new cljs.core.Keyword(null,"rank","rank",1017397150),rank], null),iter__18827.call(null,cljs.core.rest.call(null,s__18828__$2)));
 }
 } else
 {return null;
 }
 break;
 }
-});})(s__25280__$1,suit,xs__4579__auto__,temp__4092__auto__))
+});})(s__18826__$1,suit,xs__4579__auto__,temp__4092__auto__))
 ,null,null));
-});})(s__25280__$1,suit,xs__4579__auto__,temp__4092__auto__))
-;var fs__17355__auto__ = cljs.core.seq.call(null,iterys__17354__auto__.call(null,new cljs.core.PersistentVector(null, 13, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"A","A",1013904307),new cljs.core.Keyword(null,"K","K",1013904317),new cljs.core.Keyword(null,"Q","Q",1013904323),new cljs.core.Keyword(null,"J","J",1013904316),new cljs.core.Keyword(null,"T","T",1013904326),new cljs.core.Keyword(null,"r9","r9",1013907833),new cljs.core.Keyword(null,"r8","r8",1013907832),new cljs.core.Keyword(null,"r7","r7",1013907831),new cljs.core.Keyword(null,"r6","r6",1013907830),new cljs.core.Keyword(null,"r5","r5",1013907829),new cljs.core.Keyword(null,"r4","r4",1013907828),new cljs.core.Keyword(null,"r3","r3",1013907827),new cljs.core.Keyword(null,"r2","r2",1013907826)], null)));if(fs__17355__auto__)
-{return cljs.core.concat.call(null,fs__17355__auto__,iter__25279.call(null,cljs.core.rest.call(null,s__25280__$1)));
+});})(s__18826__$1,suit,xs__4579__auto__,temp__4092__auto__))
+;var fs__17375__auto__ = cljs.core.seq.call(null,iterys__17374__auto__.call(null,new cljs.core.PersistentVector(null, 13, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"A","A",1013904307),new cljs.core.Keyword(null,"K","K",1013904317),new cljs.core.Keyword(null,"Q","Q",1013904323),new cljs.core.Keyword(null,"J","J",1013904316),new cljs.core.Keyword(null,"T","T",1013904326),new cljs.core.Keyword(null,"r9","r9",1013907833),new cljs.core.Keyword(null,"r8","r8",1013907832),new cljs.core.Keyword(null,"r7","r7",1013907831),new cljs.core.Keyword(null,"r6","r6",1013907830),new cljs.core.Keyword(null,"r5","r5",1013907829),new cljs.core.Keyword(null,"r4","r4",1013907828),new cljs.core.Keyword(null,"r3","r3",1013907827),new cljs.core.Keyword(null,"r2","r2",1013907826)], null)));if(fs__17375__auto__)
+{return cljs.core.concat.call(null,fs__17375__auto__,iter__18825.call(null,cljs.core.rest.call(null,s__18826__$1)));
 } else
 {{
-var G__25286 = cljs.core.rest.call(null,s__25280__$1);
-s__25280__$1 = G__25286;
+var G__18832 = cljs.core.rest.call(null,s__18826__$1);
+s__18826__$1 = G__18832;
 continue;
 }
 }
@@ -79,8 +79,8 @@ continue;
 break;
 }
 }),null,null));
-});return iter__17358__auto__.call(null,new cljs.core.PersistentVector(null, 4, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"heart","heart",1113056184),new cljs.core.Keyword(null,"club","club",1016961064),new cljs.core.Keyword(null,"spade","spade",1123542167),new cljs.core.Keyword(null,"diamond","diamond",2668958918)], null));
-})()),21);var vec__25276 = cljs.core.split_at.call(null,10,deck);var opp_cards = cljs.core.nth.call(null,vec__25276,0,null);var others = cljs.core.nth.call(null,vec__25276,1,null);var vec__25277 = cljs.core.split_at.call(null,10,others);var our_cards = cljs.core.nth.call(null,vec__25277,0,null);var vec__25278 = cljs.core.nth.call(null,vec__25277,1,null);var discard = cljs.core.nth.call(null,vec__25278,0,null);var pile = cljs.core.nthnext.call(null,vec__25278,1);var starting = cljs.core.rand_nth.call(null,new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"us","us",1013907984),new cljs.core.Keyword(null,"opp","opp",1014014497)], null));return cljs.core.swap_BANG_.call(null,gin.local.table.table,cljs.core.merge,new cljs.core.PersistentArrayMap(null, 7, [new cljs.core.Keyword(null,"our-cards","our-cards",3774215444),cljs.core.set.call(null,our_cards),new cljs.core.Keyword(null,"our-gin-size","our-gin-size",3022237237),gin.local.game.gin_size.call(null,our_cards),new cljs.core.Keyword(null,"discards","discards",1286668039),new cljs.core.PersistentVector(null, 1, 5, cljs.core.PersistentVector.EMPTY_NODE, [discard], null),new cljs.core.Keyword(null,"pile-cards","pile-cards",4041294458),cljs.core.set.call(null,pile),new cljs.core.Keyword(null,"opp-cards","opp-cards",1875090999),cljs.core.set.call(null,opp_cards),new cljs.core.Keyword(null,"opp-gin-size","opp-gin-size",3810086450),gin.local.game.gin_size.call(null,opp_cards),new cljs.core.Keyword(null,"starting","starting",2330710962),starting], null));
+});return iter__17378__auto__.call(null,new cljs.core.PersistentVector(null, 4, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"heart","heart",1113056184),new cljs.core.Keyword(null,"club","club",1016961064),new cljs.core.Keyword(null,"spade","spade",1123542167),new cljs.core.Keyword(null,"diamond","diamond",2668958918)], null));
+})()),21);var vec__18822 = cljs.core.split_at.call(null,10,deck);var opp_cards = cljs.core.nth.call(null,vec__18822,0,null);var others = cljs.core.nth.call(null,vec__18822,1,null);var vec__18823 = cljs.core.split_at.call(null,10,others);var our_cards = cljs.core.nth.call(null,vec__18823,0,null);var vec__18824 = cljs.core.nth.call(null,vec__18823,1,null);var discard = cljs.core.nth.call(null,vec__18824,0,null);var pile = cljs.core.nthnext.call(null,vec__18824,1);var starting = cljs.core.rand_nth.call(null,new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"us","us",1013907984),new cljs.core.Keyword(null,"opp","opp",1014014497)], null));return cljs.core.swap_BANG_.call(null,gin.local.table.table,cljs.core.merge,new cljs.core.PersistentArrayMap(null, 7, [new cljs.core.Keyword(null,"our-cards","our-cards",3774215444),cljs.core.set.call(null,our_cards),new cljs.core.Keyword(null,"our-gin-size","our-gin-size",3022237237),gin.local.game.gin_size.call(null,our_cards),new cljs.core.Keyword(null,"discards","discards",1286668039),new cljs.core.PersistentVector(null, 1, 5, cljs.core.PersistentVector.EMPTY_NODE, [discard], null),new cljs.core.Keyword(null,"pile-cards","pile-cards",4041294458),cljs.core.set.call(null,pile),new cljs.core.Keyword(null,"opp-cards","opp-cards",1875090999),cljs.core.set.call(null,opp_cards),new cljs.core.Keyword(null,"opp-gin-size","opp-gin-size",3810086450),gin.local.game.gin_size.call(null,opp_cards),new cljs.core.Keyword(null,"starting","starting",2330710962),starting], null));
 });
 gin.local.table.restock_pile = (function restock_pile(){return cljs.core.swap_BANG_.call(null,gin.local.table.table,(function (t){if(cljs.core.empty_QMARK_.call(null,new cljs.core.Keyword(null,"pile-cards","pile-cards",4041294458).cljs$core$IFn$_invoke$arity$1(t)))
 {var discards = new cljs.core.Keyword(null,"discards","discards",1286668039).cljs$core$IFn$_invoke$arity$1(t);return cljs.core.assoc.call(null,cljs.core.assoc.call(null,t,new cljs.core.Keyword(null,"discards","discards",1286668039),new cljs.core.PersistentVector(null, 1, 5, cljs.core.PersistentVector.EMPTY_NODE, [cljs.core.peek.call(null,discards)], null)),new cljs.core.Keyword(null,"pile-cards","pile-cards",4041294458),cljs.core.set.call(null,cljs.core.pop.call(null,discards)));
@@ -96,13 +96,13 @@ return new_card;
 gin.local.table.get_discard = (function get_discard(){return new cljs.core.Keyword(null,"last","last",1017218568).cljs$core$IFn$_invoke$arity$1(cljs.core.swap_BANG_.call(null,gin.local.table.table,(function (old_table){var card = cljs.core.peek.call(null,new cljs.core.Keyword(null,"discards","discards",1286668039).cljs$core$IFn$_invoke$arity$1(old_table));return cljs.core.assoc.call(null,cljs.core.update_in.call(null,cljs.core.update_in.call(null,old_table,new cljs.core.PersistentVector(null, 1, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"discards","discards",1286668039)], null),cljs.core.pop),new cljs.core.PersistentVector(null, 1, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"our-cards","our-cards",3774215444)], null),cljs.core.conj,card),new cljs.core.Keyword(null,"last","last",1017218568),card);
 })));
 });
-gin.local.table.set_our_discard = (function set_our_discard(discard){cljs.core.swap_BANG_.call(null,gin.local.table.table,(function (p1__25287_SHARP_){return cljs.core.update_in.call(null,cljs.core.update_in.call(null,p1__25287_SHARP_,new cljs.core.PersistentVector(null, 1, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"our-cards","our-cards",3774215444)], null),cljs.core.disj,discard),new cljs.core.PersistentVector(null, 1, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"discards","discards",1286668039)], null),cljs.core.conj,discard);
+gin.local.table.set_our_discard = (function set_our_discard(discard){cljs.core.swap_BANG_.call(null,gin.local.table.table,(function (p1__18833_SHARP_){return cljs.core.update_in.call(null,cljs.core.update_in.call(null,p1__18833_SHARP_,new cljs.core.PersistentVector(null, 1, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"our-cards","our-cards",3774215444)], null),cljs.core.disj,discard),new cljs.core.PersistentVector(null, 1, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"discards","discards",1286668039)], null),cljs.core.conj,discard);
 }));
 return cljs.core.swap_BANG_.call(null,gin.local.table.table,(function (t){return cljs.core.assoc.call(null,t,new cljs.core.Keyword(null,"our-gin-size","our-gin-size",3022237237),gin.local.game.gin_size.call(null,new cljs.core.Keyword(null,"our-cards","our-cards",3774215444).cljs$core$IFn$_invoke$arity$1(t)));
 }));
 });
-gin.local.table.get_opponent_move = (function get_opponent_move(){var vec__25289 = new cljs.core.Keyword(null,"last","last",1017218568).cljs$core$IFn$_invoke$arity$1(cljs.core.swap_BANG_.call(null,gin.local.table.table,(function (t){var from = gin.local.game.decide_move.call(null,t);var take_card = ((cljs.core._EQ_.call(null,from,new cljs.core.Keyword(null,"pile","pile",1017345188)))?cljs.core.rand_nth.call(null,cljs.core.seq.call(null,new cljs.core.Keyword(null,"pile-cards","pile-cards",4041294458).cljs$core$IFn$_invoke$arity$1(t))):((cljs.core._EQ_.call(null,from,new cljs.core.Keyword(null,"discard","discard",2685271056)))?cljs.core.peek.call(null,new cljs.core.Keyword(null,"discards","discards",1286668039).cljs$core$IFn$_invoke$arity$1(t)):null));var t__$1 = cljs.core.update_in.call(null,((cljs.core._EQ_.call(null,from,new cljs.core.Keyword(null,"pile","pile",1017345188)))?cljs.core.update_in.call(null,t,new cljs.core.PersistentVector(null, 1, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"pile-cards","pile-cards",4041294458)], null),cljs.core.disj,take_card):((cljs.core._EQ_.call(null,from,new cljs.core.Keyword(null,"discard","discard",2685271056)))?cljs.core.update_in.call(null,t,new cljs.core.PersistentVector(null, 1, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"discards","discards",1286668039)], null),cljs.core.pop):null)),new cljs.core.PersistentVector(null, 1, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"opp-cards","opp-cards",1875090999)], null),cljs.core.conj,take_card);var trade_card = gin.local.game.choosediscard.call(null,new cljs.core.Keyword(null,"opp-cards","opp-cards",1875090999).cljs$core$IFn$_invoke$arity$1(t__$1),new cljs.core.Keyword(null,"discards","discards",1286668039).cljs$core$IFn$_invoke$arity$1(t__$1));return cljs.core.assoc.call(null,cljs.core.update_in.call(null,cljs.core.update_in.call(null,t__$1,new cljs.core.PersistentVector(null, 1, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"opp-cards","opp-cards",1875090999)], null),cljs.core.disj,trade_card),new cljs.core.PersistentVector(null, 1, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"discards","discards",1286668039)], null),cljs.core.conj,trade_card),new cljs.core.Keyword(null,"last","last",1017218568),new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [trade_card,from], null));
-})));var new_card = cljs.core.nth.call(null,vec__25289,0,null);var from = cljs.core.nth.call(null,vec__25289,1,null);if(cljs.core._EQ_.call(null,from,new cljs.core.Keyword(null,"pile","pile",1017345188)))
+gin.local.table.get_opponent_move = (function get_opponent_move(){var vec__18835 = new cljs.core.Keyword(null,"last","last",1017218568).cljs$core$IFn$_invoke$arity$1(cljs.core.swap_BANG_.call(null,gin.local.table.table,(function (t){var from = gin.local.game.decide_move.call(null,t);var take_card = ((cljs.core._EQ_.call(null,from,new cljs.core.Keyword(null,"pile","pile",1017345188)))?cljs.core.rand_nth.call(null,cljs.core.seq.call(null,new cljs.core.Keyword(null,"pile-cards","pile-cards",4041294458).cljs$core$IFn$_invoke$arity$1(t))):((cljs.core._EQ_.call(null,from,new cljs.core.Keyword(null,"discard","discard",2685271056)))?cljs.core.peek.call(null,new cljs.core.Keyword(null,"discards","discards",1286668039).cljs$core$IFn$_invoke$arity$1(t)):null));var t__$1 = cljs.core.update_in.call(null,((cljs.core._EQ_.call(null,from,new cljs.core.Keyword(null,"pile","pile",1017345188)))?cljs.core.update_in.call(null,t,new cljs.core.PersistentVector(null, 1, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"pile-cards","pile-cards",4041294458)], null),cljs.core.disj,take_card):((cljs.core._EQ_.call(null,from,new cljs.core.Keyword(null,"discard","discard",2685271056)))?cljs.core.update_in.call(null,t,new cljs.core.PersistentVector(null, 1, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"discards","discards",1286668039)], null),cljs.core.pop):null)),new cljs.core.PersistentVector(null, 1, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"opp-cards","opp-cards",1875090999)], null),cljs.core.conj,take_card);var trade_card = gin.local.game.choosediscard.call(null,new cljs.core.Keyword(null,"opp-cards","opp-cards",1875090999).cljs$core$IFn$_invoke$arity$1(t__$1),new cljs.core.Keyword(null,"discards","discards",1286668039).cljs$core$IFn$_invoke$arity$1(t__$1));return cljs.core.assoc.call(null,cljs.core.update_in.call(null,cljs.core.update_in.call(null,t__$1,new cljs.core.PersistentVector(null, 1, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"opp-cards","opp-cards",1875090999)], null),cljs.core.disj,trade_card),new cljs.core.PersistentVector(null, 1, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"discards","discards",1286668039)], null),cljs.core.conj,trade_card),new cljs.core.Keyword(null,"last","last",1017218568),new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [trade_card,from], null));
+})));var new_card = cljs.core.nth.call(null,vec__18835,0,null);var from = cljs.core.nth.call(null,vec__18835,1,null);if(cljs.core._EQ_.call(null,from,new cljs.core.Keyword(null,"pile","pile",1017345188)))
 {gin.local.table.restock_pile.call(null);
 } else
 {}

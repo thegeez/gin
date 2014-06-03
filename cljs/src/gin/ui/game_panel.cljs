@@ -1,9 +1,9 @@
-(ns gin.game-panel
+(ns gin.ui.game-panel
   (:require [gin.transact :as t]
             [datascript :as d]
             [gin.datascript-helpers :as dh]
-            [gin.dom-helpers :as dom]
-            [gin.animator :as animator]
+            [gin.ui.dom-helpers :as dom]
+            [gin.ui.animator :as animator]
             [goog.events :as events]
             [goog.fx.Dragger :as fxdrag]
             [goog.math :as gmath]))
@@ -159,7 +159,6 @@
                (let [card-el (dom/get-element card-id)]
                  (dom/add-remove-class card-el "cursor_hand" "cursor_drag")
                  (dom/remove-class (dom/get-element "discard_pile") "region_hover")
-                 (.log js/console "snap to discard slide" (.-anim-idx card-el) (.-id card-el))
                  (animator/slide card-el (discard-position)
                         #(d/transact! conn [[:db.fn/call t/our-discard-chosen card-id]]))))})
 
@@ -232,7 +231,6 @@
 
 (defn anim-deal [db game-id conn]
   (let [game (dh/entity-lookup db [:game-id game-id])
-        _ (.log js/console "game: " game game-id)
         opp-cards-el (map (comp :dom/el #(dh/entity-lookup db [:dom/id %])) (:their-cards game))
         our-cards-es (map #(dh/entity-lookup db [:dom/id %]) (:our-cards game))
         discard (dh/entity-lookup db [:dom/id (first (:discards game))])
@@ -290,8 +288,7 @@
           (not (:result game)))
      (set-msg "Ready, waiting on opponent")
      :else
-     (let [_ (.log js/console "Regular draw case")
-           us-pick-card (and (= (:us game) (:turn game))
+     (let [us-pick-card (and (= (:us game) (:turn game))
                              (= 10 (count (:our-cards game)))
                              (= (:move game) :assigned)
                              (not (:result game)))
@@ -320,7 +317,6 @@
          (let [[x-step y-step] (if (= 10 (count opp-cards-el))
                                  [53 4]
                                  [48.18 3.63])]
-           (.log js/console "opp reg")
            (doseq [[i e] (map list (range) opp-cards-es)]
              (let [el (:dom/el e)]
                (animator/slide el [(long (+ their-region-offset-x (* i x-step)))
@@ -335,14 +331,12 @@
                                       (str (name suit) "_" (name rank)))))))
 
        ;; discards
-       (.log js/console "discards")
        (doseq [discard-card-es discard-cards-es
                :let [discard-card-el (:dom/el discard-card-es)]]
          (let [suit (:card/suit discard-card-es)
                rank (:card/rank discard-card-es)]
            (dom/set-card-class discard-card-el (str (name suit) "_" (name rank)))
            (animator/slide discard-card-el discard-position)))
-       (.log js/console "drag discards")
        (when-let [discard-card-el (:dom/el (last discard-cards-es))]
          (dom/show-on-top discard-card-el)
          (if us-pick-card
@@ -409,7 +403,6 @@
                                              :where [[?e :event ?event ?tx]
                                                      [?e :args ?args]]}
                                            db-after (:max-tx db-after)))]
-      (.log js/console "event: " (pr-str (into [event game-id] args)))
       (if (= event :error)
         (set-msg "An error occured, refresh the page.")
         (draw db-after game-id conn)))))

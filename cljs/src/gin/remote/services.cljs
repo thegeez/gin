@@ -1,4 +1,4 @@
-(ns gin.services
+(ns gin.remote.services
   (:require [gin.transact :as t]
             [ajax.core :refer [GET POST PUT] :as ajax-core]
             [goog.dom :as gdom]
@@ -16,13 +16,10 @@
   (d/transact! conn [[:db.fn/call t/error "fail"]]))
 
 (defn POST-ACTION [url conn options]
-  (.log js/console "Post-action" url)
   (POST url
         (merge {:params {}
-                :handler (fn [res]
-                           (.log js/console (str "Succesful res: " res)))
+                :handler (fn [res])
                 :error-handler (fn [res]
-                                 (.log js/console (str "FAil res: " res))
                                  (error-handler conn))
                 :headers {"X-CSRF-Token" (csrf-token)}}
                options)))
@@ -50,7 +47,6 @@
 
 (defmethod handle-client :our-pile-picked
   [_ [game-id card-id] db conn]
-  (.log js/console "OUR_PILE_PICKED POST" (pr-str suit) (pr-str rank))
   (POST-ACTION (str (game-url) "/pile-picked") conn
                {:params {:game-id game-id}}))
 
@@ -58,9 +54,7 @@
   [_ _] nil)
 
 (defmulti handle-server (fn [event conn]
-                          (let [res (:event event)]
-                            (.log js/console "dispatching on: " res)
-                            res)))
+                          (:event event)))
 
 (defmethod handle-server :game-created
   [event conn]
@@ -77,7 +71,6 @@
   (let [{:keys [game-id player1 player2 us]} event]
     (d/transact! conn [[:db.fn/call t/game-created game-id player1 player2 us]]))
   (let [{:keys [game-id discards our-cards their-cards to-start turn result]} event]
-    (.log js/console "discards before tx" (pr-str discards) game-id (pr-str (keys event)) their-cards-count (pr-str ["turn " turn]))
     (d/transact! conn [[:db.fn/call t/join-game game-id discards our-cards their-cards to-start turn result]])))
 
 (defmethod handle-server :turn-assigned
@@ -103,7 +96,6 @@
 (defmethod handle-server :our-discard-chosen
   [event conn]
   ;; nothing todo, this is a confirmation only
-  (.log js/console "Server thinks we chose as discard: " (pr-str (:suit event)) (pr-str (:rank event)))
   )
 
 (defmethod handle-server :their-discard-picked
@@ -132,11 +124,9 @@
     (d/transact! conn [[:db.fn/call t/game-finished game-id result opp-cards]])))
 
 (defmethod handle-server :default
-  [event conn]
-  (.log js/console (str "no handler for msg: " (pr-str msg))))
+  [event conn])
 
 (defn start-services [conn]
-  (.log js/console "HELLO REMOTE SERVICES!")
   (d/listen! conn (fn [{:keys [db-after] :as report}]
                     (let [[event args] (first (d/q '{:find [?event ?args]
                                                      :in [$ ?tx]
@@ -147,11 +137,9 @@
   (let [source (js/EventSource. (str (game-url) "/events"))]
     (set! (.-onerror source)
           (fn [e]
-            (.log js/console "Error from services:" e)
             (error-handler conn)))
     (set! (.-onmessage source)
           (fn [e]
-            (.log js/console "from services:" e)
             (let [data (.-data e)
                   event (reader/read-string data)]
               (handle-server event conn))))))

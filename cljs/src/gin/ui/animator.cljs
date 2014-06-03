@@ -1,5 +1,5 @@
-(ns gin.animator
-  (:require [gin.dom-helpers :as dom]))
+(ns gin.ui.animator
+  (:require [gin.ui.dom-helpers :as dom]))
 
 (def EL 0)
 (def START 1)
