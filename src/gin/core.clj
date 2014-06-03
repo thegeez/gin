@@ -5,8 +5,8 @@
             [gin.system.ring.jetty-async-adapter :as jetty-async-adapter]
             [gin.system.server :as server]
             [gin.system.database-datomic :as database-datomic]
-            [gin.system.email :as email]
             [gin.dealer :as dealer]
+            [gin.ai :as ai]
             [gin.lobby :as lobby]
             [gin.games :as games]
             [compojure.core :as compojure]
@@ -107,11 +107,13 @@
                 (dealer/dealer)
                 {:database :db
                  :db-migrator :db-migrator})
+       :ai (component/using
+            (ai/ai)
+            {:database :db
+             :db-migrator :db-migrator})
        :ring-handler (component/using
                       (ring/ring-handler (dev-handler))
-                      {:database :db
-                       :emailer :emailer})
-       :emailer (email/log-emailer)
+                      {:database :db})
        :server (component/using
                 (jetty-async-adapter/async-jetty port)
                 {:handler :ring-handler})})))
@@ -126,9 +128,7 @@
        :db (database-datomic/database-datomic db-connect-string)
        :ring-handler (component/using
                       (ring/ring-handler (main-handler))
-                      {:database :db
-                       :emailer :emailer})
-       :emailer (email/log-emailer)
+                      {:database :db})
        :server (component/using
                 (jetty-async-adapter/async-jetty port)
                 {:handler :ring-handler})})))
