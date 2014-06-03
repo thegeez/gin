@@ -111,10 +111,9 @@
 ;; count-avail checks whether a given value/suit is
 ;;  known to be discarded (returns 0) or not (returns 1)
 (defn count-avail [rank suit gone-cards]
-  (let [wanted (+ (* suit 20) rank)]
-    (if (gone-cards (+ (* suit 20) rank))
-      0
-      1)))
+  (if (gone-cards (+ (* suit 20) rank))
+    0
+    1))
 
 (defn cards-to-gone-cards [cards]
   (set (map #(+ (* (suit->value (:suit %)) 20) (rank->value (:rank %))) cards)))
@@ -173,9 +172,9 @@
                                             rank2 (:rank card2)]
                                         (cond
                                          (= rank rank2)
-                                         (- 2 (count-gone rank goneset))
+                                         (- 2 (count-gone (rank->value rank) goneset))
                                          (= suit suit2)
-                                         (rate-straight suit (rank->value rank) (rank->value rank2) goneset)
+                                         (rate-straight (suit->value suit) (rank->value rank) (rank->value rank2) goneset)
                                          :else 0)))
                                     others))]
         (recur (+ rating card-score)
