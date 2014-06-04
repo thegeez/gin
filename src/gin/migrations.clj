@@ -295,11 +295,12 @@
                                             p1-ref (:db/id (d/entity db [:account/slug slug1]))
                                             p2-ref (:db/id (d/entity db [:account/slug slug2]))
                                             to-start (rand-nth [p1-ref p2-ref])]
+                                        (assert (and p1-ref p2-ref))
                                         [[:log-event :game-created game-ref by]
                                          {:db/id game-ref
                                           :game/id game-id
-                                          :game/player1 [:account/slug slug1]
-                                          :game/player2 [:account/slug slug2]
+                                          :game/player1 p1-ref
+                                          :game/player2 p2-ref
                                           :game/to-start to-start}])})}
                            {:db/id (d/tempid :db.part/user)
                             :account/slug "remote-ai"

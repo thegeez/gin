@@ -235,8 +235,8 @@
 (defn event-join-game [game player]
   {:event :join-game
    :game-id (:game/id game)
-   :player1 (get-in game [:game/player1 :account/name])
-   :player2 (get-in game [:game/player2 :account/name])
+   :player1 (get-in game [:game/player1 :account/username])
+   :player2 (get-in game [:game/player2 :account/username])
    :us player
    :to-start (if (= (:game/to-start game) (:game/player1 game))
                :player1
