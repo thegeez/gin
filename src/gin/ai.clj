@@ -82,7 +82,7 @@
       @(d/transact conn
                    [[:discard-chosen game-ref player (:suit trade-card) (:rank trade-card)]]))))
 
-(defmethod handle :pile-picked
+(defmethod handle :pile-pick-revealed
   [event conn]
   (handle-picked event conn))
 
