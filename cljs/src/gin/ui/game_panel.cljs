@@ -395,7 +395,11 @@
             :pat-our-win "Game over: You win, dealt gin."
             :pat-opp-win "Game over: Opponent wins, dealt gin."
             :our-win "Game over: You win!"
-            :opp-win "Game over: Opponent wins.")))))))
+            :opp-win "Game over: Opponent wins."))
+         (let [msg-area (dom/get-element "msg")
+               back-button (dom/element :a {:href "/"}
+                                        (dom/element :span {:id "back_button" :class "back_button"} "Back to lobby"))]
+           (dom/append msg-area back-button)))))))
 
 (defn draw-game [report conn]
   (let [{:keys [db-after]} report]

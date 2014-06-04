@@ -292,15 +292,14 @@ body {
     border: 1px solid black;
     background-color: white;
 }
-.restart_button {
+.back_button {
     display: block;
     float: right;
-    width: 80px;
+    width: 100px;
     height: 20px;
     padding-left: 9px;
     color: white;
     background-color: #25587E;
-    cursor: pointer;
 }
 
 #about {
