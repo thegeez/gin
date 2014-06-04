@@ -338,7 +338,8 @@
            (dom/set-card-class discard-card-el (str (name suit) "_" (name rank)))
            (animator/slide discard-card-el discard-position)))
        (when-let [discard-card-el (:dom/el (last discard-cards-es))]
-         (dom/show-on-top discard-card-el)
+         (when (= (count opp-cards-es) 10)
+           (dom/show-on-top discard-card-el))
          (if us-pick-card
            (set-drag-handler discard-card-el (discard-drag-handler conn))
            (set-drag-handler discard-card-el (undraggable-handler conn))))
