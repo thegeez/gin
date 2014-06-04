@@ -140,10 +140,16 @@
                                                              [?e :args ?args]]}
                                                    db-after (:max-tx db-after)))]
                       (handle-client event args report conn))))
-  (let [source (js/EventSource. (str (game-url) "/events"))]
+  (let [source (js/EventSource. (str (game-url) "/events"))
+        open (atom false)]
+    (set! (.-onopen source)
+          (reset! open true))
     (set! (.-onerror source)
           (fn [e]
-            (error-handler conn)))
+            ;; can't connect is a problem, disconnecting is not
+            (when-not @open
+              (error-handler conn))
+            (reset! open false)))
     (set! (.-onmessage source)
           (fn [e]
             (let [data (.-data e)
