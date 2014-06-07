@@ -79,8 +79,11 @@
                                  :rank (:card/rank card)})))
           trade-card (game/choosediscard in-hand-cards discards)]
       (debug "AI decided on: " in-hand-cards discards trade-card)
-      @(d/transact conn
-                   [[:discard-chosen game-ref player (:suit trade-card) (:rank trade-card)]]))))
+      (let [res (try @(d/transact conn
+                              [[:discard-chosen game-ref player (:suit trade-card) (:rank trade-card)]])
+                     (catch Exception e
+                       (debug "Remote AI move exception" e)))]
+        (debug "AI Decided res: " (keys res))))))
 
 (defmethod handle :pile-pick-revealed
   [event conn]
@@ -102,14 +105,17 @@
           listen (:listen database)]
       (go (loop []
             (when-let [txr (<! ch)]
+              (debug "AI checks if tx is usefull" (pr-str (take 3 (:tx-data txr))))
               (when-let [event-id (let [event-type-attr-id (d/entid (:db-after txr) :event/type)]
                                     (some (fn [[e attr _ _ _]]
                                             (when (= attr event-type-attr-id)
                                               e))
                                           (:tx-data txr)))]
                 (let [event (d/entity (:db-after txr) event-id)]
-                  (debug "AI event: " event)
-                  (handle event conn))))
+                  (debug "AI event: " event (:event/type event))
+                  (handle event conn)
+                  (debug "AI event done: " event (:event/type event))))
+              (debug "AI: is done with tx" (take 3 (:tx-data txr))))
             (recur)))
       (async/tap listen ch))
     (assoc component :ch ch))

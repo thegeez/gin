@@ -1,9 +1,9 @@
 (ns gin.remote.services
   (:require [gin.transact :as t]
-            [ajax.core :refer [GET POST PUT] :as ajax-core]
+            [gin.event-source :as event-source]
+            [ajax.core :refer [GET POST] :as ajax-core]
             [goog.dom :as gdom]
-            [datascript :as d]
-            [cljs.reader :as reader]))
+            [datascript :as d]))
 
 (defn game-url []
   (str (.. js/window -location -pathname)))
@@ -140,18 +140,8 @@
                                                              [?e :args ?args]]}
                                                    db-after (:max-tx db-after)))]
                       (handle-client event args report conn))))
-  (let [source (js/EventSource. (str (game-url) "/events"))
-        open (atom false)]
-    (set! (.-onopen source)
-          (reset! open true))
-    (set! (.-onerror source)
-          (fn [e]
-            ;; can't connect is a problem, disconnecting is not
-            (when-not @open
-              (error-handler conn))
-            (reset! open false)))
-    (set! (.-onmessage source)
-          (fn [e]
-            (let [data (.-data e)
-                  event (reader/read-string data)]
-              (handle-server event conn))))))
+  (event-source/event-source (str (game-url) "/events")
+                             :on-message (fn [event]
+                                           (handle-server event conn))
+                             :on-error (fn []
+                                         (error-handler conn))))

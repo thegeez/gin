@@ -56,10 +56,16 @@
                     (.printStackTrace e)
                     (debug "Exception async out chan: " e)
                     (close! chunks)
-                    (.complete continuation)
-                    (throw e))))
+                    (try (.complete continuation)
+                         (catch Exception e
+                           nil)))))
             ;; 4 minutes is google default
-            (.setTimeout continuation (get options :response-timeout (* 4 60 1000)))
+            (.setTimeout continuation (get options :response-timeout (* 4 
+                                                                        
+                                                                        
+
+                                                                        1/12
+                                                                        60 1000)))
             ))))))
 
 (defn- create-server

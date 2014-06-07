@@ -41,7 +41,9 @@
                                   ;; conflicts with cljs on tools.reader
                                   [ring/ring-core "1.2.1" :exclusions [org.clojure/tools.reader]]
                                   [cljs-ajax "0.2.3"]
-                                  [datascript "0.1.4"]]
+                                  [datascript "0.1.4"]
+                                  [quiescent "0.1.1"]
+                                  [com.facebook/react "0.9.0.1"]]
                    :plugins [[lein-cljsbuild "1.0.2"]
                              [com.cemerick/clojurescript.test "0.3.0"]]
                    :main user}}

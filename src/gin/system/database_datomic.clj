@@ -75,6 +75,44 @@
   (map->DevMigrator {}))
 
 
+;; mult repeated here because of ASYNC-72
+(require '[clojure.core.async :refer [go-loop put! <! Mux Mult
+                                      tap* untap* untap-all*]]
+         '[clojure.core.async.impl.protocols :as impl])
+(defn mult
+  [ch]
+  (let [cs (atom {}) ;;ch->close?
+        m (reify
+           Mux
+           (muxch* [_] ch)
+
+           Mult
+           (tap* [_ ch close?]
+             (swap! cs assoc ch close?) nil)
+           (untap* [_ ch] (swap! cs dissoc ch) nil)
+           (untap-all* [_] (reset! cs {}) nil))
+        dchan (chan 1)
+        dctr (atom nil)
+        done (fn [_] (when (zero? (swap! dctr dec))
+                      (put! dchan true)))]
+    (go-loop []
+     (let [val (<! ch)]
+       (if (nil? val)
+         (doseq [[c close?] @cs]
+           (when close? (close! c)))
+         (let [chs (keys @cs)]
+           (reset! dctr (count chs))
+           (doseq [c chs]
+
+             (when-not (put! c val done)
+               ;;(done nil) ;; ASYNC-72
+               (untap* m c)))
+           ;;wait for all
+           (when (seq chs)
+             (<! dchan))
+           (recur)))))
+    m))
+
 (defrecord DatabaseDatomic [db-connect-string]
   ;; Implement the Lifecycle protocol
   component/Lifecycle
@@ -84,13 +122,12 @@
     (d/create-database db-connect-string)
     (let [conn (d/connect db-connect-string)
           tx-reports-ch (async/chan)
-          listen (async/mult tx-reports-ch)]
+          listen (mult tx-reports-ch)]
       (async/thread
         (try (let [queue (d/tx-report-queue conn)]
            (while true
              (let [report (.take queue)]
-               (async/>!! tx-reports-ch report)
-               #_(debug "send out report" (pr-str (:tx-data report))))))
+               (async/>!! tx-reports-ch report))))
              (catch Exception e
                (debug "TX-REPORT-TAKE exception: " e)
                (throw e))))

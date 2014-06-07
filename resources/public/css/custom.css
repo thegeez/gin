@@ -314,3 +314,14 @@ body {
 .btn-right {
     float: right;
 }
+.opp-list-frame {
+    padding: 0px;
+    height: 300px;
+    overflow-y: scroll;
+}
+label.opp-name {
+    margin-bottom: 0px;
+}
+.btn-lobby-list {
+    margin-top: -7px;
+}
