@@ -64,11 +64,7 @@
                          (catch Exception e
                            nil)))))
             ;; 4 minutes is google default
-            (.setTimeout continuation (get options :response-timeout (* 4 
-                                                                        
-                                                                        
-
-                                                                        1/12
+            (.setTimeout continuation (get options :response-timeout (* 4
                                                                         60 1000)))
             ))))))
 

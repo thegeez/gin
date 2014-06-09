@@ -190,7 +190,11 @@
                              invites-attr (d/entid db :account/invites)
                              play-attr (d/entid db :account/play)
                              player1-attr (d/entid db :game/player1)
-                             player2-attr (d/entid db :game/player2)]
+                             player2-attr (d/entid db :game/player2)
+                             look-back-cut-off (- (.getTime (java.util.Date.))
+                                                  (* 1.2 ;; some slack
+                                                     4
+                                                     60 1000))]
                          (let [res @(d/transact conn [[:db/retract lobby :lobby/present (:db/id us)]])
                                res2 @(d/transact conn [[:db/add lobby :lobby/present (:db/id us)]])])
                          (let [opps (q '{:find [?e ?slug ?username]
@@ -201,12 +205,7 @@
                                                  [?tx :db/txInstant ?tx-inst]
                                                  [(.getTime ^java.util.Date ?tx-inst) ?tx-time]
                                                  [(< ?cut-off ?tx-time)]]}
-                                       db (- (.getTime (java.util.Date.))
-                                             (* 1.2 ;; some slack
-                                                4
-                                                
-                                                1/12
-                                                60 1000)))
+                                       db look-back-cut-off)
                                us-e (:db/id us)
                                opps-e (into #{} (map first opps))
                                opps (for [[opp-e opp-slug opp-username] opps
@@ -228,7 +227,29 @@
                                                  (pr-str {:type :open
                                                           :opps opps})
                                                  "\r\n\r\n"))
+                           ;; could have been lost between reconnects
+                           (when-let [game-id (ffirst (q '{:find [?game-id]
+                                                           :in [$ ?cut-off ?us %]
+                                                           :where [[?e :game/id ?game-id ?tx]
+                                                                   [?tx :db/txInstant ?tx-inst]
+                                                                   [(.getTime ^java.util.Date ?tx-inst) ?tx-time]
+                                                                   [(< ?cut-off ?tx-time)]
+                                                                   (with-player ?e ?us)]}
+                                                         db (- (.getTime (java.util.Date.))
+                                                               (* 10 1000))
+                                                         us-e
+                                                         '[[(with-player ?g ?p)
+                                                            [?e :game/player1 ?p]]
+                                                           [(with-player ?g ?p)
+                                                            [?e :game/player2 ?p]]]))]
+                             (debug "Found dropped game notification: " game-id)
+                             (async/put! out
+                                         (str "data: "
+                                              (spy (str {:type :game-created
+                                                         :url (str "/games/" game-id)}))
+                                              "\r\n\r\n")))
                            (debug "LEts listen " slug)
+
                            (let [in (chan)
                                  report-to-msg (fn [report]
                                                  (let [tx-data (:tx-data report)

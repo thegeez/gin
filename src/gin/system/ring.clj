@@ -1,5 +1,6 @@
 (ns gin.system.ring
   (:require [clojure.tools.logging :refer [info debug spy error]]
+            [clojure.string :as string]
             [com.stuartsierra.component :as component]
             [ring.middleware.params :as params]
             [ring.middleware.keyword-params :as keyword-params]
@@ -83,6 +84,15 @@
                  st (.printStackTrace ^Throwable e pw)
                  st-str (.toString res)]
              (error "Exception e: " e "str:" st-str))))))
+
+(defn wrap-dev-cljs [handler match replace]
+  (fn [req]
+    (let [res (handler req)]
+      (if (and (= "application/html" (get-in res [:headers "Content-Type"]))
+               (not (get-in req [:query-params "dev"])))
+        (update-in res [:body]
+                   string/replace match replace)
+        res))))
 
 ;; h/t james reeves
 (defn wrap-swank [handler]

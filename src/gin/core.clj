@@ -44,36 +44,41 @@
 
 (defn dev-handler []
   (-> (main-handler)
-      ring/wrap-dev))
+      ring/wrap-dev
+      (ring/wrap-dev-cljs
+       "<script src=\"/public/js/gin.js\" type=\"text/javascript\"></script>"
+       "<script src=\"http://fb.me/react-0.9.0.js\"></script>
+        <script src=\"/public/js/gin-dev.js\" type=\"text/javascript\"></script>
+        <script type=\"text/javascript\">goog.require('gin.core');</script>")))
 
 (defrecord DevDBFixtures [database]
   component/Lifecycle
   (start [component]
-         (info "Insert test fixtures")
-         (let [conn (:connection database)]
-           @(d/transact conn
-                        (let [event-id (d/tempid :db.part/user)
-                              game-id (d/tempid :db.part/user)
-                              p1-id (d/tempid :db.part/user)
-                              p2-id (d/tempid :db.part/user)
-                              tx-id (d/tempid :db.part/tx)]
-                          [{:db/id event-id
-                            :event/type :game-created
-                            :event/game game-id
-                            :event/tx tx-id
-                            :event/by :migrations}
-                           {:db/id game-id
-                            :game/id "fix1"
-                            :game/player1 p1-id
-                            :game/player2 p2-id
-                            :game/to-start p1-id
-                            :game/last-event event-id}
-                           {:db/id p1-id
-                            :account/slug "user1"
-                            :account/username "User One"}
-                           {:db/id p2-id
-                            :account/slug "user2"
-                            :account/username "Player Two"}])))
+    (info "Insert test fixtures")
+    (let [conn (:connection database)]
+      @(d/transact conn
+                   (let [event-id (d/tempid :db.part/user)
+                         game-id (d/tempid :db.part/user)
+                         p1-id (d/tempid :db.part/user)
+                         p2-id (d/tempid :db.part/user)
+                         tx-id (d/tempid :db.part/tx)]
+                     [{:db/id event-id
+                       :event/type :game-created
+                       :event/game game-id
+                       :event/tx tx-id
+                       :event/by :migrations}
+                      {:db/id game-id
+                       :game/id "fix1"
+                       :game/player1 p1-id
+                       :game/player2 p2-id
+                       :game/to-start p1-id
+                       :game/last-event event-id}
+                      {:db/id p1-id
+                       :account/slug "user1"
+                       :account/username "User One"}
+                      {:db/id p2-id
+                       :account/slug "user2"
+                       :account/username "Player Two"}])))
     component)
   (stop [component]
     (info "Not bothering to remove test fixtures")
@@ -85,9 +90,9 @@
 (defrecord GinSystem []
   component/Lifecycle
   (start [this]
-         (component/start-system this (filter (partial satisfies? component/Lifecycle) (keys this))))
+    (component/start-system this (filter (partial satisfies? component/Lifecycle) (keys this))))
   (stop [this]
-        (component/stop-system this (filter (partial satisfies? component/Lifecycle) (keys this)))))
+    (component/stop-system this (filter (partial satisfies? component/Lifecycle) (keys this)))))
 
 (defn dev-gin-system [config-options]
   (info "Hello world!")
@@ -124,14 +129,25 @@
   (info "Hello world, this is the production system!")
   (let [{:keys [db-connect-string port]} config-options]
     (map->GinSystem
-      {:config-options config-options
-       :db (database-datomic/database-datomic db-connect-string)
-       :ring-handler (component/using
-                      (ring/ring-handler (main-handler))
-                      {:database :db})
-       :server (component/using
-                (jetty-async-adapter/async-jetty port)
-                {:handler :ring-handler})})))
+     {:config-options config-options
+      :db (database-datomic/database-datomic db-connect-string)
+      :db-migrator (component/using
+                     (database-datomic/dev-migrator)
+                     {:database :db})
+      :dealer (component/using
+                (dealer/dealer)
+                {:database :db
+                 :db-migrator :db-migrator})
+      :ai (component/using
+           (ai/ai)
+           {:database :db
+            :db-migrator :db-migrator})
+      :ring-handler (component/using
+                     (ring/ring-handler (main-handler))
+                     {:database :db})
+      :server (component/using
+               (jetty-async-adapter/async-jetty port)
+               {:handler :ring-handler})})))
 
 (defn production-config [port database-url]
   {:db-connect-string database-url

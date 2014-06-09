@@ -46,24 +46,18 @@
                                   [com.facebook/react "0.9.0.1"]]
                    :plugins [[lein-cljsbuild "1.0.2"]
                              [com.cemerick/clojurescript.test "0.3.0"]]
-                   :main user}}
+                   :main user}
+             :uberjar {:main gin.main
+                       :aot [gin.main]}}
   :cljsbuild {:builds {:dev {:source-paths ["cljs/src"]
                              :compiler {:output-to "resources/public/js/gin-dev.js"
                                         :output-dir "resources/public/js/out"
                                         :optimizations :whitespace}
                              :notify-command ["notify-send" "cljsbuild"]}
-                       :test {:source-paths ["cljs/src" "cljs/test"]
-                              :compiler {:preamble ["react/react.min.js"]
-                                         :output-to "cljs/target/cljstest.js"
-                                         :optimizations :whitespace
-                                         :pretty-print true}}
-                       :prod {:source-paths ["cljs/src" "cljs/test"]
-                              :compiler {:output-to "resources/public/js/gin-min.js"
+                       :prod {:source-paths ["cljs/src"]
+                              :compiler {:output-to "resources/public/js/gin.js"
                                          :optimizations :advanced
                                          :elide-asserts true
                                          :pretty-print false
                                          :preamble ["react/react.min.js"]
-                                         :externs ["react/externs/react.js"]}}}
-              :test-commands {"tests" ["phantomjs" :runner
-                                       "cljs/test/bind_polyfill.js"
-                                       "cljs/target/cljstest.js"]}})
+                                         :externs ["react/externs/react.js"]}}}})
