@@ -10,11 +10,9 @@
       (.getAttribute "value")))
 
 (defn error-handler []
-  (.log js/console "Error, reload page")
   (domh/show-element (domh/get-element "network-header-error") true))
 
 (defn goto-url [url]
-  (.log js/console "Set location to : " url)
   (set! (.-location js/window) url))
 
 (defn POST-ACTION [url options]
@@ -89,8 +87,6 @@
     (start-quiescent opps)
     (let [source (event-source/event-source "/lobby/events"
                                             :on-message (fn [event]
-                                                          (.log js/console "ES event"
-                                                                (pr-str event))
                                                           (cond
                                                            (= (:type event) :open)
                                                            (reset! opps (zipmap

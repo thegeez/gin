@@ -22,7 +22,6 @@
             (goog.Timer/callOnce (fn []
                                    ;; this sometimes happens in
                                    ;; firefox
-                                   (.log js/console (str "Reconnect check" (.-readyState source) (.-CLOSED js/EventSource) (= (.-readyState source) (.-CLOSED js/EventSource))))
                                    (when (= (.-readyState source) (.-CLOSED js/EventSource))
                                      (event-source url :on-open on-open :on-message on-message :on-error on-error)))
                                  (* 9 1000))

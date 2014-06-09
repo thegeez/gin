@@ -47,18 +47,15 @@
             (go (try
                   (loop []
                     (if-let [chunk (<! chunks)]
-                      (do 
-                        (debug "WRITING CHUNK: " (subs chunk 0 (min 40 (count chunk))))
+                      (do
                         (doto (.getWriter response)
-                            (.write chunk)
-                            (.flush))
-                          (when (.checkError (.getWriter response))
-                            (close! chunks))
-                          (recur))
+                          (.write chunk)
+                          (.flush))
+                        (when (.checkError (.getWriter response))
+                          (close! chunks))
+                        (recur))
                       (.complete continuation)))
                   (catch Exception e
-                    (.printStackTrace e)
-                    (debug "Exception async out chan: " e)
                     (close! chunks)
                     (try (.complete continuation)
                          (catch Exception e

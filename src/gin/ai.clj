@@ -36,28 +36,23 @@
 (defmethod handle :turn-assigned
   [event conn]
   (when-let [[game-ref player] (player event)]
-    (debug "REMOTE AI TO MOVE!!!")
     (let [game (get event :event/game)
-          _     (debug "REMOTE AI TO MOVE!!! game" game)
           in-hand-cards (for [card (get game
                                         (if (= player :player1)
                                           :game/player1-cards
                                           :game/player2-cards))]
                             {:suit (:card/suit card)
                              :rank (:card/rank card)})
-          _ (debug "REMOTE AI TO MOVE!!! inhand-cards" in-hand-cards)
           [discard & gone-discards]
           (->> (iterate :card.discard/next (:game/discard game))
                (take-while identity)
                (mapv (fn [card]
                        {:suit (:card/suit card)
                         :rank (:card/rank card)})))
-          _     (debug "REMOTE AI TO MOVE!!! discards disc" discard gone-discards)
           move (try (game/takediscardordeck in-hand-cards discard gone-discards)
                     (catch Exception e
                       (.printStackTrace e)
                       (throw e)))]
-      (debug "AI decided on: " in-hand-cards discard gone-discards move)
       @(d/transact conn
                    [(if (= move :pile)
                       [:pile-picked game-ref player]
@@ -78,12 +73,8 @@
                                 {:suit (:card/suit card)
                                  :rank (:card/rank card)})))
           trade-card (game/choosediscard in-hand-cards discards)]
-      (debug "AI decided on: " in-hand-cards discards trade-card)
-      (let [res (try @(d/transact conn
-                              [[:discard-chosen game-ref player (:suit trade-card) (:rank trade-card)]])
-                     (catch Exception e
-                       (debug "Remote AI move exception" e)))]
-        (debug "AI Decided res: " (keys res))))))
+      @(d/transact conn
+                   [[:discard-chosen game-ref player (:suit trade-card) (:rank trade-card)]]))))
 
 (defmethod handle :pile-pick-revealed
   [event conn]
@@ -105,17 +96,13 @@
           listen (:listen database)]
       (go (loop []
             (when-let [txr (<! ch)]
-              (debug "AI checks if tx is usefull" (pr-str (take 3 (:tx-data txr))))
               (when-let [event-id (let [event-type-attr-id (d/entid (:db-after txr) :event/type)]
                                     (some (fn [[e attr _ _ _]]
                                             (when (= attr event-type-attr-id)
                                               e))
                                           (:tx-data txr)))]
                 (let [event (d/entity (:db-after txr) event-id)]
-                  (debug "AI event: " event (:event/type event))
-                  (handle event conn)
-                  (debug "AI event done: " event (:event/type event))))
-              (debug "AI: is done with tx" (take 3 (:tx-data txr))))
+                  (handle event conn))))
             (recur)))
       (async/tap listen ch))
     (assoc component :ch ch))

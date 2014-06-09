@@ -49,7 +49,6 @@
    game-resource
    {:allowed-methods [:post]
     :available-media-types ["application/edn"]
-
     :as-response (l/as-template-response nil)}))
 
 (def game-page-html (html/html-resource "templates/game.html"))
@@ -324,12 +323,6 @@
                                                  t (or (d/as-of-t db)
                                                        (d/basis-t db))
                                                  event (:game/last-event (d/entity db (:db/id game)))]
-                                             (debug "EVent in games" 
-                                                    (:slug (friend/current-authentication (:request ctx)))
-                                                    event
-                                                    (:event/type event)
-                                                    
-                                                    (pr-str here-since))
                                              (when-let [event-str (event-to-msg event player)]
                                                (str "id: " t "\r\n"
                                                     "data: "

@@ -19,7 +19,6 @@
 
 (defmethod handle :game-created
   [event conn]
-  (debug "Dealing from dealer after game-created")
   (let [deck (shuffle-set (set (for [suit [:heart :club :spade :diamond]
                                      rank [:A :K :Q :J :T :r9 :r8 :r7 :r6 :r5 :r4 :r3 :r2]]
                                  {:suit suit
@@ -48,7 +47,6 @@
 
 (defmethod handle :player-ready
   [event conn]
-  (debug "A player is ready")
   (let [game (:event/game event)
         game-ref (:db/id game)]
     (when (= 2 (count (:game/ready game)))
@@ -118,26 +116,16 @@
     ;; marking its progress in the db
     (let [conn (:connection database)
           listen (:listen database)]
-      (go (try 
-            (loop []
-              (when-let [txr (<! ch)]
-                (debug "txr in dealer" (keys txr))
-                (when-let [event-id (let [event-type-attr-id (d/entid (:db-after txr) :event/type)]
-                                      (some (fn [[e attr _ _ _]]
-                                              (when (= attr event-type-attr-id)
-                                                e))
-                                            (:tx-data txr)))]
-                  (let [event (d/entity (:db-after txr) event-id)]
-                    (debug "event in DEALER" event (:event/type event))
-                    (handle event conn)
-                    (debug "event in DEALER done")))
-                (debug "dealer txr done")
-                )
-              (recur))
-            (catch Exception e
-              (debug "Exception in DEALER loop " e)
-              #_(.printStackTrace e)
-              (throw e))))
+      (go (loop []
+            (when-let [txr (<! ch)]
+              (when-let [event-id (let [event-type-attr-id (d/entid (:db-after txr) :event/type)]
+                                    (some (fn [[e attr _ _ _]]
+                                            (when (= attr event-type-attr-id)
+                                              e))
+                                          (:tx-data txr)))]
+                (let [event (d/entity (:db-after txr) event-id)]
+                  (handle event conn))))
+            (recur)))
       (async/tap listen ch))
     (assoc component :ch ch))
 

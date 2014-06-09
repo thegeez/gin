@@ -15,7 +15,6 @@
 (defn lookup-friend-identity [conn creds]
   (let [username (:username creds)
         slug (h/slugify username)]
-    (debug "looking up username: " username slug)
     ;; return nil if assigning this username failed
     (try (when (seq slug)
            @(d/transact conn [[:register-username username slug]])
@@ -26,7 +25,7 @@
            nil))))
 
 (def local-game-html (-> (html/html-resource "templates/local_game.html")
-                    (html/select [:#content])))
+                         (html/select [:#content])))
 
 (def login-html (-> (html/html-resource "templates/login.html")
                     (html/select [:#content])))
@@ -43,10 +42,9 @@
    (let [username (get-in ctx [:request :params :username])
          failed (when (get-in ctx [:request :params :login_failed])
                   "Can't use this username, pick another one")]
-     (debug "username: " username failed)
-          (html/transform-content
-           [:div#username] (l/maybe-error failed)
-           [:div#username :input] (html/set-attr :value username)
+     (html/transform-content
+      [:div#username] (l/maybe-error failed)
+      [:div#username :input] (html/set-attr :value username)
 ))))
 
 (defresource login-page
@@ -119,11 +117,9 @@
            (let [conn (h/conn ctx)
                  db (d/db conn)
                  slug (:slug (friend/current-authentication (get ctx :request)))
-                 post-params (try (-> (get-in ctx [:request :body])
-                                  slurp
-                                  edn/read-string)
-                                  (catch Exception e
-                                    (debug "WRDDSAD" e)))
+                 post-params (-> (get-in ctx [:request :body])
+                                 slurp
+                                 edn/read-string)
                  opp-slug (:opp-slug post-params)]
              (d/transact-async conn [[:db/add [:account/slug slug]
                                       :account/invites [:account/slug opp-slug]]])))
@@ -157,16 +153,13 @@
                                  slurp
                                  edn/read-string)
                  opp-slug (:opp-slug post-params)]
-             (debug "START action!" opp-slug)
-             (let [res @(d/transact conn [[:db/retract [:account/slug slug]
-                                          :account/invites [:account/slug opp-slug]]
-                                         [:db/retract [:account/slug opp-slug]
-                                          :account/invites [:account/slug slug]]
-                                         [:db/retract [:account/slug opp-slug]
-                                          :account/play [:account/slug slug]]
-                                         [:game-created slug opp-slug :player1]])]
-               (debug "start action RES: " res)
-               res)))
+             @(d/transact conn [[:db/retract [:account/slug slug]
+                                 :account/invites [:account/slug opp-slug]]
+                                [:db/retract [:account/slug opp-slug]
+                                 :account/invites [:account/slug slug]]
+                                [:db/retract [:account/slug opp-slug]
+                                 :account/play [:account/slug slug]]
+                                [:game-created slug opp-slug :player1]])))
   :as-response (l/as-template-response nil))
 
 (defresource lobby-events
@@ -195,8 +188,8 @@
                                                   (* 1.2 ;; some slack
                                                      4
                                                      60 1000))]
-                         (let [res @(d/transact conn [[:db/retract lobby :lobby/present (:db/id us)]])
-                               res2 @(d/transact conn [[:db/add lobby :lobby/present (:db/id us)]])])
+                         @(d/transact conn [[:db/retract lobby :lobby/present (:db/id us)]])
+                         @(d/transact conn [[:db/add lobby :lobby/present (:db/id us)]])
                          (let [opps (q '{:find [?e ?slug ?username]
                                          :in [$ ?cut-off]
                                          :where [[:lobby :lobby/present ?e ?tx]
@@ -211,7 +204,7 @@
                                opps (for [[opp-e opp-slug opp-username] opps
                                           :when (not= opp-e us-e)]
                                       {:slug opp-slug
-                                       :username (str opp-username " from start")
+                                       :username opp-username
                                        :invited (boolean (ffirst (q
                                                                   '{:find [?opp-e ?us-e]
                                                                     :in [$ ?opp-e ?us-e]
@@ -222,7 +215,6 @@
                                                                       :in [$ ?opp-e ?us-e]
                                                                       :where [[?opp-e :account/invites ?us-e]]}
                                                                   db opp-e us-e)))})]
-                           (debug "SEND out opp is present" opps "to" out)
                            (async/put! out (str  "data: "
                                                  (pr-str {:type :open
                                                           :opps opps})
@@ -242,25 +234,15 @@
                                                             [?e :game/player1 ?p]]
                                                            [(with-player ?g ?p)
                                                             [?e :game/player2 ?p]]]))]
-                             (debug "Found dropped game notification: " game-id)
                              (async/put! out
                                          (str "data: "
                                               (spy (str {:type :game-created
                                                          :url (str "/games/" game-id)}))
                                               "\r\n\r\n")))
-                           (debug "LEts listen " slug)
-
                            (let [in (chan)
                                  report-to-msg (fn [report]
                                                  (let [tx-data (:tx-data report)
                                                        db (:db-after report)]
-                                                   (debug "TX_DATA???" slug 
-                                                          (pr-str (for [d tx-data]
-                                                                    (pr-str d)))
-                                                          lobby
-                                                          present-attr
-                                                          invites-attr
-                                                          (:db/id us))
                                                    (some
                                                     (fn [[e a v _ added]]
                                                       (cond

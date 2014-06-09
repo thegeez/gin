@@ -88,7 +88,7 @@
 (defn wrap-dev-cljs [handler match replace]
   (fn [req]
     (let [res (handler req)]
-      (if (and (= "application/html" (get-in res [:headers "Content-Type"]))
+      (if (and (.startsWith (get-in res [:headers "Content-Type"] "") "text/html" )
                (not (get-in req [:query-params "dev"])))
         (update-in res [:body]
                    string/replace match replace)

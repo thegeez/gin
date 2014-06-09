@@ -148,7 +148,3 @@
       :server (component/using
                (jetty-async-adapter/async-jetty port)
                {:handler :ring-handler})})))
-
-(defn production-config [port database-url]
-  {:db-connect-string database-url
-   :port port})
