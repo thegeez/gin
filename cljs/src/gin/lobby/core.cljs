@@ -10,8 +10,12 @@
       (.getAttribute "value")))
 
 (defn error-handler []
-  (.log js/console "Error, reloading page")
+  (.log js/console "Error, reload page")
   (domh/show-element (domh/get-element "network-header-error") true))
+
+(defn goto-url [url]
+  (.log js/console "Set location to : " url)
+  (set! (.-location js/window) url))
 
 (defn POST-ACTION [url options]
   (POST url
@@ -32,22 +36,34 @@
   (POST-ACTION "/lobby/invite"
                {:params {:opp-slug slug}}))
 
+(defn play [slug]
+  (POST-ACTION "/lobby/play"
+               {:params {:opp-slug slug}}))
+
+(defn accept-play [slug]
+  (POST-ACTION "/lobby/start"
+               {:params {:opp-slug slug}}))
+
 (q/defcomponent Item
   [opp]
   (dom/li {:className "list-group-item"}
-          (let [[text f] (cond
+          (let [[text btn-class f] (cond
                           (:available opp)
-                          ["Play" (fn [_]
-                                    #_(play (:slug opp)))]
+                          ["Play" "btn-success"
+                           (fn [_]
+                             (play (:slug opp)))]
                           (:invited opp)
-                          ["Awaiting invite reply ..." (fn [_])]
+                          ["Awaiting invite reply ..."
+                           "btn-disabled"
+                           (fn [_])]
                           :else
-                          ["Invite" (fn [_]
-                                      (invite (:slug opp)))])]
+                          ["Invite" "btn-primary"
+                           (fn [_]
+                             (invite (:slug opp)))])]
             (dom/div {}
                      (dom/label {:className "opp-name"}
                                 (:username opp))
-                     (dom/button {:className "btn btn-primary btn-right btn-lobby-list"
+                     (dom/button {:className (str "btn btn-right btn-lobby-list " btn-class)
                                   :onClick f}
                                  text)))))
 
@@ -91,6 +107,17 @@
                                                                   {:slug (:slug event)
                                                                    :username (:username event)
                                                                    :invited true})
-                                                          ))
+                                                           (= (:type event) :available)
+                                                           (swap! opps assoc
+                                                                  (:slug event)
+                                                                  {:slug (:slug event)
+                                                                   :username (:username event)
+                                                                   :available true})
+                                                           (= (:type event) :play)
+                                                           (do
+                                                             (accept-play (:slug event))
+                                                             opps)
+                                                           (= (:type event) :game-created)
+                                                           (goto-url (:url event))))
                                             :on-error (fn []
                                                         (error-handler)))])))

@@ -99,12 +99,14 @@
         setup-counter-done (go (try 
                                  (loop []
                                    (let [tx-report (<! setup-counter)
+                                         _ (debug "tx-report setup counter" 
+                                                  (take 4 (:tx-data tx-report)))
                                          c (q '{:find [?e]
                                                 :where [[?e :game/id "test1"]]}
                                               (:db-after tx-report))]
                                      (if (nil? (seq c))
                                        (recur)
-                                       (close! setup-counter))))
+                                       (dd/close-and-drain! setup-counter))))
                                  (catch Exception e
                                    (debug "Exception setup counter" e)
                                    (throw e))))
@@ -116,7 +118,7 @@
                                          c (:dev/count (d/entity (:db-after tx-report) [:game/id "test1"]))]
                                      (if-not (= 50 c)
                                        (recur)
-                                       (close! first-counter))))
+                                       (dd/close-and-drain! first-counter))))
                                  (catch Exception e
                                    (debug "First counter exception " e)
                                    (throw e))))
@@ -135,10 +137,10 @@
                         :game/to-start (d/tempid :db.part/user -1)}
                        {:db/id (d/tempid :db.part/user -1)
                         :account/slug "test-user1"
-                        :account/name "Test User One"}
+                        :account/username "Test User One"}
                        {:db/id (d/tempid :db.part/user -2)
                         :account/slug "test-user2"
-                        :account/name "Test Player Two"}
+                        :account/username "Test Player Two"}
                        {:db/id (d/tempid :db.part/db)
                         :db/ident :dev/count
                         :db/valueType :db.type/long
@@ -190,7 +192,7 @@
                                      (let [tx-report (<! second-counter)]
                                        (if-not (= 100 (:dev/count (d/entity (:db-after tx-report) [:game/id "test1"])))
                                          (recur)
-                                         (close! second-counter))))
+                                         (dd/close-and-drain! second-counter))))
                                     (catch Exception e
                                       (debug "Second counter done: " e)
                                       (throw e))))

@@ -1,5 +1,6 @@
 (ns gin.lobby
   (:require [clojure.tools.logging :refer [debug spy]]
+            [clojure.edn :as edn]
             [gin.util.helpers :as h]
             [gin.util.layout :as l]
             [gin.common :as c]
@@ -112,15 +113,60 @@
 
 (defresource invite-action
   registering-required
-  :available-media-types ["text/html"]
+  :available-media-types ["application/edn"]
   :allowed-methods [:post]
   :post! (fn [ctx]
            (let [conn (h/conn ctx)
                  db (d/db conn)
                  slug (:slug (friend/current-authentication (get ctx :request)))
-                 opp-slug (get-in ctx [:request :params :opp-slug])]
-             @(d/transact conn [[:db/add [:account/slug slug]
-                                 :lobby/invites [:account/slug opp-slug]]])))
+                 post-params (try (-> (get-in ctx [:request :body])
+                                  slurp
+                                  edn/read-string)
+                                  (catch Exception e
+                                    (debug "WRDDSAD" e)))
+                 opp-slug (:opp-slug post-params)]
+             (d/transact-async conn [[:db/add [:account/slug slug]
+                                      :account/invites [:account/slug opp-slug]]])))
+  :as-response (l/as-template-response nil))
+
+(defresource play-action
+  registering-required
+  :available-media-types ["application/edn"]
+  :allowed-methods [:post]
+  :post! (fn [ctx]
+           (let [conn (h/conn ctx)
+                 db (d/db conn)
+                 slug (:slug (friend/current-authentication (get ctx :request)))
+                 post-params (-> (get-in ctx [:request :body])
+                                 slurp
+                                 edn/read-string)
+                 opp-slug (:opp-slug post-params)]
+             (d/transact-async conn [[:db/add [:account/slug slug]
+                                      :account/play [:account/slug opp-slug]]])))
+  :as-response (l/as-template-response nil))
+
+(defresource start-action
+  registering-required
+  :available-media-types ["application/edn"]
+  :allowed-methods [:post]
+  :post! (fn [ctx]
+           (let [conn (h/conn ctx)
+                 db (d/db conn)
+                 slug (:slug (friend/current-authentication (get ctx :request)))
+                 post-params (-> (get-in ctx [:request :body])
+                                 slurp
+                                 edn/read-string)
+                 opp-slug (:opp-slug post-params)]
+             (debug "START action!" opp-slug)
+             (let [res @(d/transact conn [[:db/retract [:account/slug slug]
+                                          :account/invites [:account/slug opp-slug]]
+                                         [:db/retract [:account/slug opp-slug]
+                                          :account/invites [:account/slug slug]]
+                                         [:db/retract [:account/slug opp-slug]
+                                          :account/play [:account/slug slug]]
+                                         [:game-created slug opp-slug :player1]])]
+               (debug "start action RES: " res)
+               res)))
   :as-response (l/as-template-response nil))
 
 (defresource lobby-events
@@ -140,7 +186,11 @@
                              us (d/entity db [:account/slug slug])
                              start-from (d/basis-t db)
                              lobby (d/entid db :lobby)
-                             present-attr (d/entid db :lobby/present)]
+                             present-attr (d/entid db :lobby/present)
+                             invites-attr (d/entid db :account/invites)
+                             play-attr (d/entid db :account/play)
+                             player1-attr (d/entid db :game/player1)
+                             player2-attr (d/entid db :game/player2)]
                          (let [res @(d/transact conn [[:db/retract lobby :lobby/present (:db/id us)]])
                                res2 @(d/transact conn [[:db/add lobby :lobby/present (:db/id us)]])])
                          (let [opps (q '{:find [?e ?slug ?username]
@@ -152,11 +202,13 @@
                                                  [(.getTime ^java.util.Date ?tx-inst) ?tx-time]
                                                  [(< ?cut-off ?tx-time)]]}
                                        db (- (.getTime (java.util.Date.))
-                                             (* 4 
+                                             (* 1.2 ;; some slack
+                                                4
                                                 
                                                 1/12
                                                 60 1000)))
                                us-e (:db/id us)
+                               opps-e (into #{} (map first opps))
                                opps (for [[opp-e opp-slug opp-username] opps
                                           :when (not= opp-e us-e)]
                                       {:slug opp-slug
@@ -165,46 +217,89 @@
                                                                   '{:find [?opp-e ?us-e]
                                                                     :in [$ ?opp-e ?us-e]
                                                                     :where [[?us-e :account/invites ?opp-e]]}
+                                                                  db opp-e us-e)))
+                                       :available (boolean (ffirst (q
+                                                                    '{:find [?opp-e ?us-e]
+                                                                      :in [$ ?opp-e ?us-e]
+                                                                      :where [[?opp-e :account/invites ?us-e]]}
                                                                   db opp-e us-e)))})]
                            (debug "SEND out opp is present" opps "to" out)
                            (async/put! out (str  "data: "
                                                  (pr-str {:type :open
                                                           :opps opps})
-                                                 "\r\n\r\n")))
-                         (debug "LEts listen " slug)
-                         (let [in (chan)
-                               report-to-msg (fn [report] 
-                                               (let [tx-data (:tx-data report)
-                                                     db (:db-after report)]
-                                                 (debug "TX_DATA???" slug 
-                                                        (pr-str (for [d tx-data]
-                                                                  (pr-str d)))
-                                                        lobby
-                                                        present-attr
-                                                        (:db/id us))
-                                                 (some
-                                                  (fn [[e a v _ added]]
-                                                    (cond
-                                                     (and added
-                                                          (= e lobby)
-                                                          (= a present-attr)
-                                                          (not= v (:db/id us)))
-                                                     (let [opp (d/entity db v)]
-                                                       (str "data: "
-                                                            (spy (str {:type :joined
-                                                                       :slug (:account/slug opp)
-                                                                       :username (:account/username opp)}))
-                                                            "\r\n\r\n")))
-                                                    )
-                                                  tx-data)))]
-                           (go (loop []
-                                 (when-let [report (<! in)]
-                                   (let [msg (report-to-msg report)]
-                                     (if msg
-                                       (when-not (>! out msg)
-                                         (close! in))))
-                                   (recur))))
-                           (async/tap listen in))
+                                                 "\r\n\r\n"))
+                           (debug "LEts listen " slug)
+                           (let [in (chan)
+                                 report-to-msg (fn [report]
+                                                 (let [tx-data (:tx-data report)
+                                                       db (:db-after report)]
+                                                   (debug "TX_DATA???" slug 
+                                                          (pr-str (for [d tx-data]
+                                                                    (pr-str d)))
+                                                          lobby
+                                                          present-attr
+                                                          invites-attr
+                                                          (:db/id us))
+                                                   (some
+                                                    (fn [[e a v _ added]]
+                                                      (cond
+                                                       (and added
+                                                            (= e lobby)
+                                                            (= a present-attr)
+                                                            (not= v (:db/id us))
+                                                            (not (contains? opps-e v)))
+                                                       (let [opp (d/entity db v)]
+                                                         (str "data: "
+                                                              (spy (str {:type :joined
+                                                                         :slug (:account/slug opp)
+                                                                         :username (:account/username opp)}))
+                                                              "\r\n\r\n"))
+                                                       (and added
+                                                            (= e (:db/id us))
+                                                            (= a invites-attr))
+                                                       (let [opp (d/entity db v)]
+                                                         (str "data: "
+                                                              (spy (str {:type :invited
+                                                                         :slug (:account/slug opp)
+                                                                         :username (:account/username opp)}))
+                                                              "\r\n\r\n"))
+                                                       (and added
+                                                            (= a invites-attr)
+                                                            (= v (:db/id us)))
+                                                       (let [opp (d/entity db e)]
+                                                         (str "data: "
+                                                              (spy (str {:type :available
+                                                                         :slug (:account/slug opp)
+                                                                         :username (:account/username opp)}))
+                                                              "\r\n\r\n"))
+                                                       (and added
+                                                            (= a play-attr)
+                                                            (= v (:db/id us)))
+                                                       (let [opp (d/entity db e)]
+                                                         (str "data: "
+                                                              (spy (str {:type :play
+                                                                         :slug (:account/slug opp)
+                                                                         :username (:account/username opp)}))
+                                                              "\r\n\r\n"))
+                                                       (and added
+                                                            (or (= a player1-attr)
+                                                                (= a player2-attr))
+                                                            (= v (:db/id us)))
+                                                       (let [game (d/entity db e)]
+                                                         (str "data: "
+                                                              (spy (str {:type :game-created
+                                                                         :url (str "/games/" (:game/id game))}))
+                                                              "\r\n\r\n"))
+                                                       ))
+                                                    tx-data)))]
+                             (go (loop []
+                                   (when-let [report (<! in)]
+                                     (let [msg (report-to-msg report)]
+                                       (if msg
+                                         (when-not (>! out msg)
+                                           (close! in))))
+                                     (recur))))
+                             (async/tap listen in)))
                          out)})))
 
 (def cljs-page-html (html/html-resource "templates/clojurescript_ai.html"))
@@ -222,7 +317,8 @@
 (defroutes lobby-routes
   (ANY "/" _ lobby-page)
   (ANY "/lobby/invite" _ invite-action)
-  #_(ANY "/lobby/play" _ play-action)
+  (ANY "/lobby/play" _ play-action)
+  (ANY "/lobby/start" _ start-action)
   (ANY "/lobby/events" _ lobby-events)
   (ANY "/login" _ login-page)
   (ANY "/clojurescript-ai" _ cljs-page)

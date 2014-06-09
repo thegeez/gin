@@ -39047,59 +39047,72 @@ ajax.core.POST = function() {
 }();
 goog.provide("gin.event_source");
 goog.require("cljs.core");
+goog.require("goog.Timer");
+goog.require("goog.Timer");
 goog.require("cljs.reader");
 goog.require("cljs.reader");
 gin.event_source.event_source = function() {
-  var event_source__delegate = function(url, p__20000) {
-    var map__20002 = p__20000;
-    var map__20002__$1 = cljs.core.seq_QMARK_.call(null, map__20002) ? cljs.core.apply.call(null, cljs.core.hash_map, map__20002) : map__20002;
-    var on_error = cljs.core.get.call(null, map__20002__$1, new cljs.core.Keyword(null, "on-error", "on-error", 1418576908), function(map__20002, map__20002__$1) {
+  var event_source__delegate = function(url, p__20298) {
+    var map__20300 = p__20298;
+    var map__20300__$1 = cljs.core.seq_QMARK_.call(null, map__20300) ? cljs.core.apply.call(null, cljs.core.hash_map, map__20300) : map__20300;
+    var on_error = cljs.core.get.call(null, map__20300__$1, new cljs.core.Keyword(null, "on-error", "on-error", 1418576908), function(map__20300, map__20300__$1) {
       return function() {
         return null;
       };
-    }(map__20002, map__20002__$1));
-    var on_message = cljs.core.get.call(null, map__20002__$1, new cljs.core.Keyword(null, "on-message", "on-message", 1496225163), function(map__20002, map__20002__$1, on_error) {
+    }(map__20300, map__20300__$1));
+    var on_message = cljs.core.get.call(null, map__20300__$1, new cljs.core.Keyword(null, "on-message", "on-message", 1496225163), function(map__20300, map__20300__$1, on_error) {
       return function(event) {
         return null;
       };
-    }(map__20002, map__20002__$1, on_error));
-    var on_open = cljs.core.get.call(null, map__20002__$1, new cljs.core.Keyword(null, "on-open", "on-open", 3936747754), function(map__20002, map__20002__$1, on_error, on_message) {
+    }(map__20300, map__20300__$1, on_error));
+    var on_open = cljs.core.get.call(null, map__20300__$1, new cljs.core.Keyword(null, "on-open", "on-open", 3936747754), function(map__20300, map__20300__$1, on_error, on_message) {
       return function() {
         return null;
       };
-    }(map__20002, map__20002__$1, on_error, on_message));
+    }(map__20300, map__20300__$1, on_error, on_message));
     var source = new EventSource(url);
     var open = cljs.core.atom.call(null, false);
     source.onopen = function() {
       cljs.core.reset_BANG_.call(null, open, true);
-      return on_open.call(null);
+      on_open.call(null);
+      return null;
     };
     source.onerror = function(e) {
       if (cljs.core.truth_(cljs.core.deref.call(null, open))) {
       } else {
         on_error.call(null);
       }
-      return cljs.core.reset_BANG_.call(null, open, false);
+      cljs.core.reset_BANG_.call(null, open, false);
+      goog.Timer.callOnce(function() {
+        console.log([cljs.core.str("Reconnect check"), cljs.core.str(source.readyState), cljs.core.str(EventSource.CLOSED), cljs.core.str(cljs.core._EQ_.call(null, source.readyState, EventSource.CLOSED))].join(""));
+        if (cljs.core._EQ_.call(null, source.readyState, EventSource.CLOSED)) {
+          return event_source.call(null, url, new cljs.core.Keyword(null, "on-open", "on-open", 3936747754), on_open, new cljs.core.Keyword(null, "on-message", "on-message", 1496225163), on_message, new cljs.core.Keyword(null, "on-error", "on-error", 1418576908), on_error);
+        } else {
+          return null;
+        }
+      }, 9 * 1E3);
+      return null;
     };
     source.onmessage = function(e) {
-      var data = e.data;
-      var event = cljs.reader.read_string.call(null, data);
-      return on_message.call(null, event);
+      var data_20301 = e.data;
+      var event_20302 = cljs.reader.read_string.call(null, data_20301);
+      on_message.call(null, event_20302);
+      return null;
     };
     return source;
   };
   var event_source = function(url, var_args) {
-    var p__20000 = null;
+    var p__20298 = null;
     if (arguments.length > 1) {
-      p__20000 = cljs.core.array_seq(Array.prototype.slice.call(arguments, 1), 0);
+      p__20298 = cljs.core.array_seq(Array.prototype.slice.call(arguments, 1), 0);
     }
-    return event_source__delegate.call(this, url, p__20000);
+    return event_source__delegate.call(this, url, p__20298);
   };
   event_source.cljs$lang$maxFixedArity = 1;
-  event_source.cljs$lang$applyTo = function(arglist__20003) {
-    var url = cljs.core.first(arglist__20003);
-    var p__20000 = cljs.core.rest(arglist__20003);
-    return event_source__delegate(url, p__20000);
+  event_source.cljs$lang$applyTo = function(arglist__20303) {
+    var url = cljs.core.first(arglist__20303);
+    var p__20298 = cljs.core.rest(arglist__20303);
+    return event_source__delegate(url, p__20298);
   };
   event_source.cljs$core$IFn$_invoke$arity$variadic = event_source__delegate;
   return event_source;
@@ -47956,8 +47969,12 @@ gin.lobby.core.csrf_token = function csrf_token() {
   return goog.dom.getElement("csrf-token").getAttribute("value");
 };
 gin.lobby.core.error_handler = function error_handler() {
-  console.log("Error, reloading page");
+  console.log("Error, reload page");
   return gin.ui.dom_helpers.show_element.call(null, gin.ui.dom_helpers.get_element.call(null, "network-header-error"), true);
+};
+gin.lobby.core.goto_url = function goto_url(url) {
+  console.log("Set location to : ", url);
+  return window.location = url;
 };
 gin.lobby.core.POST_ACTION = function POST_ACTION(url, options) {
   return ajax.core.POST.call(null, url, cljs.core.merge.call(null, new cljs.core.PersistentArrayMap(null, 5, [new cljs.core.Keyword(null, "params", "params", 4313443576), cljs.core.PersistentArrayMap.EMPTY, new cljs.core.Keyword(null, "handler", "handler", 1706707644), function(res) {
@@ -47976,24 +47993,31 @@ gin.lobby.core.POST_ACTION = function POST_ACTION(url, options) {
 gin.lobby.core.invite = function invite(slug) {
   return gin.lobby.core.POST_ACTION.call(null, "/lobby/invite", new cljs.core.PersistentArrayMap(null, 1, [new cljs.core.Keyword(null, "params", "params", 4313443576), new cljs.core.PersistentArrayMap(null, 1, [new cljs.core.Keyword(null, "opp-slug", "opp-slug", 765077115), slug], null)], null));
 };
+gin.lobby.core.play = function play(slug) {
+  return gin.lobby.core.POST_ACTION.call(null, "/lobby/play", new cljs.core.PersistentArrayMap(null, 1, [new cljs.core.Keyword(null, "params", "params", 4313443576), new cljs.core.PersistentArrayMap(null, 1, [new cljs.core.Keyword(null, "opp-slug", "opp-slug", 765077115), slug], null)], null));
+};
+gin.lobby.core.accept_play = function accept_play(slug) {
+  return gin.lobby.core.POST_ACTION.call(null, "/lobby/start", new cljs.core.PersistentArrayMap(null, 1, [new cljs.core.Keyword(null, "params", "params", 4313443576), new cljs.core.PersistentArrayMap(null, 1, [new cljs.core.Keyword(null, "opp-slug", "opp-slug", 765077115), slug], null)], null));
+};
 gin.lobby.core.Item = quiescent.component.call(null, function(opp) {
   return quiescent.dom.li.call(null, new cljs.core.PersistentArrayMap(null, 1, [new cljs.core.Keyword(null, "className", "className", 1004015509), "list-group-item"], null), function() {
-    var vec__20014 = cljs.core.truth_((new cljs.core.Keyword(null, "available", "available", 4574969403)).cljs$core$IFn$_invoke$arity$1(opp)) ? new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, ["Play", function(_) {
+    var vec__20336 = cljs.core.truth_((new cljs.core.Keyword(null, "available", "available", 4574969403)).cljs$core$IFn$_invoke$arity$1(opp)) ? new cljs.core.PersistentVector(null, 3, 5, cljs.core.PersistentVector.EMPTY_NODE, ["Play", "btn-success", function(_) {
+      return gin.lobby.core.play.call(null, (new cljs.core.Keyword(null, "slug", "slug", 1017437725)).cljs$core$IFn$_invoke$arity$1(opp));
+    }], null) : cljs.core.truth_((new cljs.core.Keyword(null, "invited", "invited", 2973935085)).cljs$core$IFn$_invoke$arity$1(opp)) ? new cljs.core.PersistentVector(null, 3, 5, cljs.core.PersistentVector.EMPTY_NODE, ["Awaiting invite reply ...", "btn-disabled", function(_) {
       return null;
-    }], null) : cljs.core.truth_((new cljs.core.Keyword(null, "invited", "invited", 2973935085)).cljs$core$IFn$_invoke$arity$1(opp)) ? new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, ["Awaiting invite reply ...", function(_) {
-      return null;
-    }], null) : new cljs.core.Keyword(null, "else", "else", 1017020587) ? new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, ["Invite", function(_) {
+    }], null) : new cljs.core.Keyword(null, "else", "else", 1017020587) ? new cljs.core.PersistentVector(null, 3, 5, cljs.core.PersistentVector.EMPTY_NODE, ["Invite", "btn-primary", function(_) {
       return gin.lobby.core.invite.call(null, (new cljs.core.Keyword(null, "slug", "slug", 1017437725)).cljs$core$IFn$_invoke$arity$1(opp));
     }], null) : null;
-    var text = cljs.core.nth.call(null, vec__20014, 0, null);
-    var f = cljs.core.nth.call(null, vec__20014, 1, null);
-    return quiescent.dom.div.call(null, cljs.core.PersistentArrayMap.EMPTY, quiescent.dom.label.call(null, new cljs.core.PersistentArrayMap(null, 1, [new cljs.core.Keyword(null, "className", "className", 1004015509), "opp-name"], null), (new cljs.core.Keyword(null, "username", "username", 748190792)).cljs$core$IFn$_invoke$arity$1(opp)), quiescent.dom.button.call(null, new cljs.core.PersistentArrayMap(null, 2, [new cljs.core.Keyword(null, "className", "className", 1004015509), "btn btn-primary btn-right btn-lobby-list", 
-    new cljs.core.Keyword(null, "onClick", "onClick", 3956969051), f], null), text));
+    var text = cljs.core.nth.call(null, vec__20336, 0, null);
+    var btn_class = cljs.core.nth.call(null, vec__20336, 1, null);
+    var f = cljs.core.nth.call(null, vec__20336, 2, null);
+    return quiescent.dom.div.call(null, cljs.core.PersistentArrayMap.EMPTY, quiescent.dom.label.call(null, new cljs.core.PersistentArrayMap(null, 1, [new cljs.core.Keyword(null, "className", "className", 1004015509), "opp-name"], null), (new cljs.core.Keyword(null, "username", "username", 748190792)).cljs$core$IFn$_invoke$arity$1(opp)), quiescent.dom.button.call(null, new cljs.core.PersistentArrayMap(null, 2, [new cljs.core.Keyword(null, "className", "className", 1004015509), [cljs.core.str("btn btn-right btn-lobby-list "), 
+    cljs.core.str(btn_class)].join(""), new cljs.core.Keyword(null, "onClick", "onClick", 3956969051), f], null), text));
   }());
 });
 gin.lobby.core.OppList = quiescent.component.call(null, function(opps) {
-  return cljs.core.apply.call(null, quiescent.dom.ul, new cljs.core.PersistentArrayMap(null, 2, [new cljs.core.Keyword(null, "id", "id", 1013907597), "opp-list", new cljs.core.Keyword(null, "className", "className", 1004015509), "list-group opp-list-frame"], null), cljs.core.seq.call(null, opps) ? cljs.core.map.call(null, function(p1__20015_SHARP_) {
-    return gin.lobby.core.Item.call(null, cljs.core.val.call(null, p1__20015_SHARP_));
+  return cljs.core.apply.call(null, quiescent.dom.ul, new cljs.core.PersistentArrayMap(null, 2, [new cljs.core.Keyword(null, "id", "id", 1013907597), "opp-list", new cljs.core.Keyword(null, "className", "className", 1004015509), "list-group opp-list-frame"], null), cljs.core.seq.call(null, opps) ? cljs.core.map.call(null, function(p1__20337_SHARP_) {
+    return gin.lobby.core.Item.call(null, cljs.core.val.call(null, p1__20337_SHARP_));
   }, cljs.core.sort_by.call(null, cljs.core.key, opps)) : new cljs.core.PersistentVector(null, 1, 5, cljs.core.PersistentVector.EMPTY_NODE, [quiescent.dom.li.call(null, new cljs.core.PersistentArrayMap(null, 1, [new cljs.core.Keyword(null, "className", "className", 1004015509), "list-group-item"], null), "No human opponents available")], null));
 });
 gin.lobby.core.start_quiescent = function start_quiescent(opps) {
@@ -48019,7 +48043,21 @@ gin.lobby.core.main = function main() {
           return cljs.core.swap_BANG_.call(null, opps, cljs.core.assoc, (new cljs.core.Keyword(null, "slug", "slug", 1017437725)).cljs$core$IFn$_invoke$arity$1(event), new cljs.core.PersistentArrayMap(null, 3, [new cljs.core.Keyword(null, "slug", "slug", 1017437725), (new cljs.core.Keyword(null, "slug", "slug", 1017437725)).cljs$core$IFn$_invoke$arity$1(event), new cljs.core.Keyword(null, "username", "username", 748190792), (new cljs.core.Keyword(null, "username", "username", 748190792)).cljs$core$IFn$_invoke$arity$1(event), 
           new cljs.core.Keyword(null, "invited", "invited", 2973935085), true], null));
         } else {
-          return null;
+          if (cljs.core._EQ_.call(null, (new cljs.core.Keyword(null, "type", "type", 1017479852)).cljs$core$IFn$_invoke$arity$1(event), new cljs.core.Keyword(null, "available", "available", 4574969403))) {
+            return cljs.core.swap_BANG_.call(null, opps, cljs.core.assoc, (new cljs.core.Keyword(null, "slug", "slug", 1017437725)).cljs$core$IFn$_invoke$arity$1(event), new cljs.core.PersistentArrayMap(null, 3, [new cljs.core.Keyword(null, "slug", "slug", 1017437725), (new cljs.core.Keyword(null, "slug", "slug", 1017437725)).cljs$core$IFn$_invoke$arity$1(event), new cljs.core.Keyword(null, "username", "username", 748190792), (new cljs.core.Keyword(null, "username", "username", 748190792)).cljs$core$IFn$_invoke$arity$1(event), 
+            new cljs.core.Keyword(null, "available", "available", 4574969403), true], null));
+          } else {
+            if (cljs.core._EQ_.call(null, (new cljs.core.Keyword(null, "type", "type", 1017479852)).cljs$core$IFn$_invoke$arity$1(event), new cljs.core.Keyword(null, "play", "play", 1017347750))) {
+              gin.lobby.core.accept_play.call(null, (new cljs.core.Keyword(null, "slug", "slug", 1017437725)).cljs$core$IFn$_invoke$arity$1(event));
+              return opps;
+            } else {
+              if (cljs.core._EQ_.call(null, (new cljs.core.Keyword(null, "type", "type", 1017479852)).cljs$core$IFn$_invoke$arity$1(event), new cljs.core.Keyword(null, "game-created", "game-created", 3250098047))) {
+                return gin.lobby.core.goto_url.call(null, (new cljs.core.Keyword(null, "url", "url", 1014020321)).cljs$core$IFn$_invoke$arity$1(event));
+              } else {
+                return null;
+              }
+            }
+          }
         }
       }
     }

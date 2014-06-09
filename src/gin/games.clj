@@ -119,8 +119,8 @@
   (let [game (:event/game event)]
     (str {:event :game-created
           :game-id (:game/id game)
-          :player1 (get-in game [:game/player1 :account/name])
-          :player2 (get-in game [:game/player2 :account/name])
+          :player1 (get-in game [:game/player1 :account/username])
+          :player2 (get-in game [:game/player2 :account/username])
           :us player})))
 
 (defmethod event-to-msg :deal
@@ -230,7 +230,7 @@
 
 (defmethod event-to-msg :default
   [event player]
-  (str (:event/type event)))
+  nil)
 
 (defn event-join-game [game player]
   {:event :join-game
@@ -292,14 +292,18 @@
                                              (catch Exception e nil))
                              conn (get-in ctx [:request :conn])
                              listen (get-in ctx [:request :listen])
-                             here-since (.getTime (java.util.Date.))
                              player (get-in ctx [:player])
                              game (get-in ctx [:game])
                              game-id (:db/id game)
+
+                             here-since (java.util.Date.)
+
                              ;; sent summary to join game in progress or
                              ;; start from the beginning
                              start-from (if start-from
-                                          start-from
+                                          (do
+                                            (async/put! c ": start-of-stream\r\n\r\n")
+                                            start-from)
                                           (if (get-in ctx [:game :game/turn])
                                             (let [db (d/entity-db (get-in ctx [:game]))
                                                   latest-tx (get-in ctx [:game :game/last-event :event/tx :db/id])
@@ -313,22 +317,35 @@
                                             0 ;; game hasn't started
                                             ;; yet, sent everything
                                             ;; from the beginning
-                                            ))]
+                                            ))
+                             in (chan)
+                             msg-to-data (fn [msg]
+                                           (let [db (:db-after msg)
+                                                 t (or (d/as-of-t db)
+                                                       (d/basis-t db))
+                                                 event (:game/last-event (d/entity db (:db/id game)))]
+                                             (debug "EVent in games" 
+                                                    (:slug (friend/current-authentication (:request ctx)))
+                                                    event
+                                                    (:event/type event)
+                                                    
+                                                    (pr-str here-since))
+                                             (when-let [event-str (event-to-msg event player)]
+                                               (str "id: " t "\r\n"
+                                                    "data: "
+                                                    event-str
+                                                    "\r\n\r\n"))))]
+                         (go (loop []
+                               (when-let [msg (<! in)]
+                                 (when-let [data (msg-to-data msg)]
+                                   (when-not (>! c data)
+                                     (close! in)))
+                                 (recur)))
+                             (close! c))
                          (dd/stream-from conn listen start-from
                                          game-id
                                          :game/last-event
-                                         (async/map>
-                                          (fn [msg]
-                                            (let [db (:db-after msg)
-                                                  t (or (d/as-of-t db)
-                                                        (d/basis-t db))
-                                                  event (:game/last-event (d/entity db (:db/id game)))]
-
-                                              (str "id: " t "\r\n"
-                                                   "data: "
-                                                   (spy (event-to-msg event player))
-                                                   "\r\n\r\n")))
-                                          c))
+                                         in)
                          c)})))
 
 (defroutes games-routes

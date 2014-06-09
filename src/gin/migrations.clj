@@ -320,6 +320,11 @@
                             :db/ident :account/invites
                             :db/valueType :db.type/ref
                             :db/cardinality :db.cardinality/many
+                            :db.install/_attribute :db.part/db}
+                           {:db/id (d/tempid :db.part/db)
+                            :db/ident :account/play
+                            :db/valueType :db.type/ref
+                            :db/cardinality :db.cardinality/one
                             :db.install/_attribute :db.part/db}]))
        :down identity}]
    ])

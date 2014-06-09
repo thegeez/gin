@@ -14,8 +14,11 @@ goog.require('gin.ui.dom_helpers');
 goog.require('gin.ui.dom_helpers');
 gin.lobby.core.csrf_token = (function csrf_token(){return goog.dom.getElement("csrf-token").getAttribute("value");
 });
-gin.lobby.core.error_handler = (function error_handler(){console.log("Error, reloading page");
+gin.lobby.core.error_handler = (function error_handler(){console.log("Error, reload page");
 return gin.ui.dom_helpers.show_element.call(null,gin.ui.dom_helpers.get_element.call(null,"network-header-error"),true);
+});
+gin.lobby.core.goto_url = (function goto_url(url){console.log("Set location to : ",url);
+return window.location = url;
 });
 gin.lobby.core.POST_ACTION = (function POST_ACTION(url,options){return ajax.core.POST.call(null,url,cljs.core.merge.call(null,new cljs.core.PersistentArrayMap(null, 5, [new cljs.core.Keyword(null,"params","params",4313443576),cljs.core.PersistentArrayMap.EMPTY,new cljs.core.Keyword(null,"handler","handler",1706707644),(function (res){return null;
 }),new cljs.core.Keyword(null,"error-handler","error-handler",1866823671),(function (res){return gin.lobby.core.error_handler.call(null);
@@ -28,19 +31,23 @@ gin.lobby.core.POST_ACTION = (function POST_ACTION(url,options){return ajax.core
 });
 gin.lobby.core.invite = (function invite(slug){return gin.lobby.core.POST_ACTION.call(null,"/lobby/invite",new cljs.core.PersistentArrayMap(null, 1, [new cljs.core.Keyword(null,"params","params",4313443576),new cljs.core.PersistentArrayMap(null, 1, [new cljs.core.Keyword(null,"opp-slug","opp-slug",765077115),slug], null)], null));
 });
+gin.lobby.core.play = (function play(slug){return gin.lobby.core.POST_ACTION.call(null,"/lobby/play",new cljs.core.PersistentArrayMap(null, 1, [new cljs.core.Keyword(null,"params","params",4313443576),new cljs.core.PersistentArrayMap(null, 1, [new cljs.core.Keyword(null,"opp-slug","opp-slug",765077115),slug], null)], null));
+});
+gin.lobby.core.accept_play = (function accept_play(slug){return gin.lobby.core.POST_ACTION.call(null,"/lobby/start",new cljs.core.PersistentArrayMap(null, 1, [new cljs.core.Keyword(null,"params","params",4313443576),new cljs.core.PersistentArrayMap(null, 1, [new cljs.core.Keyword(null,"opp-slug","opp-slug",765077115),slug], null)], null));
+});
 /**
 * 
 */
-gin.lobby.core.Item = quiescent.component.call(null,(function (opp){return quiescent.dom.li.call(null,new cljs.core.PersistentArrayMap(null, 1, [new cljs.core.Keyword(null,"className","className",1004015509),"list-group-item"], null),(function (){var vec__20014 = (cljs.core.truth_(new cljs.core.Keyword(null,"available","available",4574969403).cljs$core$IFn$_invoke$arity$1(opp))?new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, ["Play",(function (_){return null;
-})], null):(cljs.core.truth_(new cljs.core.Keyword(null,"invited","invited",2973935085).cljs$core$IFn$_invoke$arity$1(opp))?new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, ["Awaiting invite reply ...",(function (_){return null;
-})], null):((new cljs.core.Keyword(null,"else","else",1017020587))?new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, ["Invite",(function (_){return gin.lobby.core.invite.call(null,new cljs.core.Keyword(null,"slug","slug",1017437725).cljs$core$IFn$_invoke$arity$1(opp));
-})], null):null)));var text = cljs.core.nth.call(null,vec__20014,0,null);var f = cljs.core.nth.call(null,vec__20014,1,null);return quiescent.dom.div.call(null,cljs.core.PersistentArrayMap.EMPTY,quiescent.dom.label.call(null,new cljs.core.PersistentArrayMap(null, 1, [new cljs.core.Keyword(null,"className","className",1004015509),"opp-name"], null),new cljs.core.Keyword(null,"username","username",748190792).cljs$core$IFn$_invoke$arity$1(opp)),quiescent.dom.button.call(null,new cljs.core.PersistentArrayMap(null, 2, [new cljs.core.Keyword(null,"className","className",1004015509),"btn btn-primary btn-right btn-lobby-list",new cljs.core.Keyword(null,"onClick","onClick",3956969051),f], null),text));
+gin.lobby.core.Item = quiescent.component.call(null,(function (opp){return quiescent.dom.li.call(null,new cljs.core.PersistentArrayMap(null, 1, [new cljs.core.Keyword(null,"className","className",1004015509),"list-group-item"], null),(function (){var vec__20336 = (cljs.core.truth_(new cljs.core.Keyword(null,"available","available",4574969403).cljs$core$IFn$_invoke$arity$1(opp))?new cljs.core.PersistentVector(null, 3, 5, cljs.core.PersistentVector.EMPTY_NODE, ["Play","btn-success",(function (_){return gin.lobby.core.play.call(null,new cljs.core.Keyword(null,"slug","slug",1017437725).cljs$core$IFn$_invoke$arity$1(opp));
+})], null):(cljs.core.truth_(new cljs.core.Keyword(null,"invited","invited",2973935085).cljs$core$IFn$_invoke$arity$1(opp))?new cljs.core.PersistentVector(null, 3, 5, cljs.core.PersistentVector.EMPTY_NODE, ["Awaiting invite reply ...","btn-disabled",(function (_){return null;
+})], null):((new cljs.core.Keyword(null,"else","else",1017020587))?new cljs.core.PersistentVector(null, 3, 5, cljs.core.PersistentVector.EMPTY_NODE, ["Invite","btn-primary",(function (_){return gin.lobby.core.invite.call(null,new cljs.core.Keyword(null,"slug","slug",1017437725).cljs$core$IFn$_invoke$arity$1(opp));
+})], null):null)));var text = cljs.core.nth.call(null,vec__20336,0,null);var btn_class = cljs.core.nth.call(null,vec__20336,1,null);var f = cljs.core.nth.call(null,vec__20336,2,null);return quiescent.dom.div.call(null,cljs.core.PersistentArrayMap.EMPTY,quiescent.dom.label.call(null,new cljs.core.PersistentArrayMap(null, 1, [new cljs.core.Keyword(null,"className","className",1004015509),"opp-name"], null),new cljs.core.Keyword(null,"username","username",748190792).cljs$core$IFn$_invoke$arity$1(opp)),quiescent.dom.button.call(null,new cljs.core.PersistentArrayMap(null, 2, [new cljs.core.Keyword(null,"className","className",1004015509),[cljs.core.str("btn btn-right btn-lobby-list "),cljs.core.str(btn_class)].join(''),new cljs.core.Keyword(null,"onClick","onClick",3956969051),f], null),text));
 })());
 }));
 /**
 * 
 */
-gin.lobby.core.OppList = quiescent.component.call(null,(function (opps){return cljs.core.apply.call(null,quiescent.dom.ul,new cljs.core.PersistentArrayMap(null, 2, [new cljs.core.Keyword(null,"id","id",1013907597),"opp-list",new cljs.core.Keyword(null,"className","className",1004015509),"list-group opp-list-frame"], null),((cljs.core.seq.call(null,opps))?cljs.core.map.call(null,(function (p1__20015_SHARP_){return gin.lobby.core.Item.call(null,cljs.core.val.call(null,p1__20015_SHARP_));
+gin.lobby.core.OppList = quiescent.component.call(null,(function (opps){return cljs.core.apply.call(null,quiescent.dom.ul,new cljs.core.PersistentArrayMap(null, 2, [new cljs.core.Keyword(null,"id","id",1013907597),"opp-list",new cljs.core.Keyword(null,"className","className",1004015509),"list-group opp-list-frame"], null),((cljs.core.seq.call(null,opps))?cljs.core.map.call(null,(function (p1__20337_SHARP_){return gin.lobby.core.Item.call(null,cljs.core.val.call(null,p1__20337_SHARP_));
 }),cljs.core.sort_by.call(null,cljs.core.key,opps)):new cljs.core.PersistentVector(null, 1, 5, cljs.core.PersistentVector.EMPTY_NODE, [quiescent.dom.li.call(null,new cljs.core.PersistentArrayMap(null, 1, [new cljs.core.Keyword(null,"className","className",1004015509),"list-group-item"], null),"No human opponents available")], null)));
 }));
 gin.lobby.core.start_quiescent = (function start_quiescent(opps){cljs.core.add_watch.call(null,opps,new cljs.core.Keyword(null,"quiescent","quiescent",2379764173),(function (_,___$1,old,state){return quiescent.render.call(null,gin.lobby.core.OppList.call(null,state),gin.ui.dom_helpers.get_element.call(null,"opponent-list"));
@@ -59,7 +66,20 @@ if(cljs.core._EQ_.call(null,new cljs.core.Keyword(null,"type","type",1017479852)
 {if(cljs.core._EQ_.call(null,new cljs.core.Keyword(null,"type","type",1017479852).cljs$core$IFn$_invoke$arity$1(event),new cljs.core.Keyword(null,"invited","invited",2973935085)))
 {return cljs.core.swap_BANG_.call(null,opps,cljs.core.assoc,new cljs.core.Keyword(null,"slug","slug",1017437725).cljs$core$IFn$_invoke$arity$1(event),new cljs.core.PersistentArrayMap(null, 3, [new cljs.core.Keyword(null,"slug","slug",1017437725),new cljs.core.Keyword(null,"slug","slug",1017437725).cljs$core$IFn$_invoke$arity$1(event),new cljs.core.Keyword(null,"username","username",748190792),new cljs.core.Keyword(null,"username","username",748190792).cljs$core$IFn$_invoke$arity$1(event),new cljs.core.Keyword(null,"invited","invited",2973935085),true], null));
 } else
+{if(cljs.core._EQ_.call(null,new cljs.core.Keyword(null,"type","type",1017479852).cljs$core$IFn$_invoke$arity$1(event),new cljs.core.Keyword(null,"available","available",4574969403)))
+{return cljs.core.swap_BANG_.call(null,opps,cljs.core.assoc,new cljs.core.Keyword(null,"slug","slug",1017437725).cljs$core$IFn$_invoke$arity$1(event),new cljs.core.PersistentArrayMap(null, 3, [new cljs.core.Keyword(null,"slug","slug",1017437725),new cljs.core.Keyword(null,"slug","slug",1017437725).cljs$core$IFn$_invoke$arity$1(event),new cljs.core.Keyword(null,"username","username",748190792),new cljs.core.Keyword(null,"username","username",748190792).cljs$core$IFn$_invoke$arity$1(event),new cljs.core.Keyword(null,"available","available",4574969403),true], null));
+} else
+{if(cljs.core._EQ_.call(null,new cljs.core.Keyword(null,"type","type",1017479852).cljs$core$IFn$_invoke$arity$1(event),new cljs.core.Keyword(null,"play","play",1017347750)))
+{gin.lobby.core.accept_play.call(null,new cljs.core.Keyword(null,"slug","slug",1017437725).cljs$core$IFn$_invoke$arity$1(event));
+return opps;
+} else
+{if(cljs.core._EQ_.call(null,new cljs.core.Keyword(null,"type","type",1017479852).cljs$core$IFn$_invoke$arity$1(event),new cljs.core.Keyword(null,"game-created","game-created",3250098047)))
+{return gin.lobby.core.goto_url.call(null,new cljs.core.Keyword(null,"url","url",1014020321).cljs$core$IFn$_invoke$arity$1(event));
+} else
 {return null;
+}
+}
+}
 }
 }
 }

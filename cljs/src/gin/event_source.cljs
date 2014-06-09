@@ -1,5 +1,6 @@
 (ns gin.event-source
-  (:require [cljs.reader :as reader]))
+  (:require [cljs.reader :as reader]
+            [goog.Timer :as gtimer]))
 
 (defn event-source [url & {:keys [on-open on-message on-error]
                            :or {on-open (fn [])
@@ -10,16 +11,26 @@
     (set! (.-onopen source)
           (fn []
             (reset! open true)
-            (on-open)))
+            (on-open)
+            nil))
     (set! (.-onerror source)
           (fn [e]
             ;; can't connect is a problem, disconnecting is not
             (when-not @open
               (on-error))
-            (reset! open false)))
+            (reset! open false)
+            (goog.Timer/callOnce (fn []
+                                   ;; this sometimes happens in
+                                   ;; firefox
+                                   (.log js/console (str "Reconnect check" (.-readyState source) EventSource/CLOSED (= (.-readyState source) EventSource/CLOSED)))
+                                   (when (= (.-readyState source) EventSource/CLOSED)
+                                     (event-source url :on-open on-open :on-message on-message :on-error on-error)))
+                                 (* 9 1000))
+            nil))
     (set! (.-onmessage source)
           (fn [e]
             (let [data (.-data e)
                   event (reader/read-string data)]
-              (on-message event))))
+              (on-message event))
+            nil))
     source))

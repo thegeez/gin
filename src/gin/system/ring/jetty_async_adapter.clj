@@ -41,11 +41,15 @@
                                         (onComplete [c]
                                           (close! chunks))
                                         (onTimeout [c]
-                                          (.complete c))))
+                                          (try (.complete c)
+                                               (catch Exception e
+                                                 nil)))))
             (go (try
                   (loop []
                     (if-let [chunk (<! chunks)]
-                      (do (doto (.getWriter response)
+                      (do 
+                        (debug "WRITING CHUNK: " (subs chunk 0 (min 40 (count chunk))))
+                        (doto (.getWriter response)
                             (.write chunk)
                             (.flush))
                           (when (.checkError (.getWriter response))

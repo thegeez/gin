@@ -162,6 +162,10 @@
 (defn unbounded-buffer []
   (UnboundedBuffer. (LinkedList.)))
 
+(defn close-and-drain! [c]
+  (close! c)
+  (async/into [] c))
+
 (defn stream-from [conn listen from eid attr out]
   ;; out <- <tx-report for tx t> <tx-report for tx t+1> .. <tx-report for tx+n> 
   ;; this stream is the concatenation of db's at tx t from (db conn)
@@ -191,13 +195,21 @@
                     :db-before :not-reconstructed
                     :tx-data :not-reconstructed
                     :tempids :not-reconstructed})))
-        _ (tap listen
-               (filter> (fn [{:keys [db-after tx-data] :as txr}]
-                          (let [game-e (d/entity db-after eid)]
-                            (seq (q '{:find [?e]
-                                      :in [$ ?attr ?game-e]
-                                      :where [[?game-e ?attr ?e _ true]]}
-                                    tx-data (d/entid db-after attr) (:db/id game-e))))) stream))
+        from-tap (chan)
+        relevant-tx (fn [{:keys [db-after tx-data] :as txr}]
+                      (let [game-e (d/entity db-after eid)]
+                        (seq (q '{:find [?e]
+                                  :in [$ ?attr ?game-e]
+                                  :where [[?game-e ?attr ?e _ true]]}
+                                tx-data (d/entid db-after attr) (:db/id game-e)))))
+        _ (go (loop []
+                (when-let [txr (<! from-tap)]
+                  (when (relevant-tx txr)
+                    (when-not (>! stream txr)
+                      (close! from-tap)))
+                  (recur)))
+              (close! stream))
+        _ (tap listen from-tap)
         res (go
               (try
                 (loop [in catch-up
@@ -215,12 +227,12 @@
                                     false)
                                   true))
                             (recur in t false)
-                            (untap listen stream))
+                            (close-and-drain! from-tap))
                           ;; usual case
                           (if (< last-t t)
                             (if (>! out txr)
                               (recur in t false)
-                              (untap listen stream))
+                              (close-and-drain! from-tap))
                             (recur in last-t false))))
                       ;; when in is closed switch from catch-up to stream
                       (if (= in catch-up)
