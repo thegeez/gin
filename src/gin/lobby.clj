@@ -236,8 +236,8 @@
                                                             [?e :game/player2 ?p]]]))]
                              (async/put! out
                                          (str "data: "
-                                              (spy (str {:type :game-created
-                                                         :url (str "/games/" game-id)}))
+                                              (str {:type :game-created
+                                                    :url (str "/games/" game-id)})
                                               "\r\n\r\n")))
                            (let [in (chan)
                                  report-to-msg (fn [report]
@@ -253,36 +253,36 @@
                                                             (not (contains? opps-e v)))
                                                        (let [opp (d/entity db v)]
                                                          (str "data: "
-                                                              (spy (str {:type :joined
-                                                                         :slug (:account/slug opp)
-                                                                         :username (:account/username opp)}))
+                                                              (str {:type :joined
+                                                                    :slug (:account/slug opp)
+                                                                    :username (:account/username opp)})
                                                               "\r\n\r\n"))
                                                        (and added
                                                             (= e (:db/id us))
                                                             (= a invites-attr))
                                                        (let [opp (d/entity db v)]
                                                          (str "data: "
-                                                              (spy (str {:type :invited
-                                                                         :slug (:account/slug opp)
-                                                                         :username (:account/username opp)}))
+                                                              (str {:type :invited
+                                                                    :slug (:account/slug opp)
+                                                                    :username (:account/username opp)})
                                                               "\r\n\r\n"))
                                                        (and added
                                                             (= a invites-attr)
                                                             (= v (:db/id us)))
                                                        (let [opp (d/entity db e)]
                                                          (str "data: "
-                                                              (spy (str {:type :available
-                                                                         :slug (:account/slug opp)
-                                                                         :username (:account/username opp)}))
+                                                              (str {:type :available
+                                                                    :slug (:account/slug opp)
+                                                                    :username (:account/username opp)})
                                                               "\r\n\r\n"))
                                                        (and added
                                                             (= a play-attr)
                                                             (= v (:db/id us)))
                                                        (let [opp (d/entity db e)]
                                                          (str "data: "
-                                                              (spy (str {:type :play
-                                                                         :slug (:account/slug opp)
-                                                                         :username (:account/username opp)}))
+                                                              (str {:type :play
+                                                                    :slug (:account/slug opp)
+                                                                    :username (:account/username opp)})
                                                               "\r\n\r\n"))
                                                        (and added
                                                             (or (= a player1-attr)
@@ -290,8 +290,8 @@
                                                             (= v (:db/id us)))
                                                        (let [game (d/entity db e)]
                                                          (str "data: "
-                                                              (spy (str {:type :game-created
-                                                                         :url (str "/games/" (:game/id game))}))
+                                                              (str {:type :game-created
+                                                                    :url (str "/games/" (:game/id game))})
                                                               "\r\n\r\n"))
                                                        ))
                                                     tx-data)))]
