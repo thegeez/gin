@@ -46,7 +46,7 @@
   (-> (main-handler)
       ring/wrap-dev
       (ring/wrap-dev-cljs
-       "<script src=\"/public/js/gin.js\" type=\"text/javascript\"></script>"
+       "<script type=\"text/javascript\" src=\"/public/js/gin.js\"></script>"
        "<script src=\"http://fb.me/react-0.9.0.js\"></script>
         <script src=\"/public/js/gin-dev.js\" type=\"text/javascript\"></script>
         <script type=\"text/javascript\">goog.require('gin.core');</script>")))

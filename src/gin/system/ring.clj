@@ -89,7 +89,7 @@
   (fn [req]
     (let [res (handler req)]
       (if (and (.startsWith (get-in res [:headers "Content-Type"] "") "text/html" )
-               (not (get-in req [:query-params "dev"])))
+               (not (.contains ^String (str "" (get req :query-string)) "dev")))
         (update-in res [:body]
                    string/replace match replace)
         res))))
