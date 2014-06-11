@@ -12,6 +12,8 @@
             [clojure.core.async :refer [go <! close!] :as async]
             [clojure.core.async.impl.protocols :as async-protocols]))
 
+(def IE_PADDING_COMMENT (str ": " (apply str (repeatedly 2056 #(long (* (rand) 10)))) "\r\n\r\n"))
+
 ;; Based on ring-jetty-async-adapter by Mark McGranaghan
 ;; (https://github.com/mmcgrana/ring/tree/jetty-async)
 ;; This has failed write support
@@ -44,6 +46,13 @@
                                           (try (.complete c)
                                                (catch Exception e
                                                  nil)))))
+            ;; IE EventSource polyfill padding
+            (when (.contains (str "" (:query-string request-map)) "evs_preamble")
+              (try (doto (.getWriter response)
+                     (.write IE_PADDING_COMMENT)
+                     (.flush))
+                   (catch Exception e
+                     nil)))
             (go (try
                   (loop []
                     (if-let [chunk (<! chunks)]
