@@ -191,8 +191,7 @@
                              [:div.discard_pile {:id "discard_pile"}]]
                             [:div {:id "our_region"
                                    :class "region our_region"}]]))
-    (dom/append (dom/build [:div.msg {:id "msg"}]))
-    (dom/append (dom/build [:div {:class (str "offscreen_loading card card_back")}])))
+    (dom/append (dom/build [:div.msg {:id "msg"}])))
   (let [container-wrap (let [r (dom/get-bounds (dom/get-element "game-panel"))]
                          (goog.math.Rect. (. r -left) (. r -top) (- (. r -width) 81) (- (. r -height) 96 37)))
         [pile-x pile-y] (pile-position)
