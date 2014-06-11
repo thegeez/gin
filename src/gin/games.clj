@@ -287,8 +287,10 @@
                            "Cache-Control" "no-cache"
                            "Connection" "keep-alive"}
                  :body (let [c (chan)
-                             start-from (try (inc (Long/parseLong (get-in ctx [:request :headers "last-event-id"])))
-                                             (catch Exception e nil))
+                             start-from (or (try (inc (Long/parseLong (get-in ctx [:request :headers "last-event-id"])))
+                                                 (catch Exception e nil))
+                                            (try (inc (Long/parseLong (get-in ctx [:request :query-params "evs_last_event_id"])))
+                                             (catch Exception e nil)))
                              conn (get-in ctx [:request :conn])
                              listen (get-in ctx [:request :listen])
                              player (get-in ctx [:player])
