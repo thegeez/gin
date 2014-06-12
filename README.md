@@ -2,7 +2,7 @@
 
 Gin is a card game implemented with Clojure, ClojureScript and Datomic.
 
-More information at [http://thegeez.net/2014/06/12/gin_datomic.html]
+More information at http://thegeez.net/2014/06/12/gin_datomic.html
 
 ### Development
 This uses an in-process/in-memory only database. In the `user` namespace, through `lein repl/cider` etc.:
