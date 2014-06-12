@@ -17,7 +17,7 @@ This uses an in-process/in-memory only database. In the `user` namespace, throug
    java -jar target/gin-<version>-standalone.jar
 ```
 
-## Compiling the ClojureScript
+### Compiling the ClojureScript
 ```
    lein cljsbuild auto
 ```
